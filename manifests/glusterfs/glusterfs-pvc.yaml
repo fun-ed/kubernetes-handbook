@@ -1,0 +1,12 @@
+# HISTORICAL: Claim for the removed in-tree GlusterFS volume plugin.
+# 历史配置：GlusterFS in-tree 卷插件已移除；当前存储应使用 CSI 驱动。
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: glusterfs-nginx
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 8Gi

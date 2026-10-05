@@ -1,0 +1,20 @@
+# Copy examples/prevent-chmod to /var/lib/kubelet/seccomp/prevent-chmod
+# on every eligible node before applying this Pod.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: chmod-prevented
+spec:
+  securityContext:
+    seccompProfile:
+      type: Localhost
+      localhostProfile: prevent-chmod
+  containers:
+  - name: chmod
+    image: busybox:1.37.0
+    command:
+    - chmod
+    args:
+    - "666"
+    - /etc/hostname
+  restartPolicy: Never

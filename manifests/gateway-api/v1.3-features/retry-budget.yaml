@@ -1,0 +1,59 @@
+# Requires Gateway API v1.6.2 Experimental CRDs and a controller that implements XBackendTrafficPolicy.
+# The Traefik v3.7.13 Gateway provider docs do not establish support for this policy.
+# This policy constrains retry traffic; it does not configure retry attempts or conditions.
+# Source schema: https://github.com/kubernetes-sigs/gateway-api/blob/v1.6.2/config/crd/experimental/gateway.networking.x-k8s.io_xbackendtrafficpolicies.yaml
+apiVersion: gateway.networking.x-k8s.io/v1alpha1
+kind: XBackendTrafficPolicy
+metadata:
+  name: api-retry-budget
+  namespace: default
+spec:
+  targetRefs:
+  - group: ""
+    kind: Service
+    name: api-service
+  retryConstraint:
+    budget:
+      percent: 20
+      interval: 10s
+    minRetryRate:
+      count: 10
+      interval: 1s
+
+---
+apiVersion: gateway.networking.x-k8s.io/v1alpha1
+kind: XBackendTrafficPolicy
+metadata:
+  name: critical-service-retry-budget
+  namespace: default
+spec:
+  targetRefs:
+  - group: ""
+    kind: Service
+    name: critical-service
+  retryConstraint:
+    budget:
+      percent: 10
+      interval: 30s
+    minRetryRate:
+      count: 5
+      interval: 1s
+
+---
+apiVersion: gateway.networking.x-k8s.io/v1alpha1
+kind: XBackendTrafficPolicy
+metadata:
+  name: ha-service-retry-budget
+  namespace: default
+spec:
+  targetRefs:
+  - group: ""
+    kind: Service
+    name: ha-service
+  retryConstraint:
+    budget:
+      percent: 30
+      interval: 5s
+    minRetryRate:
+      count: 5
+      interval: 1s

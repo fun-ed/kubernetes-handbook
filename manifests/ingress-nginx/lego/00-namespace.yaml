@@ -1,0 +1,6 @@
+# HISTORICAL: Namespace for kube-lego, a retired certificate controller.
+# 历史配置：kube-lego 已停止维护。当前证书管理示例见 ../cert-manager/cluster-issuer.yaml。
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: kube-lego

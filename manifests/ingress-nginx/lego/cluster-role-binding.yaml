@@ -1,0 +1,14 @@
+# HISTORICAL: Cluster-wide RBAC for retired kube-lego.
+# 历史配置：kube-lego 已停止维护。当前证书管理示例见 ../cert-manager/cluster-issuer.yaml。
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  name: kube-lego
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kube-lego
+subjects:
+  - kind: ServiceAccount
+    name: kube-lego
+    namespace: kube-lego

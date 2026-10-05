@@ -1,0 +1,31 @@
+# Requires a LoadBalancer-capable provider and a reachable Windows node IP.
+# Replace the documentation-only IP before applying; this exposes RDP externally.
+apiVersion: v1
+kind: Service
+metadata:
+  name: rdp-to-node
+spec:
+  type: LoadBalancer
+  ports:
+  - protocol: TCP
+    port: 3389
+    targetPort: 3389
+---
+# Manually managed EndpointSlice. Replace 192.0.2.10 with the node's reachable IP.
+apiVersion: discovery.k8s.io/v1
+kind: EndpointSlice
+metadata:
+  name: rdp-to-node-1
+  labels:
+    kubernetes.io/service-name: rdp-to-node
+    endpointslice.kubernetes.io/managed-by: handbook-manual
+addressType: IPv4
+endpoints:
+- addresses:
+  - 192.0.2.10
+  conditions:
+    ready: true
+ports:
+- name: ""
+  port: 3389
+  protocol: TCP

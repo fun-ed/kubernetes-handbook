@@ -1,0 +1,44 @@
+# HISTORICAL: Old Prometheus services and NGINX annotations; use a current Gateway/controller setup instead.
+# 历史配置：此入口依赖旧版 Prometheus 服务名和已归档的 ingress-nginx。当前示例见 ../gateway-api/。
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    kubernetes.io/tls-acme: "true"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/auth-type: basic
+    nginx.ingress.kubernetes.io/auth-secret: basic-auth
+    nginx.ingress.kubernetes.io/auth-realm: "Authentication Required"
+  name: prometheus
+  namespace: monitoring
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - prometheus.example.com
+    secretName: prometheus-ingress-tls
+  - hosts:
+    - grafana.example.com
+    secretName: grafana-ingress-tls
+  rules:
+  - host: prometheus.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: kube-prometheus
+            port:
+              number: 9090
+  - host: grafana.example.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: kube-prometheus-grafana
+            port:
+              number: 80

@@ -1,0 +1,177 @@
+# Deployment/config/RBAC sources: https://github.com/kubernetes/node-problem-detector/tree/v1.36.0/deployment
+# CLI option source: https://github.com/kubernetes/node-problem-detector/blob/v1.36.0/cmd/options/options.go
+# RBAC source binds the Kubernetes built-in `system:node-problem-detector` ClusterRole: https://raw.githubusercontent.com/kubernetes/node-problem-detector/v1.36.0/deployment/rbac.yaml
+# The upstream deployment asset pins stale image v0.8.19; this manifest uses published image v1.36.0.
+# The v1.36.0 image accepts the upstream `--logtostderr` and monitor-config options; Kubernetes v1.37 compatibility remains unverified.
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: node-problem-detector
+  namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: npd-binding
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:node-problem-detector
+subjects:
+- kind: ServiceAccount
+  name: node-problem-detector
+  namespace: kube-system
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: node-problem-detector-config
+  namespace: kube-system
+data:
+  kernel-monitor.json: |
+    {
+      "plugin": "kmsg",
+      "logPath": "/dev/kmsg",
+      "lookback": "5m",
+      "bufferSize": 10,
+      "source": "kernel-monitor",
+      "conditions": [
+        {
+          "type": "ReadonlyFilesystem",
+          "reason": "FilesystemIsNotReadOnly",
+          "message": "Filesystem is not read-only"
+        }
+      ],
+      "rules": [
+        {
+          "type": "temporary",
+          "reason": "OOMKilling",
+          "pattern": "Kill process \\d+ (.+) score \\d+ or sacrifice child\\nKilled process \\d+ (.+) total-vm:\\d+kB, anon-rss:\\d+kB, file-rss:\\d+kB.*"
+        },
+        {
+          "type": "temporary",
+          "reason": "TaskHung",
+          "pattern": "task \\S+:\\w+ blocked for more than \\w+ seconds\\."
+        },
+        {
+          "type": "temporary",
+          "reason": "KernelOops",
+          "pattern": "BUG: unable to handle kernel NULL pointer dereference at .*"
+        },
+        {
+          "type": "permanent",
+          "condition": "ReadonlyFilesystem",
+          "reason": "FilesystemIsReadOnly",
+          "pattern": "Remounting filesystem read-only"
+        }
+      ]
+    }
+  readonly-monitor.json: |
+    {
+      "plugin": "kmsg",
+      "logPath": "/dev/kmsg",
+      "lookback": "5m",
+      "bufferSize": 10,
+      "source": "readonly-monitor",
+      "metricsReporting": true,
+      "conditions": [
+        {
+          "type": "ReadonlyFilesystem",
+          "reason": "FilesystemIsNotReadOnly",
+          "message": "Filesystem is not read-only"
+        }
+      ],
+      "rules": [
+        {
+          "type": "permanent",
+          "condition": "ReadonlyFilesystem",
+          "reason": "FilesystemIsReadOnly",
+          "pattern": "Remounting filesystem read-only"
+        }
+      ]
+    }
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: node-problem-detector
+  namespace: kube-system
+  labels:
+    app: node-problem-detector
+spec:
+  selector:
+    matchLabels:
+      app: node-problem-detector
+  template:
+    metadata:
+      labels:
+        app: node-problem-detector
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/os
+                operator: In
+                values:
+                - linux
+      containers:
+      - name: node-problem-detector
+        command:
+        - /node-problem-detector
+        - --logtostderr
+        - --config.system-log-monitor=/config/kernel-monitor.json,/config/readonly-monitor.json
+        image: registry.k8s.io/node-problem-detector/node-problem-detector:v1.36.0
+        imagePullPolicy: IfNotPresent
+        resources:
+          limits:
+            cpu: 10m
+            memory: 80Mi
+          requests:
+            cpu: 10m
+            memory: 80Mi
+        securityContext:
+          privileged: true
+        env:
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        volumeMounts:
+        - name: log
+          mountPath: /var/log
+          readOnly: true
+        - name: kmsg
+          mountPath: /dev/kmsg
+          readOnly: true
+        - name: localtime
+          mountPath: /etc/localtime
+          readOnly: true
+        - name: config
+          mountPath: /config
+          readOnly: true
+      serviceAccountName: node-problem-detector
+      volumes:
+      - name: log
+        hostPath:
+          path: /var/log/
+      - name: kmsg
+        hostPath:
+          path: /dev/kmsg
+      - name: localtime
+        hostPath:
+          path: /etc/localtime
+      - name: config
+        configMap:
+          name: node-problem-detector-config
+          items:
+          - key: kernel-monitor.json
+            path: kernel-monitor.json
+          - key: readonly-monitor.json
+            path: readonly-monitor.json
+      tolerations:
+      - effect: NoSchedule
+        operator: Exists
+      - effect: NoExecute
+        operator: Exists

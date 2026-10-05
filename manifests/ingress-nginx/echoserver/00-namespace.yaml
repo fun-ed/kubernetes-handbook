@@ -1,0 +1,6 @@
+# HISTORICAL: Namespace for the retired Ingress-NGINX echoserver example.
+# 历史配置：此命名空间属于已归档的 Ingress-NGINX 示例。当前路由示例见 ../../gateway-api/。
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: echoserver

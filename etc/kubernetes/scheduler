@@ -1,0 +1,9 @@
+# Historical example only: this static-host scheduler invocation belongs to an old hand-managed Kubernetes layout; it is not a v1.37.1 kubeadm configuration. Use kubeadm and the current scheduler reference: https://kubernetes.io/docs/reference/command-line-tools-reference/kube-scheduler/
+
+###
+# kubernetes scheduler config
+
+# default config should be adequate
+
+# Add your own!
+KUBE_SCHEDULER_ARGS="--leader-elect=true --address=127.0.0.1"

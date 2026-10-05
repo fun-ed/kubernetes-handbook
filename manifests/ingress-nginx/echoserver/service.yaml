@@ -1,0 +1,14 @@
+# HISTORICAL: Service for the retired Ingress-NGINX echoserver example.
+# 历史配置：此 Service 属于已归档的 Ingress-NGINX 示例，不是当前部署推荐。
+apiVersion: v1
+kind: Service
+metadata:
+  name: echoserver
+  namespace: echoserver
+spec:
+  ports:
+  - port: 80
+    targetPort: 8080
+    protocol: TCP
+  selector:
+    app: echoserver

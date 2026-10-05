@@ -1,0 +1,26 @@
+# HISTORICAL: Legacy Docker-backed kubelet unit; Kubernetes removed dockershim in v1.24.
+# 历史配置：此 kubelet 单元依赖 Docker 和旧版运行参数，不适用于 v1.37。当前说明见 ../README.md。
+[Unit]
+Description=Kubernetes Kubelet Server
+Documentation=https://github.com/GoogleCloudPlatform/kubernetes
+After=docker.service
+Requires=docker.service
+
+[Service]
+WorkingDirectory=/var/lib/kubelet
+EnvironmentFile=-/etc/kubernetes/config
+EnvironmentFile=-/etc/kubernetes/kubelet
+ExecStart=/usr/bin/kubelet \
+	    $KUBE_LOGTOSTDERR \
+	    $KUBE_LOG_LEVEL \
+	    $KUBELET_API_SERVER \
+	    $KUBELET_ADDRESS \
+	    $KUBELET_PORT \
+	    $KUBELET_HOSTNAME \
+	    $KUBE_ALLOW_PRIV \
+	    $KUBELET_POD_INFRA_CONTAINER \
+	    $KUBELET_ARGS
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

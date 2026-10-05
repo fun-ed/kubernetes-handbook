@@ -1,0 +1,12 @@
+# HISTORICAL: Basic-auth Secret for the retired Ingress-NGINX Dashboard example.
+# 历史配置：此凭据仅供已归档的 Dashboard 入口示例使用；当前替代方案见 ../../gateway-api/。
+# Before use, replace this invalid placeholder with an htpasswd line you generated yourself.
+# 使用前必须自行生成新的 htpasswd 行替换此无效占位符。
+apiVersion: v1
+stringData:
+  auth: REPLACE_WITH_GENERATED_HTPASSWD_LINE
+kind: Secret
+metadata:
+  name: basic-auth
+  namespace: kube-system
+type: Opaque

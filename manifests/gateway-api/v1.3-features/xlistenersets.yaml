@@ -1,0 +1,71 @@
+# Gateway API v1.6.2 Standard ListenerSet example; XListenerSet is not a served API.
+# Requires a controller that implements ListenerSet. Replace the sample controller name.
+# Traefik v3.7.13 docs specify Gateway API v1.6.1; ListenerSet support is unverified.
+# Create the referenced TLS Secret (gateway-system/wildcard-tls) before enabling HTTPS.
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: gateway-system
+  labels:
+    listener-set: approved
+
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: GatewayClass
+metadata:
+  name: example-gatewayclass
+spec:
+  controllerName: example.com/gateway-controller
+
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: shared-gateway
+  namespace: default
+spec:
+  gatewayClassName: example-gatewayclass
+  allowedListeners:
+    namespaces:
+      from: Selector
+      selector:
+        matchLabels:
+          listener-set: approved
+  listeners:
+  - name: local-http
+    port: 8080
+    protocol: HTTP
+    hostname: internal.example.com
+
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: ListenerSet
+metadata:
+  name: common-listeners
+  namespace: gateway-system
+spec:
+  parentRef:
+    group: gateway.networking.k8s.io
+    kind: Gateway
+    name: shared-gateway
+    namespace: default
+  listeners:
+  - name: http
+    port: 80
+    protocol: HTTP
+    hostname: "*.example.com"
+    allowedRoutes:
+      namespaces:
+        from: Same
+  - name: https
+    port: 443
+    protocol: HTTPS
+    hostname: "*.example.com"
+    tls:
+      mode: Terminate
+      certificateRefs:
+      - kind: Secret
+        name: wildcard-tls
+    allowedRoutes:
+      namespaces:
+        from: Same

@@ -1,0 +1,21 @@
+# Source installation bundle: https://github.com/cert-manager/cert-manager/releases/download/v1.21.2/cert-manager.yaml
+# cert-manager v1.21.2 supports Kubernetes through 1.36; v1.37 support remains unverified.
+# Gateway HTTP-01 requires Gateway API CRDs installed before cert-manager starts and
+# `config.gatewayAPI.enabled=true`; replace the placeholder email before use.
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: user@example.com
+    privateKeySecretRef:
+      name: letsencrypt-cluster-key-pair
+    solvers:
+    - http01:
+        gatewayHTTPRoute:
+          parentRefs:
+          - name: example-gateway
+            namespace: default
+            kind: Gateway

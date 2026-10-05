@@ -1,0 +1,41 @@
+# Basic CPU-based HPA (autoscaling/v1)
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: nginx
+  namespace: default
+spec:
+  maxReplicas: 10
+  minReplicas: 2
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: nginx
+  targetCPUUtilizationPercentage: 80
+
+---
+# HPAConfigurableTolerance is stable and enabled by default in Kubernetes v1.37.
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: nginx-configurable-tolerance
+  namespace: default
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: nginx
+  minReplicas: 2
+  maxReplicas: 10
+  behavior:
+    scaleUp:
+      tolerance: 0.05    # 5% tolerance for scale-up (sensitive to load increases)
+    scaleDown:
+      tolerance: 0.15    # 15% tolerance for scale-down (stable scaling down)
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 80

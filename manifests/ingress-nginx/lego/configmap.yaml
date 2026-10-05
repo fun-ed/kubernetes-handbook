@@ -1,0 +1,12 @@
+# HISTORICAL: ACME v1 settings for retired kube-lego.
+# 历史配置：此 kube-lego 配置使用已弃用的 ACME v1 服务。当前证书管理示例见 ../cert-manager/cluster-issuer.yaml。
+apiVersion: v1
+metadata:
+  name: kube-lego
+  namespace: kube-lego
+data:
+  # modify this to specify your address
+  lego.email: "cert@example.com"
+  # configure letsencrypt's production api
+  lego.url: "https://acme-v01.api.letsencrypt.org/directory"
+kind: ConfigMap

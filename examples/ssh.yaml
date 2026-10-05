@@ -1,0 +1,29 @@
+# Interactive node-network debug Pod, not an SSH server.
+# Replace `nodeName` before applying; run `kubectl exec -it node-debug-shell -- /bin/sh`.
+# `hostNetwork` exposes the node network namespace. Use only on a trusted cluster.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: node-debug-shell
+spec:
+  nodeName: replace-with-node-name
+  hostNetwork: true
+  dnsPolicy: ClusterFirstWithHostNet
+  securityContext:
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+  - name: shell
+    image: alpine:3.24.2
+    command:
+    - /bin/sh
+    stdin: true
+    tty: true
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 10000
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: true
+      capabilities:
+        drop:
+        - ALL

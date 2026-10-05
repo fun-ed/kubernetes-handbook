@@ -1,0 +1,17 @@
+# Source: https://github.com/kubernetes-sigs/metrics-server/releases/download/v0.9.0/components.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    k8s-app: metrics-server
+  name: metrics-server
+  namespace: kube-system
+spec:
+  ports:
+  - appProtocol: https
+    name: https
+    port: 443
+    protocol: TCP
+    targetPort: https
+  selector:
+    k8s-app: metrics-server

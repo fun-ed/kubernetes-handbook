@@ -1,0 +1,18 @@
+# HIGH RISK: writable hostPath exposes node-local files; use only on disposable, trusted nodes.
+# Requires `/data` to exist on the selected node.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test-pd
+spec:
+  containers:
+  - image: nginx:1.30.5
+    name: test-container
+    volumeMounts:
+    - mountPath: /test-pd
+      name: test-volume
+  volumes:
+  - name: test-volume
+    hostPath:
+      path: /data
+      type: Directory

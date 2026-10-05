@@ -1,0 +1,20 @@
+# HISTORICAL: Echoserver workload paired with the retired Ingress-NGINX example.
+# 历史配置：此工作负载属于已归档的 Ingress-NGINX 示例，不是当前部署推荐。
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: echoserver
+  namespace: echoserver
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: echoserver
+    spec:
+      containers:
+      - image: gcr.io/google_containers/echoserver:1.0
+        imagePullPolicy: Always
+        name: echoserver
+        ports:
+        - containerPort: 8080

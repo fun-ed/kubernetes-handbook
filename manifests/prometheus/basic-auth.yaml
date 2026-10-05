@@ -1,0 +1,12 @@
+# HISTORICAL: Secret used only by the retired Prometheus NGINX Ingress example.
+# 历史配置：此 Secret 仅供旧版 Prometheus/Ingress 示例使用，不要复用其中的凭据。
+# Before use, replace this invalid placeholder with an htpasswd line you generated yourself.
+# 使用前必须自行生成新的 htpasswd 行替换此无效占位符。
+apiVersion: v1
+stringData:
+  auth: REPLACE_WITH_GENERATED_HTPASSWD_LINE
+kind: Secret
+metadata:
+  name: basic-auth
+  namespace: monitoring
+type: Opaque

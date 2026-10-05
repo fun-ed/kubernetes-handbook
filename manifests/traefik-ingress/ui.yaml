@@ -1,0 +1,30 @@
+# HISTORICAL: Exposes the legacy Traefik admin UI through an obsolete Ingress.
+# 历史配置：此路由使用废弃 Ingress API 暴露管理界面；当前控制器默认禁用 Dashboard。
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: traefik-web-ui
+  namespace: kube-system
+spec:
+  selector:
+    k8s-app: traefik-ingress-lb
+  ports:
+  - name: web
+    port: 80
+    targetPort: 8080
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: traefik-web-ui
+  namespace: kube-system
+spec:
+  rules:
+  - host: traefik-ui.minikube
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: traefik-web-ui
+          servicePort: web

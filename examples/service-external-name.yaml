@@ -1,0 +1,9 @@
+# Replace example.com with a DNS name your clients can resolve.
+kind: Service
+apiVersion: v1
+metadata:
+  name: my-service-external
+  namespace: default
+spec:
+  type: ExternalName
+  externalName: example.com

@@ -1,0 +1,31 @@
+# HIGH PRIVILEGE: shares host network, IPC, PID, and network-namespace paths.
+# Use only on a disposable node. Bidirectional propagation requires privilege.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: test
+  namespace: default
+spec:
+  containers:
+  - image: alpine:3.24.2
+    name: sh
+    command:
+    - /bin/sh
+    stdin: true
+    tty: true
+    securityContext:
+      privileged: true
+    volumeMounts:
+    - mountPath: /var/run/netns
+      name: netns
+      mountPropagation: Bidirectional
+  dnsPolicy: ClusterFirstWithHostNet
+  hostNetwork: true
+  hostIPC: true
+  hostPID: true
+  restartPolicy: Always
+  volumes:
+  - name: netns
+    hostPath:
+      path: /var/run/netns
+      type: Directory

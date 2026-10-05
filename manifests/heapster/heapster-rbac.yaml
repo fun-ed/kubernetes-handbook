@@ -1,0 +1,14 @@
+# HISTORICAL: Retired Heapster RBAC; do not install on a current cluster.
+# 历史配置：Heapster 已停止维护。当前资源指标后端见 ../metrics-server/。
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: heapster
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: system:heapster
+subjects:
+- kind: ServiceAccount
+  name: heapster
+  namespace: kube-system

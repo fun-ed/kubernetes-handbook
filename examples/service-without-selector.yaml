@@ -1,0 +1,29 @@
+# The documentation-only address is not routable. Replace it with a reachable external IP.
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 9376
+---
+# Manually managed EndpointSlice for a selectorless Service.
+apiVersion: discovery.k8s.io/v1
+kind: EndpointSlice
+metadata:
+  name: my-service-1
+  labels:
+    kubernetes.io/service-name: my-service
+    endpointslice.kubernetes.io/managed-by: handbook-manual
+addressType: IPv4
+endpoints:
+- addresses:
+  - 192.0.2.10
+  conditions:
+    ready: true
+ports:
+- name: ""
+  port: 9376
+  protocol: TCP
