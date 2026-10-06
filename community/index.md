@@ -10,7 +10,7 @@ cd kubernetes
 git checkout v1.37.1
 ```
 
-不要使用本页旧版示例中的 Docker Engine 1.13、Go 1.10、etcd 3.2 或 `apt-key` 安装步骤。Kubernetes 使用 CRI 运行时；开发环境所需工具、构建和本地集群流程可能随源码版本变化，请遵循 [Kubernetes 仓库开发文档](https://github.com/kubernetes/kubernetes/tree/v1.37.1) 与 [Contributor Guide](https://www.kubernetes.dev/docs/)。若要启动本地集群，请先阅读该版本的 `hack/local-up-cluster.sh` 说明，并在隔离的开发环境中执行。
+不要使用本頁舊版範例中的 Docker Engine 1.13、Go 1.10、etcd 3.2 或 `apt-key` 安裝步驟。Kubernetes 使用 CRI 執行時；開發環境所需工具、建置和本機叢集流程可能隨原始碼版本變化，請遵循 [Kubernetes v1.37.1 原始碼文件](https://github.com/kubernetes/kubernetes/tree/v1.37.1)與 [Contributor Guide](https://www.kubernetes.dev/docs/)。若要啟動本機叢集，請先閱讀該版本的 `hack/local-up-cluster.sh` 說明，並在隔離的開發環境中執行。
 
 ## 测试
 

@@ -2,15 +2,15 @@
 
 ## Project overview
 
-This is a Chinese-language Kubernetes reference handbook built with GitBook. Markdown chapters, diagrams, and Kubernetes examples are the primary source. It is not the Kubernetes source tree or a single deployable application.
+This is a Chinese-language Kubernetes reference handbook with GitBook-format Markdown and navigation, rendered by HonKit. Chapters, diagrams, and Kubernetes examples are the primary source. It is not the Kubernetes source tree or a single deployable application.
 
 The current baseline is Kubernetes **v1.37.1**, with a component snapshot dated **2026-10-05**. For version, API, image, or installation changes, read `setup/kubernetes-v1.37.md` and `setup/component-versions.md` first. Keep upstream latest versions separate from kubeadm-bundled pins and explicit compatibility statements.
 
 ## Architecture & data flow
 
-`README.md` provides the preface, `SUMMARY.md` defines chapter navigation, and `book.json` configures GitBook rendering and plugins. GitBook consumes the chapters and assets to produce the static site in `_book/` or ebook exports. The root `Makefile` wraps these operations.
+`README.md` provides the preface, `SUMMARY.md` defines chapter navigation, and `book.json` configures rendering. HonKit consumes the chapters and assets to produce the static site in `_book/` or ebook exports. The root `Makefile` preserves the build/preview/export entrypoints.
 
-`examples/` and `manifests/` contain teaching and deployment artifacts, not shared application modules. Small applications such as `examples/client/informer/` have their own local tooling. There is no central `src/` tree or application entry point; `package.json`'s `main: index.js` is not an implemented entry point.
+`examples/` and `manifests/` contain teaching and deployment artifacts, not shared application modules. Small applications such as `examples/client/informer/` have their own local tooling. There is no central `src/` tree or application entry point.
 
 ## Key directories
 
@@ -25,18 +25,18 @@ The current baseline is Kubernetes **v1.37.1**, with a component snapshot dated 
 
 ## Development commands
 
-Run book commands from the repository root with GitBook available.
+Run book commands from the repository root after selecting the Node version in `.nvmrc` and installing the locked dependencies with `npm ci`. Read `setup/site-build.md` before changing rendering or plugins.
 
 | Command | Purpose |
 | --- | --- |
 | `make` or `make build` | Build the site into `_book/`. |
 | `make serve` | Preview the book, normally at `localhost:4000`. |
 | `make epub`, `make pdf`, `make mobi` | Export `kubernetes-handbook` in the selected format. |
-| `make install` | Install GitBook CLI globally through npm, then install book plugins. |
+| `make install` | Install the local dependencies from the npm lockfile. |
 | `make spell` | Fetch misspell with `go get`, then check tracked files. This is not a general linter. |
 | `make clean` | Delete `_book/`; ebook exports remain. |
 
-There is no configured lint command. `npm test` deliberately exits with "no test specified" and does not validate changes. Installation and spelling targets change tooling state; use them only when needed.
+`npm test` checks rendering adapters and output-checker failure cases; `npm run check:book` checks the built site. `make verify` runs local manifest regression; `make verify-cluster` explicitly enables isolated runtime checks. Read `setup/verification.md` for exact scope and prerequisites. These are separate checks, not one full-stack certification.
 
 ## Code conventions & common patterns
 
@@ -50,18 +50,18 @@ There is no configured lint command. `npm test` deliberately exits with "no test
 
 ## Important files
 
-`SUMMARY.md` and `book.json` control navigation and rendering. `Makefile` and `package.json` define maintenance tooling. `CONTRIBUTING.md` and `appendix/contributing.md` describe the PR workflow. `.github/workflows/codeql-analysis.yml` configures code scanning, not book publication or content tests. `.gitignore` excludes dependencies, `_book/`, and ebook/PDF outputs.
+`SUMMARY.md` and `book.json` control navigation and rendering. `Makefile`, `package.json`, and the lockfile define maintenance tooling. `CONTRIBUTING.md` and `appendix/contributing.md` describe the PR workflow. `.github/workflows/docs.yml` checks the rendered site without deploying it; CodeQL remains a separate code scan. Keep dependencies, build outputs, reports, and private QA data ignored.
 
 ## Runtime/tooling preferences
 
-Use the existing npm/GitBook toolchain. `book.json` requests GitBook `>=3.2.2`; `package.json` declares `gitbook-cli` `^2.3.2`. No Node runtime, package-manager version, or lockfile is pinned, and Bun is not configured. Do not assume `npm ci` or modern Node compatibility. Check both `book.json` and `package.json` when changing plugins because their plugin lists differ. Keep generated output out of source changes.
+Use local pinned HonKit/npm dependencies and Node LTS from `.nvmrc`; keep dependency updates separate from content changes. Preserve navigation, raw HTML anchors, code, images, and GitBook block content when changing the renderer. The legacy GitBook failure in `setup/kubernetes-v1.37.md` is dated evidence, not a reason to restore an unsupported Node runtime.
 
-The legacy build is currently blocked: GitBook 3.2.3's bundled npm plugin installer fails, and the declared GitHub plugin 3.x requires GitBook 4 alpha. See the actual validation record in `setup/kubernetes-v1.37.md`. Do not claim a rendered build passed or recommend an unsupported old Node runtime as the production solution.
+For component maintenance, read `setup/compatibility-tracking.md` and `setup/component-watchlist.json`. The checker reports stable releases requiring review; official support status is manually reviewed and dated. Keep the frozen `setup/component-versions.md` snapshot separate from newer observations.
 
 ## Testing & QA
 
-No repository-wide automated test framework, coverage requirement, or Markdown/YAML lint configuration is defined. For content edits, build/preview when the GitBook toolchain is available and inspect affected navigation, links, anchors, images, code fences, and plugin rendering. A successful build does not verify external links or tutorial commands.
+For rendering changes, run the adapter tests, build, and rendered-output checks, then inspect affected navigation, images, code fences, search, and diagram rendering. A successful site build does not verify external links or tutorial commands.
 
-`manifests/test/` contains examples, not a test suite. Validate changed examples against the Kubernetes version described by the chapter. Run cluster-dependent checks only in an explicitly intended disposable environment; tutorial scripts and manifests may create/delete resources or require cloud credentials. Do not execute chapter commands as routine repository checks. Report unavailable tooling and unperformed checks explicitly.
+`manifests/test/` contains examples, not a test suite. The regression harness distinguishes current standalone resources from historical files and third-party schemas from authoritative API checks. Cluster mode creates its own unique kind cluster and temporary kubeconfig; it never uses the user's current context. Tutorial scripts remain teaching artifacts and are not routine checks. Report unavailable tooling, exclusions, and unperformed checks explicitly.
 
 Public releases use `fun-ed/kubernetes-handbook` and `main`. This release is an explicitly approved clean snapshot: preserve the local original source history, but never publish it with `--all`, `--mirror`, or tags. Exclude `.serena/`, generated exports, kubeconfigs, keys, and private QA artifacts; retain original attribution and license notices.

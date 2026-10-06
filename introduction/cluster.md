@@ -8,7 +8,7 @@
 
 ## 多集群管理
 
-Kubernetes 核心 API 管理单个集群，不包含 Federation 控制平面。旧版 Kubernetes Federation（KubeFed）已退役。本目录中的 [Federation 页面](../concepts/components/federation.md)只作历史记录，不要按其中步骤部署。当前多集群方案由集群发行版或独立的多集群管理工具提供。
+Kubernetes 核心 API 管理单个集群，不包含 Federation 控制平面。旧版 Kubernetes Federation（KubeFed）已退役。其 API 和旧教程仅作历史参考，见[归档索引](https://github.com/fun-ed/kubernetes-handbook/blob/main/archive/index.md)。当前多集群方案由集群发行版或独立的多集群管理工具提供。
 
 ## 创建 Kubernetes 集群
 

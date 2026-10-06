@@ -8,7 +8,7 @@
 
 ```bash
 kubectl debug -it pod/<pod-name> \
-  --image=busybox:1.36.1 \
+  --image=busybox:1.37.0 \
   --target=<container-name> -- sh
 ```
 
@@ -22,7 +22,7 @@ kubectl debug -it pod/<pod-name> \
 kubectl debug <pod-name> -it \
   --copy-to=<debug-pod-name> \
   --container=debugger \
-  --image=busybox:1.36.1 -- /bin/sh
+  --image=busybox:1.37.0 -- /bin/sh
 ```
 
 副本可能继承原 Pod 的卷、环境变量、ServiceAccount 或 Secret 挂载。先检查复制出的 spec，避免把生产凭据暴露给调试容器；确认完成后删除调试副本。

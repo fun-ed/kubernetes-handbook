@@ -1,25 +1,32 @@
 {
   "name": "kubernetes-handbook",
   "version": "1.0.0",
+  "private": true,
   "description": "Kubernetes Handbook",
   "main": "index.js",
   "directories": {
     "example": "examples"
   },
-  "dependencies": {
-    "gitbook-cli": "^2.3.2",
-    "gitbook-plugin-alerts": "^0.2.0",
-    "gitbook-plugin-editlink": "^1.0.2",
-    "gitbook-plugin-github": "^3.0.0",
-    "gitbook-plugin-github-buttons": "^3.0.0",
-    "gitbook-plugin-mermaid": "^0.0.9",
-    "gitbook-plugin-page-treeview": "^3.0.6",
-    "gitbook-plugin-search-plus": "^1.0.3",
-    "npm": "^11.0.0"
+  "engines": {
+    "node": "24.21.x"
   },
-  "devDependencies": {},
+  "packageManager": "npm@11.19.0",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "node scripts/check-book.mjs --source-only && honkit build . _book",
+    "serve": "node --require ./scripts/serve-loopback.cjs ./node_modules/honkit/bin/honkit.js serve . _book",
+    "epub": "honkit epub . kubernetes-handbook.epub",
+    "pdf": "honkit pdf . kubernetes-handbook.pdf",
+    "mobi": "honkit mobi . kubernetes-handbook.mobi",
+    "check:book": "node scripts/check-book.mjs",
+    "test": "node --test scripts/*.test.mjs"
+  },
+  "dependencies": {
+    "gitbook-plugin-editlink": "1.0.2",
+    "gitbook-plugin-tbfed-pagefooter": "0.0.1",
+    "honkit": "6.2.2",
+    "honkit-plugin-handbook-rendering": "file:plugins/handbook-rendering",
+    "mermaid": "12.1.0",
+    "gitbook-plugin-search-plus": "1.0.3"
   },
   "repository": {
     "type": "git",

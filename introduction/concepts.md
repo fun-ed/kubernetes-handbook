@@ -25,7 +25,7 @@ Container（容器）是一种便携式、轻量级的操作系统级虚拟化�
 
 Kubernetes 使用 Pod 来管理容器，每个 Pod 可以包含一个或多个紧密关联的容器。
 
-Pod 是一组紧密关联的容器集合，它们共享 IPC 和 Network namespace，是 Kubernetes 调度的基本单位。Pod 内的多个容器共享网络和文件系统，可以通过进程间通信和文件共享这种简单高效的方式组合完成服务。
+Pod 是一組緊密關聯的容器，也是 Kubernetes 排程的基本單位。Pod 內容器共享網路與 IPC 命名空間；檔案不會自動共享，需透過 Pod 卷掛載到各容器。
 
 ![pod](../.gitbook/assets/pod%20%285%29.png)
 
@@ -41,14 +41,14 @@ metadata:
 spec:
   containers:
   - name: nginx
-    image: nginx
+    image: nginx:1.30.5
     ports:
     - containerPort: 80
 ```
 
 ## Node
 
-Node 是 Pod 真正运行的主机，可以是物理机，也可以是虚拟机。为了管理 Pod，每个 Node 节点上至少要运行 container runtime（比如 docker 或者 rkt）、`kubelet` 和 `kube-proxy` 服务。
+Node 是 Pod 實際執行的主機，可以是實體機或虛擬機器。每個 Node 都需要 kubelet 和符合 CRI 的容器執行時。kube-proxy 通常負責實作 Service 網路，但部分網路實作會取代它。
 
 ![node](../.gitbook/assets/node%20%283%29.png)
 
@@ -58,9 +58,9 @@ Namespace 是对一组资源和对象的抽象集合，比如可以用来将系�
 
 ## Service
 
-Service 是应用服务的抽象，通过 labels 为应用提供负载均衡和服务发现。匹配 labels 的 Pod IP 和端口列表组成 endpoints，由 kube-proxy 负责将服务 IP 负载均衡到这些 endpoints 上。
+Service 是應用服務的抽象，透過標籤選取器關聯後端 Pod。控制平面以 EndpointSlice 發布後端端點；kube-proxy 或相容的替代實作據此轉送 Service 流量。舊 Endpoints API 自 Kubernetes v1.33 起棄用，新工具應使用 EndpointSlices。
 
-每个 Service 都会自动分配一个 cluster IP（仅在集群内部可访问的虚拟地址）和 DNS 名，其他容器可以通过该地址或 DNS 来访问服务，而不需要了解后端容器的运行。
+一般 ClusterIP Service 會取得叢集內虛擬 IP，並由叢集 DNS 提供服務名稱。Headless Service 不會配置 ClusterIP；實際服務探索和流量轉送方式取決於 Service 類型及叢集網路實作。
 
 ![](../.gitbook/assets/14731220608865.png)
 

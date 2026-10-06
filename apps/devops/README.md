@@ -10,10 +10,11 @@ Kubernetes 生态中的 Devops 工具实践。
 
 ## CI/CD
 
-- Jenkins X：本目录保留的是 Jenkins X 1.x 历史安装流程，不能按当前产品说明执行，见 [Jenkins X 官方文档](https://jenkins-x.io/)
-- Spinnaker：旧章中的 `stable/spinnaker` Helm 2 命令已过时，部署方式应以 [Spinnaker 官方文档](https://spinnaker.io/docs/)为准
-* [Argo](argo.md)
-* [Flux GitOps](flux.md)
+- Jenkins X：旧版 1.x 教程已移至[历史归档](https://github.com/fun-ed/kubernetes-handbook/blob/main/archive/apps/devops/jenkinsx.md)；当前状态与部署方式请查阅 [Jenkins X 官方文档](https://jenkins-x.io/)
+- [Spinnaker](spinnaker.md)：当前项目状态与官方资料；旧 Helm 2 chart 安装步骤已移至[历史归档](https://github.com/fun-ed/kubernetes-handbook/blob/main/archive/apps/devops/spinnaker.md)
+- [Argo Workflows](argo.md)
+- [Argo CD](argo-cd.md)
+- [Flux GitOps](flux.md)
 
 ## 其他
 

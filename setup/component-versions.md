@@ -2,6 +2,8 @@
 
 **资料截点：2026-10-05。** 本表将各项目最新稳定版与 Kubernetes v1.37.1 源码／kubeadm 默认值分开记录；它们不是同一概念。GitHub Release 日期按官方发布日期字段（UTC）记录；Go 工具链采用官方 release history 日期，Helm chart 使用官方 index 的 `created`，无 Release 对象时明确标出 Git tag 时间。只采纳正式稳定版，排除 draft 和预发布版本；版本号含 `alpha`、`beta` 或 `rc` 的标签不会作为稳定版。
 
+> **后续复核（2026-10-05）：** 本快照中 Spinnaker 的 2026.1.3 行保留为当时记录；后续稳定版复核按版本序发现更高的 **2026.3.0**（2026-09-07），尽管较低版本 2026.2.4 发布于 2026-09-25。此项更正详见[后续现状盘点](component-current-status.md)。本公告仅记录此项更正；其他矩阵行与日期继续保留为该快照的历史证据。
+
 Kubernetes 官方 [Releases 页面](https://kubernetes.io/releases/)显示 v1.37.1 为当前版、发布日期为 **2026-09-15**；官方 [GitHub Release API](https://api.github.com/repos/kubernetes/kubernetes/releases/tags/v1.37.1) 对同一标签记录的 `published_at` 为 **2026-09-23**。两项官方记录日期不一致；下表的发布日期按 GitHub API 字段抄录，并保留此差异，不以一方覆盖另一方。
 
 ## 核心组件、运行时与构建前提

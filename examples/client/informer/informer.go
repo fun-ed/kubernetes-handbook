@@ -46,14 +46,29 @@ func (c *PodLoggingController) Run(ctx context.Context) error {
 	return nil
 }
 
+func podFromEvent(obj interface{}, event string) *v1.Pod {
+	pod, ok := obj.(*v1.Pod)
+	if !ok || pod == nil {
+		klog.ErrorS(fmt.Errorf("unexpected event object type %T", obj), "Ignoring invalid pod notification", "event", event)
+		return nil
+	}
+	return pod
+}
+
 func (c *PodLoggingController) podAdd(obj interface{}) {
-	pod := obj.(*v1.Pod)
+	pod := podFromEvent(obj, "add")
+	if pod == nil {
+		return
+	}
 	klog.Infof("POD CREATED: %s/%s", pod.Namespace, pod.Name)
 }
 
 func (c *PodLoggingController) podUpdate(old, new interface{}) {
-	oldPod := old.(*v1.Pod)
-	newPod := new.(*v1.Pod)
+	oldPod := podFromEvent(old, "update-old")
+	newPod := podFromEvent(new, "update-new")
+	if oldPod == nil || newPod == nil {
+		return
+	}
 	klog.Infof(
 		"POD UPDATED. %s/%s %s",
 		oldPod.Namespace, oldPod.Name, newPod.Status.Phase,
@@ -61,7 +76,25 @@ func (c *PodLoggingController) podUpdate(old, new interface{}) {
 }
 
 func (c *PodLoggingController) podDelete(obj interface{}) {
-	key, err := cache.DeletionHandlingMetaNamespaceKeyFunc(obj)
+	var key string
+	var err error
+
+	switch tombstone := obj.(type) {
+	case cache.DeletedFinalStateUnknown:
+		key, err = cache.DeletionHandlingMetaNamespaceKeyFunc(tombstone)
+	case *cache.DeletedFinalStateUnknown:
+		if tombstone == nil {
+			podFromEvent(tombstone, "delete")
+			return
+		}
+		key, err = cache.DeletionHandlingMetaNamespaceKeyFunc(*tombstone)
+	default:
+		pod := podFromEvent(obj, "delete")
+		if pod == nil {
+			return
+		}
+		key, err = cache.DeletionHandlingMetaNamespaceKeyFunc(pod)
+	}
 	if err != nil {
 		klog.ErrorS(err, "Ignoring invalid pod delete notification")
 		return

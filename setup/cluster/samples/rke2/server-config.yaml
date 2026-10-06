@@ -1,0 +1,6 @@
+# Native RKE2 configuration; not a Kubernetes API manifest.
+# Replace placeholders before use. Protect this file with root:root and mode 0600.
+token: "REPLACE_WITH_A_RANDOM_HIGH_ENTROPY_CLUSTER_TOKEN"
+tls-san:
+  - "REPLACE_WITH_STABLE_API_DNS_NAME"
+write-kubeconfig-mode: "0600"

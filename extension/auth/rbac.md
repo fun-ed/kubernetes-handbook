@@ -130,34 +130,9 @@ rules:
 
 API Server 会创建一组默认 ClusterRole 和 ClusterRoleBinding。名称以 `system:` 开头的角色由集群控制平面管理，不应随意修改。角色的具体清单随 Kubernetes 版本变化，参见[默认角色和绑定](https://kubernetes.io/docs/reference/access-authn-authz/rbac/#default-roles-and-role-bindings)。
 
-## ABAC 迁移示例（不安全的历史说明）
+## 旧版权限行为
 
-以下内容只用于说明旧 ABAC 集群与 RBAC 集群的权限差异，不是迁移操作步骤。ABAC 规则可能授予宽泛权限；在多个授权器组成的链中，任一授权器允许请求时，请求就会获准，RBAC 不会收窄 ABAC 已允许的权限。新配置应使用 RBAC 并授予应用所需的最小权限。
-
-下面的命令是旧版示例，**不安全且已过时，请勿执行**。它使用 `nginx:latest` 和 `curl -k`（跳过 TLS 证书校验），也假设 Pod 能读取长期有效的 ServiceAccount Token。现代集群通常为 Pod 投射可轮换的短期令牌，应用仍须获得相应授权。
-
-```bash
-# HISTORICAL AND UNSAFE. Do not run this example.
-$ kubectl run nginx --image=nginx:latest
-$ kubectl exec -it $(kubectl get pods -o jsonpath='{.items[0].metadata.name}') bash
-$ apt-get update && apt-get install -y curl
-$ curl -ik \
-  -H "Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)" \
-  https://kubernetes/api/v1/namespaces/default/pods
-```
-
-## 宽泛的 cluster-admin 绑定（不安全的历史示例）
-
-将 `cluster-admin` 授予 `system:serviceaccounts` 会让所有命名空间中的所有 ServiceAccount 都获得集群管理员权限。**这会造成严重的安全风险，以下命令仅作历史记录，切勿在集群中执行。**
-
-```bash
-# HISTORICAL AND UNSAFE. Do not run this example.
-kubectl create clusterrolebinding permissive-binding \
-  --clusterrole=cluster-admin \
-  --user=admin \
-  --user=kubelet \
-  --group=system:serviceaccounts
-```
+旧 ABAC 及过度宽泛的 `cluster-admin` 绑定示例不适用于当前权限管理；旧的可执行命令已移至[封存示例](https://github.com/fun-ed/kubernetes-handbook/blob/main/archive/extension/auth/rbac.md)，不要在集群执行。新配置应采用 RBAC 并遵循最小权限原则。
 
 ## 推荐配置
 

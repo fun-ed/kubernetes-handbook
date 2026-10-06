@@ -20,7 +20,7 @@
 
 ```dockerfile
 # 生产环境请将 builder 和 runtime 镜像固定到经审查的 digest。
-FROM golang:1.26.0-bookworm AS builder
+FROM golang:1.27.1-bookworm AS builder
 WORKDIR /src
 COPY go.mod go.sum ./
 RUN go mod download
@@ -42,7 +42,7 @@ ENTRYPOINT ["/app"]
 
 ```bash
 # 首先运行一个容器
-$ docker run --rm busybox:1.36.1 sleep 10000
+$ docker run --rm busybox:1.37.0 sleep 10000
 
 # 打开另外一个terminal
 $ ps uax | grep sleep
@@ -59,7 +59,7 @@ root     14221  0.0  0.0   1188     4 ?        Ss   13:25   0:00 sleep 10000
 解决方法就是保证容器的init进程可以正确处理SIGTERM等退出信号，比如使用dumb-init
 
 ```bash
-docker run --rm --init busybox:1.36.1 sleep 10000
+docker run --rm --init busybox:1.37.0 sleep 10000
 ```
 
 ## 多容器设计模式
@@ -136,7 +136,7 @@ Adapter 模式用于标准化应用输出，将应用的输出转换为统一的
 
 ### Sidecar 启动顺序控制最佳实践
 
-从 Kubernetes v1.29.0 开始，原生支持 Sidecar Init 容器，能够更好地控制容器启动顺序。在 v1.33.0 中达到稳定版本。
+Sidecar Init 容器在 Kubernetes v1.28 以 Alpha 引入、v1.29 升为 Beta，并于 v1.33 达到稳定状态；启用状态与行为应以目标版本文档为准。
 
 **确保 Sidecar 优先启动的策略：**
 
@@ -144,13 +144,12 @@ Adapter 模式用于标准化应用输出，将应用的输出转换为统一的
    ```yaml
    initContainers:
    - name: sidecar
-     image: nginx
+     image: nginx:1.30.5
      restartPolicy: Always
      startupProbe:
        httpGet:
-         path: /health
-         port: 8080
-       initialDelaySeconds: 5
+         path: /
+         port: 80
        periodSeconds: 3
    ```
 

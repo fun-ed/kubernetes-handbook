@@ -25,9 +25,9 @@ kubectl apply --server-side -f https://github.com/kubernetes-sigs/gateway-api/re
 - `v1.3-features/request-mirroring.yaml`：`HTTPRoute` 标准 v1 请求镜像字段；目标 Service 必须存在，控制器也必须支持 `RequestMirror`。
 - `v1.3-features/xlistenersets.yaml`：使用已进入标准 channel 的 `ListenerSet` v1，而非不存在的 `XListenerSet`。这是需要相应控制器支持的功能示例；GatewayClass 中的 controller name 是占位值，须换成实际值。HTTPS 示例另需 `gateway-system/wildcard-tls` Secret。
 - `v1.3-features/retry-budget.yaml`：实验性 `gateway.networking.x-k8s.io/v1alpha1 XBackendTrafficPolicy`，按 v1.6.2 experimental CRD 编写。它限制已由其他机制发起的重试流量，本身不配置重试次数或条件；必须使用实现该策略的控制器。Traefik v3.7.13 文档未确认支持它。
-- `v1.3-features/cors-policy.yaml`：历史示例；其中的 `CORSPolicy` 不是 v1.6.2 standard 或 experimental bundle 提供的资源，请勿应用。
+- `cors-policy.yaml` was moved to the historical archive because Gateway API v1.6.2 does not serve `CORSPolicy`; see the [archive index](https://github.com/fun-ed/kubernetes-handbook/blob/main/archive/index.md).
 
-请逐个检查并应用需要的文件，不要对 `v1.3-features/` 整个目录递归执行 `kubectl apply`：该目录同时包含标准、实验性和历史文件。
+Apply only the files listed above that match your controller and prerequisites. The current `v1.3-features/` directory contains standard and experimental examples; do not install the experimental bundle unless you need an experimental API.
 
 ```bash
 # 本仓库 Traefik 示例；LoadBalancer Service 还需要云端或集群外部负载均衡实现。

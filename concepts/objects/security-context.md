@@ -123,7 +123,7 @@ spec:
   hostUsers: false
   containers:
   - name: shell
-    image: busybox:1.36
+    image: busybox:1.37.0
     command: ["sleep", "3600"]
     securityContext:
       runAsUser: 0
@@ -163,7 +163,7 @@ metadata:
   name: hello-world
 spec:
   containers:
-  - image: busybox:1.36
+  - image: busybox:1.37.0
     name: test-container
     command: ["sleep", "3600"]
     volumeMounts:

@@ -47,7 +47,7 @@ spec:
                 type: integer
 ```
 
-例如，创建 `my-crontab.yaml`：
+`stable.example.com` 是保留作示例的網域。這個自訂資源只測試 schema；CRD 本身不會啟動 CronTab 工作或拉取 `image` 欄位的映像檔。若要實作排程行為，必須另外部署支援此自訂 API 的控制器。
 
 ```yaml
 apiVersion: stable.example.com/v1
@@ -270,96 +270,14 @@ crontabs/my-new-cron-object   3s
 * 如何创建、删除和查询 `Foo` 对象
 * 如何监听 `Foo` 资源对象的变化情况
 
-## Kubebuilder
+## 建置 CRD 控制器
 
-从上面的实例中可以看到从头构建一个 CRD 控制器并不容易，需要对 Kubernetes 的 API 有深入了解，并且RBAC 集成、镜像构建、持续集成和部署等都需要很大工作量。
+手動建置 CRD 控制器時，需維護 API types、程式碼產生、RBAC、測試及部署資源。新專案可評估 [Kubebuilder](https://book.kubebuilder.io/)；請依所選 Kubebuilder 版本的官方文件初始化專案、產生 API、執行測試及建置部署資源。Kubebuilder 指令和產生的目錄結構會隨版本更新，不要沿用本頁舊版 1.0.1 安裝方式、`dep`、beta API 或舊的 Makefile targets。
 
-[kubebuilder](https://github.com/kubernetes-sigs/kubebuilder) 正是为解决这个问题而生，为 CRD 控制器提供了一个简单易用的框架，并可直接生成镜像构建、持续集成、持续部署等所需的资源文件。
-
-### 安装
-
-```bash
-# Install kubebuilder
-VERSION=1.0.1
-wget https://github.com/kubernetes-sigs/kubebuilder/releases/download/v${VERSION}/kubebuilder_${VERSION}_linux_amd64.tar.gz
-tar zxvf kubebuilder_${VERSION}_linux_amd64.tar.gz
-sudo mv kubebuilder_${VERSION}_linux_amd64 /usr/local/kubebuilder
-export PATH=$PATH:/usr/local/kubebuilder/bin
-
-# Install dep kustomize
-go get -u github.com/golang/dep/cmd/dep
-go get github.com/kubernetes-sigs/kustomize
-```
-
-### 使用方法
-
-#### 初始化项目
-
-```bash
-mkdir -p $GOPATH/src/demo
-cd $GOPATH/src/demo
-kubebuilder init --domain k8s.io --license apache2 --owner "The Kubernetes Authors"
-```
-
-#### 创建 API
-
-```bash
-kubebuilder create api --group ships --version v1beta1 --kind Sloop
-```
-
-然后按照实际需要修改 `pkg/apis/ship/v1beta1/sloop_types.go` 和 `pkg/controller/sloop/sloop_controller.go` 增加业务逻辑。
-
-#### 本地运行测试
-
-```bash
-make install
-make run
-```
-
-> 如果碰到错误 `ValidationError(CustomResourceDefinition.status): missing required field "storedVersions" in io.k8s.apiextensions-apiserver.pkg.apis.apiextensions.v1beta1.CustomResourceDefinitionStatus]`，可以手动修改 `config/crds/ships_v1beta1_sloop.yaml`:
->
-> \`\`\`yaml status: acceptedNames: kind: "" plural: "" conditions: \[\] storedVersions: \[\]
->
-> 然后运行 `kubectl apply -f config/crds` 创建 CRD。
-
-然后就可以用 `ships.k8s.io/v1beta1` 来创建 Kind 为 `Sloop` 的资源了，比如
-
-```bash
-kubectl apply -f config/samples/ships_v1beta1_sloop.yaml
-```
-
-#### 构建镜像并部署控制器
-
-```bash
-# 替换 IMG 为你自己的
-export IMG=feisky/demo-crd:v1
-make docker-build
-make docker-push
-make deploy
-```
-
-> kustomize 已经不再支持通配符，因而上述 `make deploy` 可能会碰到 `Load from path ../rbac/*.yaml failed` 错误，解决方法是手动修改 `config/default/kustomization.yaml`:
->
-> resources:
->
-> * ../rbac/rbac\_role.yaml
-> * ../rbac/rbac\_role\_binding.yaml
-> * ../manager/manager.yaml
->
-> 然后执行 `kustomize build config/default | kubectl apply -f -` 部署，默认部署到 `demo-system` namespace 中。
-
-#### 文档和测试
-
-```bash
-# run unit tests
-make test
-
-# generate docs
-kubebuilder docs
-```
+本頁舊 Kubebuilder 1.0.1 工作流程及其錯誤修復方式已移至[歷史歸檔](https://github.com/fun-ed/kubernetes-handbook/blob/main/archive/concepts/kubebuilder-v1-workflow.md)。不要直接修改 CRD status 欄位來繞過 API 驗證。
 
 ## 参考文档
 
 * [Extend the Kubernetes API with CustomResourceDefinitions](https://kubernetes.io/docs/tasks/access-kubernetes-api/extend-api-custom-resource-definitions/#validation)
-* [CustomResourceDefinition API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.15/#customresourcedefinition-v1beta1-apiextensions-k8s-io)
+* [CustomResourceDefinition API](https://kubernetes.io/docs/reference/kubernetes-api/apiextensions/custom-resource-definition-v1/)
 

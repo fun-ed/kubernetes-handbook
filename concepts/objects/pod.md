@@ -1,6 +1,6 @@
 # Pod
 
-Pod 是一组紧密关联的容器集合，它们共享 IPC 和 Network namespace，是 Kubernetes 调度的基本单位。Pod 的设计理念是支持多个容器在一个 Pod 中共享网络和文件系统，可以通过进程间通信和文件共享这种简单高效的方式组合完成服务。
+Pod 是一組緊密關聯的容器，也是 Kubernetes 排程的基本單位。Pod 內容器共享網路與 IPC 命名空間；檔案不會自動共享，需透過 Pod 卷掛載到各容器。
 
 ![pod](../../.gitbook/assets/pod.png)
 
@@ -29,7 +29,7 @@ Kubernetes 支持通过 PodSpec 的 `shareProcessNamespace: true` 让 Pod 内容
 
 ## Pod 定义
 
-通过 [yaml 或 json 描述 Pod](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.15/#pod-v1-core) 和其内容器的运行环境以及期望状态，比如一个最简单的 nginx pod 可以定义为
+透過 [YAML 或 JSON 描述 Pod](https://kubernetes.io/docs/reference/kubernetes-api/workload-resources/pod-v1/) 及其容器的執行環境與期望狀態。例如，最簡單的 nginx Pod 可定義為：
 
 ```yaml
 apiVersion: v1
@@ -48,22 +48,9 @@ spec:
 
 > 在生产环境中，推荐使用 Deployment、StatefulSet、Job 或者 CronJob 等控制器来创建 Pod，而不推荐直接创建 Pod。
 
-### Docker 镜像支持
+## 容器映像檔
 
-目前，Kubernetes 仅支持使用 Docker 镜像来创建容器，但并非支持 [Dockerfile](https://docs.docker.com/engine/reference/builder/) 定义的所有行为。如下表所示
-
-| Dockerfile 指令 | 描述 | 支持 | 说明 |
-| :--- | :--- | :--- | :--- |
-| ENTRYPOINT | 启动命令 | 是 | containerSpec.command |
-| CMD | 命令的参数列表 | 是 | containerSpec.args |
-| ENV | 环境变量 | 是 | containerSpec.env |
-| EXPOSE | 对外开放的端口 | 否 | 使用 containerSpec.ports.containerPort 替代 |
-| VOLUME | 数据卷 | 是 | 使用 volumes 和 volumeMounts |
-| USER | 进程运行用户以及用户组 | 是 | securityContext.runAsUser/supplementalGroups |
-| WORKDIR | 工作目录 | 是 | containerSpec.workingDir |
-| STOPSIGNAL | 停止容器时给进程发送的信号 | 是 | SIGTERM (可通过 lifecycle.stopSignal 自定义，v1.33+) |
-| HEALTHCHECK | 健康检查 | 否 | 使用 livenessProbe 和 readinessProbe 替代 |
-| SHELL | 运行启动命令的 SHELL | 否 | 使用镜像默认 SHELL 启动命令 |
+Kubernetes 透過 CRI 容器執行時啟動容器。執行時會拉取並執行相容的容器映像檔，通常使用 OCI 映像檔格式。Kubernetes 不會建置 Dockerfile，也不會在執行時逐項解讀 Dockerfile 指令。映像檔中的預設啟動命令、環境變數、使用者及工作目錄可依容器設定覆寫；容器連接埠需由 Pod 的 `ports` 欄位描述，健康檢查則使用 Kubernetes probes。
 
 ## Pod 生命周期
 
@@ -125,7 +112,7 @@ metadata:
 spec:
   containers:
   - name: redis
-    image: redis
+    image: redis:8.10.2
     volumeMounts:
     - name: redis-storage
       mountPath: /data/redis
@@ -166,9 +153,9 @@ CLIENT_ID=$(az ad sp show --id http://$SERVICE_PRINCIPAL_NAME --query appId --ou
 kubectl create secret docker-registry acr-auth --docker-server $ACR_LOGIN_SERVER --docker-username $CLIENT_ID --docker-password $SP_PASSWD --docker-email local@local.domain
 ```
 
-在引用 docker registry secret 时，有两种可选的方法：
+下列 `myregistry.azurecr.io`、儲存庫名稱及 `replace-me` 都是佔位值；請換成自己有權限使用的 Azure Container Registry 登入伺服器，以及已推送的實際映像檔標籤。範例 Azure 變數也必須填入該 Registry 的實際設定。
 
-第一种是直接在 Pod 描述文件中引用该 secret：
+在引用 docker registry secret 时，有两种可选的方法：
 
 ```yaml
 apiVersion: v1
@@ -178,30 +165,24 @@ metadata:
 spec:
   containers:
     - name: private-reg-container
-      image: dregistry.azurecr.io/acr-auth-example
+      image: myregistry.azurecr.io/acr-auth-example:replace-me
   imagePullSecrets:
     - name: acr-auth
 ```
 
-第二种是把 secret 添加到 service account 中，再通过 service account 引用（一般是某个 namespace 的 default service account）：
+若多個 Pod 要共用 image pull Secret，請為應用程式建立專用 ServiceAccount，並在 Pod template 指定 `serviceAccountName`。不要修改命名空間的 `default` ServiceAccount，否則所有使用它的工作負載都會受影響：
 
-```bash
-$ kubectl get secrets myregistrykey
-$ kubectl patch serviceaccount default -p '{"imagePullSecrets": [{"name": "myregistrykey"}]}'
-$ kubectl get serviceaccounts default -o yaml
+```yaml
 apiVersion: v1
 kind: ServiceAccount
 metadata:
-  creationTimestamp: 2015-08-07T22:02:39Z
-  name: default
+  name: web-image-puller
   namespace: default
-  selfLink: /api/v1/namespaces/default/serviceaccounts/default
-  uid: 052fb0f4-3d50-11e5-b066-42010af0d7b6
-secrets:
-- name: default-token-uudge
 imagePullSecrets:
-- name: myregistrykey
+  - name: myregistrykey
 ```
+
+將 Pod 或 Deployment template 的 `spec.serviceAccountName` 設為 `web-image-puller`。預設自動掛載的 API token 與 image pull Secret 是不同用途；若工作負載不需存取 Kubernetes API，請設定 `automountServiceAccountToken: false`。
 
 ## RestartPolicy
 
@@ -233,7 +214,7 @@ metadata:
 spec:
   containers:
     - name: test-container
-      image: gcr.io/google_containers/busybox
+      image: busybox:1.37.0
       command: ["sh", "-c"]
       args:
       - env
@@ -354,7 +335,7 @@ spec:
   hostPID: true
   hostNetwork: true
   containers:
-  - image: busybox
+  - image: busybox:1.37.0
     command:
       - sleep
       - "3600"
@@ -382,7 +363,7 @@ spec:
   hostname: busybox-2
   subdomain: default-subdomain
   containers:
-  - image: busybox
+  - image: busybox:1.37.0
     command:
       - sleep
       - "3600"
@@ -626,25 +607,12 @@ spec:
           - /usr/share/nginx/html/index.html
         initialDelaySeconds: 5
         timeoutSeconds: 1
-    - name: goproxy
-      image: gcr.io/google_containers/goproxy:0.1
-      ports:
-      - containerPort: 8080
-      readinessProbe:
-        tcpSocket:
-          port: 8080
-        initialDelaySeconds: 5
-        periodSeconds: 10
-      livenessProbe:
-        tcpSocket:
-          port: 8080
-        initialDelaySeconds: 15
-        periodSeconds: 20
 ```
 
 ## 多容器模式
 
 Pod 的核心优势在于能够支持多个容器在同一个Pod中协同工作，共享网络和存储资源。Kubernetes 提供了多种多容器模式来解决不同的架构需求。
+本節示範常見模式及資源欄位，不是可直接部署的完整應用程式。Fluent Bit 範例使用已驗證的 `fluent/fluent-bit:5.1.3` 標籤，但仍需依輸入檔案、解析器與輸出端設定 Fluent Bit；其他模式中的自訂映像檔均使用 `registry.example.invalid` 虛構網域和 `replace-me` 標記，必須由讀者替換成實際建置、設定並維護的映像檔，不能直接套用。
 
 ### 常见的多容器模式
 
@@ -665,7 +633,7 @@ spec:
     - name: shared-logs
       mountPath: /var/log/nginx
   - name: log-collector
-    image: fluent/fluent-bit
+    image: fluent/fluent-bit:5.1.3
     volumeMounts:
     - name: shared-logs
       mountPath: /var/log
@@ -686,14 +654,14 @@ metadata:
 spec:
   containers:
   - name: main-app
-    image: myapp:latest
+    image: registry.example.invalid/team/app:replace-me
     env:
     - name: DB_HOST
       value: "localhost"
     - name: DB_PORT
       value: "5432"
   - name: db-ambassador
-    image: postgres-proxy:latest
+    image: registry.example.invalid/team/postgres-proxy:replace-me
     env:
     - name: POSTGRES_HOST
       value: "postgres.example.com"
@@ -713,12 +681,12 @@ metadata:
 spec:
   containers:
   - name: legacy-app
-    image: legacy-monitoring-app
+    image: registry.example.invalid/team/legacy-app:replace-me
     volumeMounts:
     - name: shared-data
       mountPath: /legacy-metrics
   - name: prometheus-adapter
-    image: metrics-adapter:latest
+    image: registry.example.invalid/team/metrics-adapter:replace-me
     volumeMounts:
     - name: shared-data
       mountPath: /input
@@ -741,12 +709,12 @@ metadata:
 spec:
   containers:
   - name: main-app
-    image: myapp:latest
+    image: registry.example.invalid/team/app:replace-me
     volumeMounts:
     - name: config-volume
       mountPath: /etc/config
   - name: config-updater
-    image: config-fetcher:latest
+    image: registry.example.invalid/team/config-fetcher:replace-me
     volumeMounts:
     - name: config-volume
       mountPath: /shared/config
@@ -806,7 +774,7 @@ spec:
   # These containers are run during pod initialization
   initContainers:
   - name: install
-    image: busybox
+    image: busybox:1.37.0
     command:
     - wget
     - "-O"
@@ -844,7 +812,7 @@ spec:
       mountPath: /var/log/nginx
   initContainers:
   - name: log-shipper
-    image: alpine:latest
+    image: alpine:3.24.2
     restartPolicy: Always
     command: ['sh', '-c', 'tail -F /opt/logs.txt']
     volumeMounts:
@@ -873,7 +841,7 @@ metadata:
 spec:
   containers:
   - name: main-app
-    image: alpine:latest
+    image: alpine:3.24.2
     command: ["sh", "-c", "echo 'Main application started' && sleep 3600"]
   initContainers:
   - name: nginx-sidecar
@@ -904,7 +872,7 @@ metadata:
 spec:
   containers:
   - name: main-app
-    image: alpine:latest
+    image: alpine:3.24.2
     command: ["sh", "-c", "echo 'Main application started' && sleep 3600"]
   initContainers:
   - name: nginx-sidecar
@@ -1035,7 +1003,7 @@ metadata:
 spec:
   containers:
   - name: friendly-container
-    image: "alpine:3.4"
+    image: "alpine:3.24.2"
     command: ["/bin/sleep", "3600"]
     securityContext:
       capabilities:
@@ -1045,45 +1013,9 @@ spec:
         - KILL
 ```
 
-## 限制网络带宽
+## 網路頻寬管理
 
-可以通过给 Pod 增加 `kubernetes.io/ingress-bandwidth` 和 `kubernetes.io/egress-bandwidth` 这两个 annotation 来限制 Pod 的网络带宽
-
-
-```yaml
-apiVersion: v1
-kind: Pod
-metadata:
-  name: qos
-  annotations:
-    kubernetes.io/ingress-bandwidth: 3M
-    kubernetes.io/egress-bandwidth: 4M
-spec:
-  containers:
-  - name: iperf3
-    image: networkstatic/iperf3
-    command:
-    - iperf3
-    - -s
-```
-
-> **仅 kubenet 支持限制带宽**
->
-> 目前只有 kubenet 网络插件支持限制网络带宽，其他 CNI 网络插件暂不支持这个功能。
-
-
-kubenet 的网络带宽限制其实是通过 tc 来实现的
-
-```bash
-# setup qdisc (only once)
-tc qdisc add dev cbr0 root handle 1: htb default 30
-# download rate
-tc class add dev cbr0 parent 1: classid 1:2 htb rate 3Mbit
-tc filter add dev cbr0 protocol ip parent 1:0 prio 1 u32 match ip dst 10.1.0.3/32 flowid 1:2
-# upload rate
-tc class add dev cbr0 parent 1: classid 1:3 htb rate 4Mbit
-tc filter add dev cbr0 protocol ip parent 1:0 prio 1 u32 match ip src 10.1.0.3/32 flowid 1:3
-```
+Kubernetes Pod API 不提供跨網路實作通用的頻寬限制欄位。舊版 `kubernetes.io/ingress-bandwidth`、`kubernetes.io/egress-bandwidth` 註解及直接設定 `cbr0` 的 `tc` 範例只適用於特定的舊 kubenet 環境，不應視為通用或目前推薦的設定。頻寬管理須使用叢集 CNI 或雲端平台明確支援的功能，並遵循該實作文件；舊例已移至[歷史歸檔](https://github.com/fun-ed/kubernetes-handbook/blob/main/archive/concepts/objects/pod-bandwidth-legacy.md)。
 
 ## 调度到指定的 Node 上
 
@@ -1154,7 +1086,7 @@ spec:
     - "bar.remote"
   containers:
   - name: cat-hosts
-    image: busybox
+    image: busybox:1.37.0
     command:
     - cat
     args:
@@ -1179,12 +1111,9 @@ fe00::2    ip6-allrouters
 
 ## HugePages
 
-v1.8 + 支持给容器分配 HugePages，资源格式为 `hugepages-<size>`（如 `hugepages-2Mi`）。使用前要配置
+HugePages 可供容器以 `hugepages-<size>` 資源請求及限制（例如 `hugepages-2Mi`）。節點必須預先設定相應數量及頁面大小的 HugePages；不需為此啟用 feature gate。
 
-* 开启 `--feature-gates="HugePages=true"`
-* 在所有 Node 上面预分配好 HugePage ，以便 Kubelet 统计所在 Node 的 HugePage 容量
-
-使用示例
+以下範例使用 `emptyDir` 將已配置的 HugePages 掛載至 Pod。請將資源數量調整為節點實際可供應的值：
 
 ```yaml
 apiVersion: v1
@@ -1193,10 +1122,10 @@ metadata:
   generateName: hugepages-volume-
 spec:
   containers:
-  - image: fedora:latest
+  - image: busybox:1.37.0
     command:
     - sleep
-    - inf
+    - "3600"
     name: example
     volumeMounts:
     - mountPath: /hugepages

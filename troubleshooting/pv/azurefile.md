@@ -1,150 +1,45 @@
-# AzureFile
+# Azure Files CSI 排错
 
-[AzureFile](https://docs.microsoft.com/zh-cn/azure/storage/files/storage-files-introduction) 提供了基于 SMB 协议（也称 CIFS）托管文件共享服务。它支持 Windows 和 Linux 容器，并支持跨主机的共享，可用于多个 Pod 之间的共享存储。AzureFile 的缺点是性能[较差](https://docs.microsoft.com/en-us/azure/storage/files/storage-files-scale-targets)（[AKS\#223](https://github.com/Azure/AKS/issues/223)），并且不提供 Premium 存储。
+Kubernetes v1.36／v1.37 的 Azure Files 应通过 Azure Files CSI driver 使用；旧版 `kubernetes.io/azure-file` in-tree StorageClass、过时的 RBAC 示例与固定权限／Windows 错误记录已移至[历史归档](https://github.com/fun-ed/kubernetes-handbook/blob/main/archive/troubleshooting/pv/azurefile.md)，不可作为当前配置或修复步骤。
 
-推荐基于 StorageClass 来使用 AzureFile，即
+AKS 管理的驱动和自管 CSI 安装方式不同。先依 [AKS Azure Files CSI 文档](https://learn.microsoft.com/azure/aks/create-volume-azure-files)确认驱动、StorageClass、SMB/NFS 协议、账户网络和身份验证方式；挂载选项与身份验证应与所用协议和驱动版本一致，不要将旧版 `0777` 或明文存储账户密钥示例复制到新集群。
 
-```yaml
-kind: StorageClass
-apiVersion: storage.k8s.io/v1
-metadata:
-  name: azurefile
-provisioner: kubernetes.io/azure-file
-mountOptions:
-  - dir_mode=0777
-  - file_mode=0777
-  - uid=1000
-  - gid=1000
-parameters:
-  skuName: Standard_LRS
-```
-
-使用 AzureFile 推荐的版本：
-
-| Kubernetes version | Recommended version |
-| :--- | :---: |
-| 1.12 | 1.12.6 或更高版本 |
-| 1.13 | 1.13.4 或更高版本 |
-| 1.14 | 1.14.0 或更高版本 |
-| &gt;=1.15 | &gt;=1.15 |
-
-## 访问权限
-
-AzureFile 使用 [mount.cifs](https://linux.die.net/man/8/mount.cifs) 将其远端存储挂载到 Node 上，而`fileMode` 和 `dirMode` 控制了挂载后文件和目录的访问权限。不同的 Kubernetes 版本，`fileMode` 和 `dirMode` 的默认选项是不同的
-
-| Kubernetes 版本 | fileMode和dirMode |
-| :--- | :--- |
-| v1.6.x, v1.7.x | 0777 |
-| v1.8.0-v1.8.5 | 0700 |
-| v1.8.6 or above | 0755 |
-| v1.9.0 | 0700 |
-| v1.9.1-v1.12.1 | 0755 |
-| &gt;=v1.12.2 | 0777 |
-
-按照默认的权限会导致非跟用户无法在目录中创建新的文件，解决方法为
-
-* v1.8.0-v1.8.5：设置容器以 root 用户运行，如设置 `spec.securityContext.runAsUser: 0`
-* v1.8.6 以及更新版本：在 AzureFile StorageClass 通过 mountOptions 设置默认权限，比如设置为 `0777` 的方法为
-
-```yaml
-kind: StorageClass
-apiVersion: storage.k8s.io/v1
-metadata:
-  name: azurefile
-provisioner: kubernetes.io/azure-file
-mountOptions:
-  - dir_mode=0777
-  - file_mode=0777
-  - uid=1000
-  - gid=1000
-  - mfsymlinks
-  - nobrl
-  - cache=none
-parameters:
-  skuName: Standard_LRS
-```
-
-## Windows Node 重启后无法访问 AzureFile
-
-Windows Node 重启后，挂载 AzureFile 的 Pod 可以看到如下错误（[\#60624](https://github.com/kubernetes/kubernetes/issues/60624)）：
+## PVC 无法绑定或文件共享配置失败
 
 ```bash
-Warning  Failed                 1m (x7 over 1m)  kubelet, 77890k8s9010  Error: Error response from daemon: invalid bind mount spec "c:\\var\\lib\\kubelet\\pods\\07251c5c-1cfc-11e8-8f70-000d3afd4b43\\volumes\\kubernetes.io~azure-file\\pvc-fb6159f6-1cfb-11e8-8f70-000d3afd4b43:c:/mnt/azure": invalid volume specification: 'c:\var\lib\kubelet\pods\07251c5c-1cfc-11e8-8f70-000d3afd4b43\volumes\kubernetes.io~azure-file\pvc-fb6159f6-1cfb-11e8-8f70-000d3afd4b43:c:/mnt/azure': invalid mount config for type "bind": bind source path does not exist
-  Normal   SandboxChanged         1m (x8 over 1m)  kubelet, 77890k8s9010  Pod sandbox changed, it will be killed and re-created.
+NAMESPACE='<namespace>'
+PVC='<pvc-name>'
+kubectl get pvc "$PVC" -n "$NAMESPACE" -o wide
+kubectl describe pvc "$PVC" -n "$NAMESPACE"
+kubectl get storageclass
+kubectl get csidrivers
+kubectl get events -n "$NAMESPACE" --sort-by=.metadata.creationTimestamp
 ```
 
-临时性解决方法为删除并重新创建使用了 AzureFile 的 Pod。当 Pod 使用控制器（如 Deployment、StatefulSet等）时，删除 Pod 后控制器会自动创建一个新的 Pod。
+检查 StorageClass 的 CSI provisioner 与参数、账户／共享配额、订阅区域、网络防火墙与驱动身份权限。不要因为错误信息泛称找不到存储账户，就为所有 ServiceAccount 授予创建 Secret 的权限。
 
-该问题的修复 [\#60625](https://github.com/kubernetes/kubernetes/pull/60625) 包含在 v1.10 中。
-
-## AzureFile ProvisioningFailed
-
-Azure 文件共享的名字最大只允许 63 个字节，因而在集群名字较长的集群（Kubernetes v1.7.10 或者更老的集群）里面有可能会碰到 AzureFile 名字长度超限的情况，导致 AzureFile ProvisioningFailed：
+## Pod 挂载失败或挂载后无法读写
 
 ```bash
-persistentvolume-controller    Warning    ProvisioningFailed Failed to provision volume with StorageClass "azurefile": failed to find a matching storage account
+kubectl describe pod '<pod-name>' -n "$NAMESPACE"
+kubectl describe pvc "$PVC" -n "$NAMESPACE"
+kubectl get pv
+kubectl get volumeattachment
+kubectl get csinodes
+kubectl -n kube-system get pods -o wide
 ```
 
-碰到该问题时可以通过升级集群解决，其修复 [\#48326](https://github.com/kubernetes/kubernetes/pull/48326) 已经包含在 v1.7.11、v1.8 以及更新版本中。
+根据 Pod/PVC Events、PV、VolumeAttachment 与目标 Node CSI Pod 日志区分身份验证失败、SMB/NFS 网络连接、DNS、协议／挂载选项或 POSIX 权限问题。若需查看 CSI 日志，先依发行版找出实际 Azure Files CSI controller/node Pod 及容器名称；AKS 托管组件名称或日志访问方式可能不同。确认 Node 到存储端点的 DNS、端口、防火墙／私有端点路由与当前身份验证方式。不要在日志、命令行历史或清单中暴露存储账户密钥、SAS token 或其他凭证。
 
-在开启 RBAC 的集群中，由于 AzureFile 需要访问 Secret，而 kube-controller-manager 中并未为 AzureFile 自动授权，从而也会导致 ProvisioningFailed：
+SMB 挂载的 Unix 所有者、模式与 `fsGroup` 行为取决于协议、CSI 驱动参数与存储服务设置；不要只为避开 `Operation not permitted` 就以 root 运行容器、递归 `chown` 大型共享目录，或放宽至 `0777`。先确认共享是否支持应用要求的语义，再依当前驱动文档选择安全配置。
 
-```bash
-Events:
-  Type     Reason              Age   From                         Message
-  ----     ------              ----  ----                         -------
-  Warning  ProvisioningFailed  8s    persistentvolume-controller  Failed to provision volume with StorageClass "azurefile": Couldn't create secret secrets is forbidden: User "system:serviceaccount:kube-syste
-m:persistent-volume-binder" cannot create secrets in the namespace "default"
-  Warning  ProvisioningFailed  8s    persistentvolume-controller  Failed to provision volume with StorageClass "azurefile": failed to find a matching storage account
-```
+## 删除 PVC 或共享失败
 
-解决方法是为 ServiceAccount `persistent-volume-binder` 授予 Secret 的访问权限：
-
-```yaml
----
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRole
-metadata:
-  name: system:azure-cloud-provider
-rules:
-- apiGroups: ['']
-  resources: ['secrets']
-  verbs:     ['get','create']
----
-apiVersion: rbac.authorization.k8s.io/v1beta1
-kind: ClusterRoleBinding
-metadata:
-  name: system:azure-cloud-provider
-roleRef:
-  kind: ClusterRole
-  apiGroup: rbac.authorization.k8s.io
-  name: system:azure-cloud-provider
-subjects:
-- kind: ServiceAccount
-  name: persistent-volume-binder
-  namespace: kube-system
-```
-
-## Azure German Cloud 无法使用 AzureFile
-
-Azure German Cloud 仅在 v1.7.11+、v1.8+ 以及更新版本中支持（[\#48460](https://github.com/kubernetes/kubernetes/pull/48460)），升级 Kubernetes 版本即可解决。
-
-## "could not change permissions" 错误
-
-在 Azure Files 插件上运行 PostgreSQL 时，可能会看到类似于以下内容的错误：
-
-```text
-initdb: could not change permissions of directory "/var/lib/postgresql/data": Operation not permitted
-fixing permissions on existing directory /var/lib/postgresql/data
-```
-
-此错误是由使用 cifs/SMB 协议的 Azure 文件插件导致的。 使用 cifs/SMB 协议时，无法在装载后更改文件和目录权限。 若要解决此问题，请将子路径与 Azure 磁盘插件结合使用。
+先确认 Pod 已停止使用 PVC，并按 PV reclaim policy、备份和保留规定评估数据影响。若共享仍被挂载或 CSI 报告删除错误，收集 PVC/PV、Pod、VolumeAttachment、CSI 日志及 Azure 错误码，依集群发行版和驱动版本流程处理。不要强制移除 finalizer 或直接删除云端共享来绕过 CSI 状态管理。
 
 ## 参考文档
 
-* [Known kubernetes issues on Azure](https://github.com/andyzhangx/demo/tree/master/issues)
-* [Introduction of Azure File Storage](https://docs.microsoft.com/zh-cn/azure/storage/files/storage-files-introduction)
-* [AzureFile volume examples](https://github.com/kubernetes/examples/tree/master/staging/volumes/azure_file)
-* [Persistent volumes with Azure files](https://docs.microsoft.com/en-us/azure/aks/azure-files-dynamic-pv)
-* [Azure Files scalability and performance targets](https://docs.microsoft.com/en-us/azure/storage/files/storage-files-scale-targets)
-
+- [AKS Azure Files CSI 驱动与动态配置](https://learn.microsoft.com/azure/aks/create-volume-azure-files)
+- [AKS 存储故障排查](https://learn.microsoft.com/azure/aks/troubleshooting)
+- [Kubernetes CSI 卷](https://kubernetes.io/docs/concepts/storage/volumes/#csi)
+- [Kubernetes VolumeAttachment API](https://kubernetes.io/docs/reference/kubernetes-api/config-and-storage-resources/volume-attachment-v1/)

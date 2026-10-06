@@ -1,30 +1,45 @@
-BOOK_NAME := kubernetes-handbook
 BOOK_OUTPUT := _book
+VERIFY_ARGS ?=
 
 .PHONY: build
 build:
-	gitbook build . $(BOOK_OUTPUT)
+	npm run build
 
 .PHONY: serve
 serve:
-	gitbook serve . $(BOOK_OUTPUT)
+	npm run serve
 
 .PHONY: epub
 epub:
-	gitbook epub . $(BOOK_NAME).epub
+	npm run epub
 
 .PHONY: pdf
 pdf:
-	gitbook pdf . $(BOOK_NAME).pdf
+	npm run pdf
 
 .PHONY: mobi
 mobi:
-	gitbook mobi . $(BOOK_NAME).mobi
+	npm run mobi
 
 .PHONY: install
 install:
-	npm install gitbook-cli -g
-	gitbook install
+	npm ci
+
+.PHONY: check-book
+check-book:
+	npm run check:book
+
+.PHONY: test
+test:
+	npm test
+
+.PHONY: verify
+verify:
+	uv run --locked --script scripts/verify.py $(VERIFY_ARGS)
+
+.PHONY: verify-cluster
+verify-cluster:
+	uv run --locked --script scripts/verify.py --cluster $(VERIFY_ARGS)
 
 .PHONY: clean
 clean:
@@ -33,16 +48,20 @@ clean:
 .PHONY: spell
 spell:
 	go get github.com/client9/misspell/cmd/misspell
-	git ls-files | grep -v /vendor/ | xargs misspell -error -o stderr	
+	git ls-files | grep -v /vendor/ | xargs misspell -error -o stderr
 
 .PHONY: help
 help:
 	@echo "Help for make"
-	@echo "make          - Build the book"
-	@echo "make build    - Build the book"
-	@echo "make serve    - Serving the book on localhost:4000"
-	@echo "make install  - Install gitbook and plugins"
-	@echo "make epub     - Build epub book"
-	@echo "make pdf      - Build pdf book"
-	@echo "make spell    - Check splling"
-	@echo "make clean    - Remove generated files"
+	@echo "make / make build  - Build the book"
+	@echo "make serve         - Serve the book on localhost:4000"
+	@echo "make install       - Install exact local npm dependencies"
+	@echo "make check-book    - Check rendered book output"
+	@echo "make test          - Run rendering/checker unit tests"
+	@echo "make verify        - Run local manifest/schema checks (may fetch schemas)"
+	@echo "make verify-cluster - Run isolated checks; pass --image through VERIFY_ARGS"
+	@echo "make epub          - Export EPUB"
+	@echo "make pdf           - Export PDF (requires Calibre)"
+	@echo "make mobi          - Export MOBI (requires Calibre)"
+	@echo "make spell         - Check spelling"
+	@echo "make clean         - Remove generated site files"

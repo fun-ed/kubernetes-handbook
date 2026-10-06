@@ -53,7 +53,7 @@ spec:
   templates:
     - name: whalesay
       container:
-        image: busybox:1.36.1
+        image: busybox:1.37.0
         command: [echo]
         args: ["hello world"]
 ```
@@ -67,3 +67,107 @@ spec:
 - [Argo Workflows v4.1.4 发布说明](https://github.com/argoproj/argo-workflows/releases/tag/v4.1.4)
 
 旧章中的 Argo 2.0/2.1 CLI、`argo-ci` chart、Tiller、`stable/minio` 和默认 ServiceAccount 的集群管理员绑定已移除，不再作为安装建议。
+
+## Dedicated workflow identity and permissions
+
+The quick-start bundle is explicitly for evaluation, not production. Workflow pods use `spec.serviceAccountName`; if omitted, they use the namespace's `default` ServiceAccount. Production workflows should name a dedicated ServiceAccount and bind only the permissions their tasks require. The v4.1.4 executor minimum is namespace-scoped permission to create and patch `workflowtaskresults` in API group `argoproj.io`.
+
+This example is a minimal dedicated task identity for the namespace where the Workflow runs. It does not grant permission to deploy arbitrary Kubernetes objects.
+
+```yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: workflow-task
+  namespace: argo
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: workflow-task-executor
+  namespace: argo
+rules:
+  - apiGroups: [argoproj.io]
+    resources: [workflowtaskresults]
+    verbs: [create, patch]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: workflow-task-executor
+  namespace: argo
+subjects:
+  - kind: ServiceAccount
+    name: workflow-task
+    namespace: argo
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: workflow-task-executor
+```
+
+The workflow controller has its own permissions to observe and manage Workflow resources; do not confuse those controller permissions with permissions granted to user task pods. Add task-specific permissions only when a task needs Kubernetes API access, and scope them to the needed resource, namespace and verbs. Do not bind `cluster-admin` or rely on the shared default ServiceAccount.
+
+## Steps and DAG example
+
+A Workflow is both the specification and recorded state of one run. Templates define task execution; the entrypoint names the starting template. In a `steps` template, each nested list runs in sequence and items in the same list can run in parallel. A DAG expresses explicit dependencies. The example below runs `prepare`, then `left` and `right` concurrently, then `finish` after both succeed. The `busybox:1.37.0` tag is the pinned image used in the upstream v4.1.4 hello-world example; for higher supply-chain assurance, select an approved image and immutable digest.
+
+```yaml
+apiVersion: argoproj.io/v1alpha1
+kind: Workflow
+metadata:
+  generateName: small-dag-
+spec:
+  serviceAccountName: workflow-task
+  entrypoint: pipeline
+  templates:
+    - name: pipeline
+      dag:
+        tasks:
+          - name: prepare
+            template: say
+            arguments:
+              parameters: [{name: message, value: prepare}]
+          - name: left
+            depends: prepare
+            template: say
+            arguments:
+              parameters: [{name: message, value: left}]
+          - name: right
+            depends: prepare
+            template: say
+            arguments:
+              parameters: [{name: message, value: right}]
+          - name: finish
+            depends: "left && right"
+            template: say
+            arguments:
+              parameters: [{name: message, value: finish}]
+    - name: say
+      inputs:
+        parameters:
+          - name: message
+      container:
+        image: busybox:1.37.0
+        command: [echo]
+        args: ["{{inputs.parameters.message}}"]
+```
+
+To try it, first install the v4.1.4 quick-start manifest only in a disposable cluster and namespace, then apply the ServiceAccount, Role and RoleBinding above. Save the Workflow as `small-dag.yaml`; the following submits and observes it without exposing a server endpoint:
+
+```bash
+argo submit -n argo --watch small-dag.yaml
+argo list -n argo
+argo get -n argo @latest
+argo logs -n argo @latest
+```
+
+The submitter needs authority to create Workflows in `argo`; the commands assume CLI access is already configured. `--watch` waits for completion. `list`, `get` and `logs` inspect runs. The optional Argo Server UI can be reached through an explicitly local port-forward; see the [v4.1.4 Quick Start](https://github.com/argoproj/argo-workflows/blob/v4.1.4/docs/quick-start.md). Do not make the server public as a shortcut.
+
+Retries may repeat task side effects. Make tasks idempotent or use external deduplication/locking before configuring retries. Artifacts need a configured artifact repository and suitable credentials; a Workflow manifest alone does not configure storage. Set an appropriate TTL only after deciding how long logs, outputs and run metadata must remain available. Deleting old Workflow objects does not guarantee external artifact cleanup.
+
+## Diagnose and operate safely
+
+If submission is forbidden, check the submitter's namespace RBAC. These CLI examples assume an authenticated CLI context with access to the isolated `argo` namespace. If a pod cannot report its task result, verify that the Workflow's named ServiceAccount has the `workflowtaskresults` RoleBinding in the Workflow namespace and that the CRD/controller installation is healthy. If pods remain pending or image pulls fail, inspect pod events, scheduler capacity, image reference and registry access before changing Workflow privileges. For failed DAG nodes, inspect `argo get` and logs; a retry should not be used to hide a deterministic input or permission error.
+
+The v4.1.4 official release was published 2026-09-18. Its existence and API documentation do not establish Kubernetes v1.37 compatibility; the handbook's baseline is v1.37.1, and no affirmative upstream v1.37 matrix was found for this release. Check the [release](https://github.com/argoproj/argo-workflows/releases/tag/v4.1.4), [RBAC guidance](https://github.com/argoproj/argo-workflows/blob/v4.1.4/docs/workflow-rbac.md), [Workflow concepts](https://github.com/argoproj/argo-workflows/blob/v4.1.4/docs/workflow-concepts.md) and [installation guide](https://github.com/argoproj/argo-workflows/blob/v4.1.4/docs/installation.md) before a production deployment. Stage upgrades, verify CRDs and controller compatibility, preserve workflow and artifact data, and rehearse rollback without deleting persistent data.

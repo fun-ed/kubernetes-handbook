@@ -1,11 +1,10 @@
 # StatefulSet
 
-StatefulSet 是为了解决有状态服务的问题（对应 Deployments 和 ReplicaSets 是为无状态服务而设计），其应用场景包括
+StatefulSet 用於管理需要穩定識別資訊或持久儲存的 Pod。它支援下列行為：
 
-* 稳定的持久化存储，即 Pod 重新调度后还是能访问到相同的持久化数据，基于 PVC 来实现
-* 稳定的网络标志，即 Pod 重新调度后其 PodName 和 HostName 不变，基于 Headless Service（即没有 Cluster IP 的 Service）来实现
-* 有序部署，有序扩展，即 Pod 是有顺序的，在部署或者扩展的时候要依据定义的顺序依次依序进行（即从 0 到 N-1，在下一个 Pod 运行之前所有之前的 Pod 必须都是 Running 和 Ready 状态），基于 init containers 来实现
-* 有序收缩，有序删除（即从 N-1 到 0）
+* Pod 重新建立後保留序號與穩定網路識別；需搭配 Headless Service。
+* `volumeClaimTemplates` 為每個 Pod 建立 PVC，實際持久性取決於 StorageClass、PV 和儲存系統。
+* 預設以序號順序建立及縮減 Pod，預設更新策略依序替換 Pod。這些順序由 StatefulSet controller 管理，不是由 init container 實作。`podManagementPolicy: Parallel` 可變更建立及刪除的管理方式。
 
 从上面的应用场景可以发现，StatefulSet 由以下几个部分组成：
 
@@ -92,7 +91,7 @@ kubectl get pods -l app=nginx
 用一次性 BusyBox Pod 查询 StatefulSet Pod 的 DNS 名称：
 
 ```bash
-kubectl run dns-test --image=busybox:1.36 --restart=Never --rm -it -- \
+kubectl run dns-test --image=busybox:1.37.0 --restart=Never --rm -it -- \
   nslookup web-0.nginx
 ```
 
@@ -116,34 +115,25 @@ kubectl delete pvc www-web-0 www-web-1
 
 ## 更新 StatefulSet
 
-v1.7 + 支持 StatefulSet 的自动更新，通过 `spec.updateStrategy` 设置更新策略。目前支持两种策略
+StatefulSet 支援 `RollingUpdate` 與 `OnDelete` 更新策略。`RollingUpdate` 會依序更新 Pod；預設按序號由大到小執行，並等待 Pod Ready 後才繼續。`OnDelete` 只更新 StatefulSet 範本，不會自動刪除現有 Pod，必須由操作者逐個刪除以觸發替換。
 
-* OnDelete：当 `.spec.template` 更新时，并不立即删除旧的 Pod，而是等待用户手动删除这些旧 Pod 后自动创建新 Pod。这是默认的更新策略，兼容 v1.6 版本的行为
-* RollingUpdate：当 `.spec.template` 更新时，自动删除旧的 Pod 并创建新 Pod 替换。在更新时，这些 Pod 是按逆序的方式进行，依次删除、创建并等待 Pod 变成 Ready 状态才进行下一个 Pod 的更新。
-
-### Partitions
-
-RollingUpdate 还支持 Partitions，通过 `.spec.updateStrategy.rollingUpdate.partition` 来设置。当 partition 设置后，只有序号大于或等于 partition 的 Pod 会在 `.spec.template` 更新的时候滚动更新，而其余的 Pod 则保持不变（即便是删除后也是用以前的版本重新创建）。
+更新容器映像檔或其他 Pod 範本欄位時，請修改 `web.yaml` 中的 `.spec.template`，再套用及監看：
 
 ```bash
-# 设置 partition 为 3
-$ kubectl patch statefulset web -p '{"spec":{"updateStrategy":{"type":"RollingUpdate","rollingUpdate":{"partition":3}}}}'
-statefulset "web" patched
-
-# 更新 StatefulSet
-$ kubectl patch statefulset web --type='json' -p='[{"op":"replace","path":"/spec/template/spec/containers/0/image","value":"gcr.io/google_containers/nginx-slim:0.7"}]'
-statefulset "web" patched
-
-# 验证更新
-$ kubectl delete po web-2
-pod "web-2" deleted
-$ kubectl get po -lapp=nginx -w
-NAME      READY     STATUS              RESTARTS   AGE
-web-0     1/1       Running             0          4m
-web-1     1/1       Running             0          4m
-web-2     0/1       ContainerCreating   0          11s
-web-2     1/1       Running             0          18s
+kubectl apply -f web.yaml
+kubectl rollout status statefulset/web
+kubectl get pods -l app=nginx --watch
 ```
+
+`RollingUpdate` 支援 partition。設為 `2` 時，只有序號大於或等於 2 的 Pod 會更新；較低序號的 Pod 保留舊範本。請在分批發布前確認儲存資料與應用程式版本相容：
+
+```bash
+kubectl patch statefulset web --type=merge \
+  -p '{"spec":{"updateStrategy":{"type":"RollingUpdate","rollingUpdate":{"partition":2}}}}'
+kubectl rollout status statefulset/web
+```
+
+解除分批更新前，應確認較高序號的 Pod 已達到所需狀態，再將 partition 設為 0 或移除該欄位。
 
 ## Pod 管理策略
 
@@ -219,8 +209,8 @@ web-1     1/1       Running             0         10s
 
 ## StatefulSet 注意事项
 
-1. 推荐在 Kubernetes v1.9 或以后的版本中使用
-2. 所有 Pod 的 Volume 必须使用 PersistentVolume 或者是管理员事先创建好
-3. 为了保证数据安全，删除 StatefulSet 时不会删除 Volume
-4. StatefulSet 需要一个 Headless Service 来定义 DNS domain，需要在 StatefulSet 之前创建好
+1. 若需在 Pod 重建後保留資料，請使用 `volumeClaimTemplates` 或明確設定的 PersistentVolumeClaim；StatefulSet 不會替所有容器自動提供持久儲存。
+2. 預設的 OrderedReady 管理策略會依序建立及刪除 Pod；`Parallel` 策略則不保證此順序。請依工作負載特性選擇策略。
+3. 刪除 StatefulSet 不會自動刪除其 PVC。PV 是否保留資料，還取決於儲存後端及 PV reclaim policy；刪除前應確認保留與備份方式。
+4. StatefulSet 的 `serviceName` 指定管理 Pod 網路身分的 Service，通常會使用 headless Service。若需要穩定的 Pod DNS，請建立對應 Service 並確認叢集 DNS 設定。
 

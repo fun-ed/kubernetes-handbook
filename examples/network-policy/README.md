@@ -6,16 +6,17 @@ Network policies are implemented by the network plugin, so you must be using a n
 
 ## Example workflow
 
+From the repository root, apply only this directory:
+
 ```sh
-$ kubectl apply -f .
+kubectl apply -f examples/network-policy/
 ```
 
-Wait a while and then you should see following results:
+The access test should succeed; the no-access test retries for up to about
+three minutes and then fails its connection. Use the observations only on a
+CNI that enforces NetworkPolicy:
 
 ```sh
-$ kubectl get pod
-NAME                                              READY   STATUS      RESTARTS   AGE
-nginx-7877b6cf84-5r5b2                            1/1     Running     0          5m
-access-pod                                        0/1     Completed   0          3m
-no-access-pod                                     0/1     Error       0          3m
+kubectl get pods -l app=access-pod
+kubectl get pods -l app=no-access-pod
 ```

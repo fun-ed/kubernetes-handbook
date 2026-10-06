@@ -1,89 +1,36 @@
 # ReplicaSet
 
-ReplicationController（也简称为 rc）用来确保容器应用的副本数始终保持在用户定义的副本数，即如果有容器异常退出，会自动创建新的 Pod 来替代；而异常多出来的容器也会自动回收。ReplicationController 的典型应用场景包括确保健康 Pod 的数量、弹性伸缩、滚动升级以及应用多版本发布跟踪等。
+`ReplicaSet` 確保符合 selector 的 Pod 副本數接近期望值。應用程式通常由 `Deployment` 管理，而不是直接建立 ReplicaSet；Deployment 提供宣告式 rollout、revision 歷程及回復功能。
 
-在新版本的 Kubernetes 中建议使用 ReplicaSet（也简称为 rs）来取代 ReplicationController。ReplicaSet 跟 ReplicationController 没有本质的不同，只是名字不一样，并且 ReplicaSet 支持集合式的 selector（ReplicationController 仅支持等式）。
+`apps/v1` 是目前的 ReplicaSet API。舊版 `extensions/v1beta1`、`apps/v1beta1` 和 `apps/v1beta2` API 已移除。舊版 ReplicaSet/Guestbook 教學及其不可用的 sample image 已移至[歷史歸檔](https://github.com/fun-ed/kubernetes-handbook/blob/main/archive/concepts/objects/replicaset-legacy.md)。
 
-虽然也 ReplicaSet 可以独立使用，但建议使用 Deployment 来自动管理 ReplicaSet，这样就无需担心跟其他机制的不兼容问题（比如 ReplicaSet 不支持 rolling-update 但 Deployment 支持），并且还支持版本记录、回滚、暂停升级等高级特性。Deployment 的详细介绍和使用方法见 [这里](deployment.md)。
-
-## API 版本
-
-| API version | 状态 |
-| :--- | :--- |
-| `apps/v1` | 当前版本 |
-| `extensions/v1beta1`、`apps/v1beta1`、`apps/v1beta2` | 历史 API，已从当前 Kubernetes 版本移除 |
-
-## ReplicationController 示例
-
-```yaml
-apiVersion: v1
-kind: ReplicationController
-metadata:
-  name: nginx
-spec:
-  replicas: 3
-  selector:
-    app: nginx
-  template:
-    metadata:
-      name: nginx
-      labels:
-        app: nginx
-    spec:
-      containers:
-      - name: nginx
-        image: nginx:1.30.5
-        ports:
-        - containerPort: 80
-```
-
-## ReplicaSet 示例
+以下僅示範 ReplicaSet selector 與 Pod template 的對應關係。映像檔是截至 2026-10-05 的已驗證 NGINX 穩定標籤 `1.30.5`：
 
 ```yaml
 apiVersion: apps/v1
 kind: ReplicaSet
 metadata:
   name: frontend
-  # these labels can be applied automatically
-  # from the labels in the pod template if not set
-  # labels:
-    # app: guestbook
-    # tier: frontend
+  labels:
+    app: frontend
 spec:
-  # this replicas value is default
-  # modify it according to your case
   replicas: 3
-  # selector can be applied automatically
-  # from the labels in the pod template if not set,
-  # but we are specifying the selector here to
-  # demonstrate its usage.
   selector:
     matchLabels:
-      tier: frontend
-    matchExpressions:
-      - {key: tier, operator: In, values: [frontend]}
+      app: frontend
   template:
     metadata:
       labels:
-        app: guestbook
-        tier: frontend
+        app: frontend
     spec:
       containers:
-      - name: php-redis
-        image: gcr.io/google_samples/gb-frontend:v3
-        resources:
-          requests:
-            cpu: 100m
-            memory: 100Mi
-        env:
-        - name: GET_HOSTS_FROM
-          value: dns
-          # If your cluster config does not include a dns service, then to
-          # instead access environment variables to find service host
-          # info, comment out the 'value: dns' line above, and uncomment the
-          # line below.
-          # value: env
-        ports:
-        - containerPort: 80
+        - name: nginx
+          image: nginx:1.30.5
+          ports:
+            - containerPort: 80
 ```
 
+`.spec.selector` 必須匹配 Pod template labels，且不得選中其他控制器管理的 Pod。建立後 selector 不可變更。若要調整副本數或更新容器映像檔，請修改 Deployment 的期望狀態並監看 rollout，而不要直接改它管理的 ReplicaSet。
+
+- [ReplicaSet](https://kubernetes.io/docs/concepts/workloads/controllers/replicaset/)
+- [Deployments](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/)

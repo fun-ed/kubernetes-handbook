@@ -1,0 +1,31 @@
+name: Component release watch
+
+on:
+  schedule:
+    - cron: "23 8 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check-releases:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out the watchlist
+        uses: actions/checkout@v7
+
+      - name: Check stable component releases
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 scripts/check-component-updates.py --output "$RUNNER_TEMP/component-updates.json"
+
+      - name: Upload the JSON report
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: component-updates-${{ github.run_id }}
+          path: ${{ runner.temp }}/component-updates.json
+          if-no-files-found: error
+          retention-days: 30

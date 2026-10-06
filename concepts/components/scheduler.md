@@ -66,7 +66,7 @@ spec:
             - another-node-label-value
   containers:
   - name: with-node-affinity
-    image: gcr.io/google_containers/pause:2.0
+    image: registry.k8s.io/pause:3.10.2
 ```
 
 ### podAffinity 示例
@@ -91,7 +91,7 @@ spec:
             operator: In
             values:
             - S1
-        topologyKey: failure-domain.beta.kubernetes.io/zone
+        topologyKey: topology.kubernetes.io/zone
     podAntiAffinity:
       preferredDuringSchedulingIgnoredDuringExecution:
       - weight: 100
@@ -105,7 +105,7 @@ spec:
           topologyKey: kubernetes.io/hostname
   containers:
   - name: with-pod-affinity
-    image: gcr.io/google_containers/pause:2.0
+    image: registry.k8s.io/pause:3.10.2
 ```
 
 ## Taints 和 tolerations

@@ -1,0 +1,15 @@
+# k0s v1.36.4+k0s.1 ClusterConfig; example single controller/worker lab.
+apiVersion: k0s.k0sproject.io/v1beta1
+kind: ClusterConfig
+metadata:
+  name: k0s
+spec:
+  network:
+    provider: kuberouter
+    podCIDR: 10.244.0.0/16
+    serviceCIDR: 10.96.0.0/12
+    clusterDomain: cluster.local
+  storage:
+    type: etcd
+  telemetry:
+    enabled: false

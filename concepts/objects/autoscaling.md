@@ -28,7 +28,7 @@ kubectl autoscale deployment php-apache --cpu-percent=50 --min=1 --max=10
 kubectl get hpa
 
 # 启动持续请求负载；观察 HPA 副本数变化
-kubectl run load-generator --image=busybox:1.36 --restart=Never -- \
+kubectl run load-generator --image=busybox:1.37.0 --restart=Never -- \
   sh -c 'while true; do wget -q -O- http://php-apache.default.svc.cluster.local >/dev/null; done'
 kubectl get hpa --watch
 
@@ -131,16 +131,19 @@ spec:
        tolerance: 0.15  # 15% 容忍度，稳定缩容
    ```
 
-3. **不同工作负载的定制策略**：
+3. **不同工作負載的自訂策略**：以下是兩種互相獨立的 `spec.behavior` 片段，請依工作負載擇一設定；不要將兩個片段合併為同一個 `behavior` mapping。
+
+   批次工作負載：積極擴容、保守縮容。
    ```yaml
-   # 批处理工作负载 - 积极扩容，保守缩容
    behavior:
      scaleUp:
        tolerance: 0
      scaleDown:
        tolerance: 0.2
-   
-   # Web 服务 - 平衡策略
+   ```
+
+   Web 服務：平衡策略。
+   ```yaml
    behavior:
      scaleUp:
        tolerance: 0.05

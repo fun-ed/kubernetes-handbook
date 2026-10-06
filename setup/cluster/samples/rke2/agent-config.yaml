@@ -1,0 +1,4 @@
+# Native RKE2 configuration; not a Kubernetes API manifest.
+# Replace placeholders before use. Protect this file with root:root and mode 0600.
+server: "https://REPLACE_WITH_STABLE_API_DNS_NAME:9345"
+token: "REPLACE_WITH_THE_CLUSTER_AGENT_TOKEN"

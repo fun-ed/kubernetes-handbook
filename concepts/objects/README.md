@@ -16,7 +16,6 @@ Kubernetes 主要概念和对象介绍。
 * [Node](node.md)
 * [PersistentVolume](persistent-volume.md)
 * [Pod](pod.md)
-* [PodPreset](podpreset.md)
 * [ReplicaSet](replicaset.md)
 * [Resource Quota](quota.md)
 * [Secret](secret.md)

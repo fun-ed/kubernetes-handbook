@@ -1,0 +1,10 @@
+{
+  "name": "honkit-plugin-handbook-rendering",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Local source-link compatibility, page table of contents, and Mermaid rendering adapter for the handbook",
+  "main": "index.js",
+  "engines": {
+    "honkit": ">=6.2.2 <7"
+  }
+}

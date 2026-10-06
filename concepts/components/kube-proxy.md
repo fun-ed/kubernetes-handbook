@@ -19,6 +19,8 @@ The `userspace` and `winuserspace` modes shown in old documents are historical, 
 
 旧版 IPVS 部署指南可能要求预加载 `ip_vs`、`ip_vs_rr`、`ip_vs_wrr`、`ip_vs_sh` 和 `nf_conntrack` 内核模块。IPVS 已弃用；不要把该设置用于 nftables 或 iptables 模式。请遵循发行版针对现存 IPVS 集群的迁移说明。
 
+如需在 Linux 節點上使用 kube-proxy nftables 模式的背景與操作檢查，請參閱 [nftables 章節](../../network/nftables.md)；該模式不是 v1.37 的預設值。
+
 ## Iptables 示例（历史输出）
 以下静态规则是历史示意，不是 Kubernetes v1.37 的默认规则清单。实际规则取决于代理模式、地址和 Service 配置。
 

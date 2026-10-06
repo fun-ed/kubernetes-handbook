@@ -168,8 +168,10 @@ Kubernetes v1.33 为 JSON/Protobuf List 响应增加逐项编码，可在特定�
 kubectl -n kube-system get pods
 kubectl -n kube-system get service
 kubectl -n kube-system logs <coredns-pod> --all-containers=true --tail=100
-kubectl -n kube-system get endpointslices -l kubernetes.io/service-name=kube-dns
+DNS_SERVICE='<dns-service-name-shown-above>'
+kubectl -n kube-system get endpointslices -l "kubernetes.io/service-name=$DNS_SERVICE"
 ```
+
 
 CoreDNS 无法响应时，检查 Corefile、上游 DNS 可达性、Pod 网络和节点防火墙，并查看 CNI 与 kubelet 日志。不要通过 `iptables -P FORWARD ACCEPT` 放开主机转发策略；这会改变整台 Node 的安全边界。网络问题的进一步检查见[网络排错指南](network.md)。
 
@@ -191,7 +193,7 @@ Node Allocatable 用于为系统守护进程和驱逐阈值预留节点资源，
 kube-proxy 的日志、所需内核功能及网络规则取决于代理模式和发行版。遇到 conntrack 错误时，先确认所用 kube-proxy 模式、节点内核/conntrack 支持与 kube-proxy 当前文档；旧版日志中的 `conntrack` 二进制缺失不能证明所有集群都应安装同一个软件包。若集群使用替代 Service 实现，应改查该实现的日志与规则。
 ## Dashboard 中没有资源指标
 
-Heapster 已退出维护，不要重新部署 Heapster。先确认 Metrics API `metrics.k8s.io/v1` 已注册并可用、其后端能采集当前节点与 Pod 指标，再检查 Dashboard 版本是否支持该 API。Dashboard 的功能和安装方式由其维护项目决定，不要依赖旧版资源图表截图或已删除的 Heapster 标签与命令。
+Heapster 已退出维护，不要重新部署 Heapster。排查 Dashboard 缺少指标时，检查 `v1beta1.metrics.k8s.io` APIService 是否注册且后端可用；截至本书基线的 Metrics Server v0.9.0 提供的是 v1beta1。Kubernetes 的 `metrics.k8s.io/v1` API 稳定，不代表此版本的 Metrics Server 已提供 v1；`kubectl top` 可查询 v1 并回退至 v1beta1，因此 `kubectl top` 成功也不能证明 Dashboard 所用 API 可用。另须确认所用 Dashboard 版本支援的指标 API。不要依赖旧版 Heapster 标签、安装命令或资源图表截图。
 ## HPA 不自动扩展 Pod
 
 查看 HPA 的事件，发现
@@ -219,7 +221,7 @@ Events:
   Warning  FailedGetResourceMetric  3m (x2231 over 18h)  horizontal-pod-autoscaler  unable to get metrics for resource cpu: unable to fetch metrics from API: the server could not find the requested resource (get pods.metrics.k8s.io)
 ```
 
-这说明 Metrics API 未正常提供指标。检查 Metrics Server 及其所用版本是否支持 `metrics.k8s.io/v1`，并确认 kube-apiserver aggregation、APIService 状态和节点/Pod 指标采集链路；不要假设旧版 API 或独立安装命令仍适用。
+这说明 Metrics API 未正常提供指标。检查 Metrics Server 及 `v1beta1.metrics.k8s.io` APIService 状态；Kubernetes v1.37.1 的 HPA resource-metrics client 仍使用 v1beta1，不能只确认 `metrics.k8s.io/v1` 可用。`kubectl top` 可先查询 v1 再回退至 v1beta1；还需核对 aggregation、节点／Pod 指标采集链路和 Metrics Server 的日志。不要假设旧版 API 或独立安装命令仍适用。
 
 ## Node 存储空间不足
 

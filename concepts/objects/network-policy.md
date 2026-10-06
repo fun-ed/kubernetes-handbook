@@ -195,7 +195,7 @@ spec:
 
 ```bash
 kubectl apply -f default-deny.yaml
-kubectl run netcheck --image=busybox:1.36 --restart=Never --rm -it -- \
+kubectl run netcheck --image=busybox:1.37.0 --restart=Never --rm -it -- \
   wget -qO- --timeout=2 http://nginx
 ```
 
@@ -227,9 +227,9 @@ spec:
 
 ```bash
 kubectl apply -f allow-access-nginx.yaml
-kubectl run netcheck --image=busybox:1.36 --restart=Never --rm -it -- \
+kubectl run netcheck --image=busybox:1.37.0 --restart=Never --rm -it -- \
   wget -qO- --timeout=2 http://nginx
-kubectl run netcheck --image=busybox:1.36 --restart=Never --rm -it --labels=access=true -- \
+kubectl run netcheck --image=busybox:1.37.0 --restart=Never --rm -it --labels=access=true -- \
   wget -qO- --timeout=2 http://nginx
 ```
 

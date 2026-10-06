@@ -87,33 +87,7 @@ Service、Endpoints（已弃用，建议使用 EndpointSlices）和 Pod 支持�
 Service 使用核心 API 组的 `v1`（`apiVersion: v1`）。
 ### 不指定 Selectors 的服务
 
-在创建 Service 的时候，也可以不指定 Selectors，用来将 service 转发到 kubernetes 集群外部的服务（而不是 Pod）。目前支持两种方法
-
-（1）自定义 endpoint，即创建同名的 service 和 endpoint，在 endpoint 中设置外部服务的 IP 和端口
-
-```yaml
-kind: Service
-apiVersion: v1
-metadata:
-  name: my-service
-spec:
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 9376
----
-# 兼容旧客户端的 Endpoints API（v1.33 起弃用，不建议新增）
-kind: Endpoints
-apiVersion: v1
-metadata:
-  name: my-service
-subsets:
-  - addresses:
-      - ip: 1.2.3.4
-    ports:
-      - port: 9376
-
-```
+建立不含 selector 的 Service 時，可搭配手動維護的 EndpointSlice 將流量轉送至外部端點。新實作請使用 `discovery.k8s.io/v1`，不要建立已棄用的 Endpoints 物件；舊版範例和 client-go 呼叫見[歷史歸檔](https://github.com/fun-ed/kubernetes-handbook/blob/main/archive/concepts/endpoints-legacy.md)。
 
 推荐使用 EndpointSlices 替代 Endpoints：
 
@@ -216,14 +190,11 @@ kubectl get services -A
 kubectl get pods -l app=nginx
 ```
 
-## 保留源 IP
+## Service 來源 IP
 
-各种类型的 Service 对源 IP 的处理方法不同：
+來源 IP 是否保留，取決於 Service 類型、`externalTrafficPolicy`、kube-proxy 或替代資料平面、CNI 路由，以及雲端負載平衡器的設定；不能只根據 Service 類型推定。
 
-* ClusterIP Service：使用 iptables 模式，集群内部的源 IP 会保留（不做 SNAT）。如果 client 和 server pod 在同一个 Node 上，那源 IP 就是 client pod 的 IP 地址；如果在不同的 Node 上，源 IP 则取决于网络插件是如何处理的，比如使用 flannel 时，源 IP 是 node flannel IP 地址。
-* NodePort Service：默认情况下，源 IP 会做 SNAT，server pod 看到的源 IP 是 Node IP。为了避免这种情况，可以给 service 设置 `spec.ExternalTrafficPolicy=Local` （1.6-1.7 版本设置 Annotation `service.beta.kubernetes.io/external-traffic=OnlyLocal`），让 service 只代理本地 endpoint 的请求（如果没有本地 endpoint 则直接丢包），从而保留源 IP。
-* LoadBalancer Service：默认情况下，源 IP 会做 SNAT，server pod 看到的源 IP 是 Node IP。设置 `service.spec.ExternalTrafficPolicy=Local` 后可以自动从云平台负载均衡器中删除没有本地 endpoint 的 Node，从而保留源 IP。
-
+`externalTrafficPolicy: Local` 會將外部流量限制為接收流量之節點上的本機端點。這可能保留來源 IP，但若該節點沒有可用端點，流量可能無法轉送；負載平衡器的健康檢查與節點選擇也須依平台實作確認。請查閱[目前的流量政策文件](https://kubernetes.io/docs/reference/networking/virtual-ips/#traffic-policies)。舊版 kube-proxy 與網路外掛的逐類型說明已移至[歷史歸檔](https://github.com/fun-ed/kubernetes-handbook/blob/main/archive/concepts/objects/service-source-ip-legacy.md)。
 ## 内部网络策略
 
 默认情况下，Kubernetes 把集群中所有 Endpoints 的 IP 作为 Service 的后端。你可以通过设置 `.spec.internalTrafficPolicy=Local` 让 kube-proxy 只为 Node 本地的 Endpoints 做负载均衡。
@@ -324,11 +295,7 @@ Service 对外暴露方式取决于平台与网络实现：
 
 ### 代码迁移示例
 
-**旧的 Endpoints API 用法**：
-
-```go
-endpoints, err := clientset.CoreV1().Endpoints(namespace).Get(ctx, serviceName, metav1.GetOptions{})
-```
+舊版 `CoreV1().Endpoints(...)` 呼叫已移至[歷史歸檔](https://github.com/fun-ed/kubernetes-handbook/blob/main/archive/concepts/endpoints-legacy.md)。新 client-go 程式應列出 EndpointSlices，並用 `kubernetes.io/service-name` 標籤篩選：
 
 **新的 EndpointSlices API 用法**：
 

@@ -51,15 +51,28 @@ that a workload's external images, credentials, storage, or services exist.
   opt-in policy selects only endpoints carrying the `packet-log-demo` label.
   Add that label deliberately before applying it; matching TCP/UDP ingress
   and egress traffic is logged and allowed.
-- `service-without-selector.yaml` and `rdp.yaml` demonstrate manual
-  EndpointSlices. Replace their documentation-only `192.0.2.10` address with
-  an address reachable by clients. `rdp.yaml` also requires a LoadBalancer
-  implementation and exposes an RDP endpoint; do not publish it unintentionally.
+- `service-without-selector.yaml` demonstrates a manually managed EndpointSlice.
+  Replace its documentation-only `192.0.2.10` address with one reachable by
+  clients.
+- The former generic RDP LoadBalancer example was archived because port 3389
+  could become publicly reachable; use only provider-specific private access
+  controls. The [historical manifest](https://github.com/fun-ed/kubernetes-handbook/blob/main/archive/examples/rdp.yaml)
+  is not a current deployment recipe.
 - `pod-secret.yaml` and `image-scret.yaml` require a real private registry and
-  credentials. Replace the example registry values, and keep real credentials
-  out of manifests and source control. `multi-container-patterns.yaml` and
-  `windows-pod-projected.yaml` likewise need their documented images and
-  referenced ConfigMaps, Secrets, Services, or compatible node OS.
+  credentials. Replace the example registry values and keep real credentials
+  out of manifests and source control.
+- `multi-container-patterns.yaml` is a five-pattern teaching template. Custom
+  app/proxy images and referenced ConfigMaps, Secrets, and services are
+  placeholders; its NGINX, Fluent Bit, Alpine, and BusyBox tags are real images.
+  Replace the documentation-only Git repository URL before using sidecar-init.
+  The former metrics-adapter block was removed because its image tag was
+  unavailable and the Kubernetes SIGS adapter does not convert JSON files to
+  Prometheus metrics; see the [archived source version](https://github.com/fun-ed/kubernetes-handbook/blob/main/archive/examples/multi-container-patterns.yaml).
+- The old Windows projected-volume manifest was archived because its custom
+  `atuvenie/mounttest:1.0` image was last pushed in 2018 and its Windows base
+  version is not a verified match for current Windows nodes. See the official
+  [projected-volume concept](https://kubernetes.io/docs/concepts/storage/projected-volumes)
+  and [Windows container/node compatibility guidance](https://kubernetes.io/docs/concepts/windows/intro/).
 - `ssh.yaml` is a host-networked debug shell, not an SSH server. Replace its
   node name and use `kubectl exec -it node-debug-shell -- /bin/sh` on a trusted
   cluster.
@@ -71,36 +84,32 @@ that a workload's external images, credentials, storage, or services exist.
 - `evaluate-pod-creation.sh` creates and deletes a Pod and Service. Inspect it
   and use only in an isolated test cluster.
 
-## Historical manifests
+## Historical examples
 
-Files whose first comment begins `HISTORICAL:` document old, provider-specific
-or release-specific setups; they are not current defaults. In particular,
-`job-master.yaml` and `job-node.yaml` target kube-bench for Kubernetes v1.13
-and mount node host paths, while `nodelocaldns-azure-cni.yaml` and
-`nodelocaldns-kubenet.yaml` rely on older networking and kubelet configuration
-assumptions. Do not apply them to a current cluster as generic v1.37.1
-instructions.
+Examples marked `HISTORICAL:` have been moved out of the current validation roots. They include the Kubernetes v1.13 kube-bench jobs and provider-specific NodeLocal DNS configurations. See the [archive index](https://github.com/fun-ed/kubernetes-handbook/blob/main/archive/index.md) for original paths, files, and reasons; do not apply them as Kubernetes v1.36/v1.37 defaults.
 
 ## Image pins
 
 The NGINX stable pin is `1.30.5`, released 2026-09-15 with the security fix
 recorded as CVE-2026-90439 in the official
 [1.30 changelog](https://nginx.org/en/CHANGES-1.30). The public image tags
-below were checked on 2026-10-05. Tags are more reproducible than `latest`,
-but are not digest locks; pin image digests as well when a deployment requires
-immutable artifacts.
+below were checked on 2026-10-05. NGINX 1.31.6 is a newer mainline tag, not a
+replacement for the stable 1.30 line; BusyBox 1.38.0 is explicitly marked
+unstable upstream, so the newest stable BusyBox pin remains 1.37.0. Tags are
+more reproducible than `latest`, but are not digest locks; pin image digests as
+well when a deployment requires immutable artifacts.
 
 | Image family | Tag used | Upstream source |
 | --- | --- | --- |
 | NGINX | `1.30.5` | [Official NGINX image](https://hub.docker.com/_/nginx); [1.30 stable changelog](https://nginx.org/en/CHANGES-1.30) |
 | Unprivileged NGINX | `1.30.5-alpine3.24` | [NGINX unprivileged image](https://hub.docker.com/r/nginxinc/nginx-unprivileged); [1.30 stable changelog](https://nginx.org/en/CHANGES-1.30) |
 | Alpine | `3.24.2` | [Official Alpine image](https://hub.docker.com/_/alpine); [3.24.2 stable release (2026-09-17)](https://www.alpinelinux.org/posts/Alpine-3.21.8-3.22.6-3.23.6-3.24.2-released.html) |
-| BusyBox | `1.37.0` | [BusyBox](https://busybox.net/) |
+| BusyBox | `1.37.0` | [BusyBox stable release history](https://busybox.net/news.html) (1.38.0 is marked unstable) |
 | Python | `3.14.8-slim-trixie` | [Official Python image](https://hub.docker.com/_/python); [3.14.8 release (2026-09-30)](https://www.python.org/downloads/release/python-3148/) |
 | Redis | `8.10.2` | [Official Redis image](https://hub.docker.com/_/redis) |
 | PostgreSQL | `18.6-alpine3.24` | [Official PostgreSQL image](https://hub.docker.com/_/postgres) |
 | TensorFlow | `2.21.0` | [TensorFlow Docker images](https://hub.docker.com/r/tensorflow/tensorflow) |
 | Fluent Bit | `5.1.3` | [Container image docs](https://docs.fluentbit.io/manual/installation/downloads/docker); [5.1.3 upstream release (2026-10-01)](https://github.com/fluent/fluent-bit/releases/tag/v5.1.3) |
-| NodeLocal DNS cache | `1.26.8` | [Kubernetes DNS releases](https://github.com/kubernetes/dns/releases) |
+| NodeLocal DNS cache | `1.26.8` (archived provider-specific manifests) | Registry tag resolves; OCI index lists linux/amd64, arm64, arm/v7, ppc64le, and s390x. [Manifest index](https://registry.k8s.io/v2/dns/k8s-dns-node-cache/manifests/1.26.8) |
 | Ubuntu | `26.04` | [Official Ubuntu image](https://hub.docker.com/_/ubuntu) |
-| Kubernetes echoserver | `1.10` | [Kubernetes echoserver source](https://github.com/kubernetes/kubernetes/tree/master/test/images/echoserver) |
+| Kubernetes echoserver | `registry.k8s.io/echoserver:1.10` | Registry manifest resolves for linux/amd64; this checks tag availability, not maintenance or workload support. [Manifest](https://registry.k8s.io/v2/echoserver/manifests/1.10) · [Source](https://github.com/kubernetes/kubernetes/tree/master/test/images/echoserver) |

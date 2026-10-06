@@ -21,3 +21,7 @@ _book
 
 # Local agent memory must not enter the public repository.
 .serena/
+
+# Python verification caches
+__pycache__/
+*.py[cod]

@@ -1,6 +1,6 @@
-# Pattern examples only; app images and referenced ConfigMaps, Secrets, and services are placeholders.
+# Pattern templates only: custom app/proxy images, ConfigMaps, Secrets, services, and the example Git repository must be supplied by the user; the pinned NGINX/Fluent Bit/Alpine/BusyBox images are actual external tags.
 # 多容器模式示例
-# 本文件包含了四种常见多容器模式的实际示例
+# 本文件保留五種多容器模式範本；佔位映像檔與必要資源須先依使用情境建立。
 
 ---
 # 1. Sidecar 模式示例：主应用 + 日志收集器
@@ -100,57 +100,7 @@ spec:
         cpu: "200m"
 
 ---
-# 3. Adapter 模式示例：应用 + 监控指标适配器
-apiVersion: v1
-kind: Pod
-metadata:
-  name: adapter-metrics
-  labels:
-    app: legacy-service
-spec:
-  containers:
-  # 遗留应用容器（输出非标准格式指标）
-  - name: legacy-service
-    image: legacy/monitoring-app:v3.5.1
-    ports:
-    - containerPort: 8080
-    volumeMounts:
-    - name: metrics-data
-      mountPath: /app/metrics
-    env:
-    - name: METRICS_OUTPUT_DIR
-      value: "/app/metrics"
-    - name: METRICS_INTERVAL
-      value: "60"
-  
-  # Adapter 指标适配器容器
-  - name: prometheus-adapter
-    image: metrics/prometheus-adapter:v1.0.5
-    ports:
-    - containerPort: 9090  # Prometheus 格式指标端口
-    volumeMounts:
-    - name: metrics-data
-      mountPath: /input/metrics
-      readOnly: true
-    - name: adapter-config
-      mountPath: /etc/adapter
-    env:
-    - name: INPUT_FORMAT
-      value: "legacy_json"
-    - name: OUTPUT_FORMAT
-      value: "prometheus"
-    - name: CONVERSION_RULES
-      value: "/etc/adapter/rules.yaml"
-  
-  volumes:
-  - name: metrics-data
-    emptyDir: {}
-  - name: adapter-config
-    configMap:
-      name: metrics-adapter-config
-
----
-# 4. 配置助手模式示例：应用 + 配置管理器
+# 3. 配置助手模式示例：应用 + 配置管理器
 apiVersion: v1
 kind: Pod
 metadata:
@@ -215,7 +165,7 @@ spec:
       secretName: app-secrets
 
 ---
-# 5. Sidecar Init 容器示例 (v1.29.0+)
+# 4. Sidecar Init 容器示例 (v1.33.0+)
 apiVersion: v1
 kind: Pod
 metadata:
@@ -240,18 +190,21 @@ spec:
   # 数据同步 sidecar（持续运行）
   - name: data-sync
     image: alpine:3.24.2
-    restartPolicy: Always  # v1.29.0+ 特性
+    restartPolicy: Always  # Sidecar init containers are stable from v1.33.
     command:
     - sh
     - -c
     - |
+      set -eu
       apk add --no-cache git
+      while true; do
         echo "Syncing data from remote repository..."
+        # Replace this documentation-only URL with a trusted, accessible repository.
         git clone --depth 1 https://github.com/example/web-content.git /tmp/content
-        cp -r /tmp/content/* /shared/data/
+        cp -r /tmp/content/. /shared/data/
         rm -rf /tmp/content
         echo "Data sync completed at $(date)"
-        sleep 3600  # 每小时同步一次
+        sleep 3600
       done
     volumeMounts:
     - name: shared-data
@@ -277,7 +230,7 @@ spec:
     emptyDir: {}
 
 ---
-# 6. Sidecar Init 容器模式：带启动探测的 Sidecar 依赖控制
+# 5. Sidecar Init 容器模式：帶啟動探測的 Sidecar 依賴控制
 apiVersion: v1
 kind: Pod
 metadata:
@@ -297,7 +250,7 @@ spec:
       echo "Connecting to sidecar service..."
       # 模拟应用逻辑，依赖 sidecar 服务
       while true; do
-        if curl -sf http://localhost:8080/health; then
+        if wget -q -O /dev/null http://localhost:8080/; then
           echo "Successfully connected to sidecar at $(date)"
           sleep 30
         else

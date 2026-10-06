@@ -74,11 +74,9 @@ kubenet 是一个基于 CNI bridge 的网络插件，它为每个容器建立一
 
 [Flannel](https://github.com/flannel-io/flannel) 是使用 overlay 或主机路由为 Pod 提供连通性的 CNI 实现。2026-10-05 的稳定版本为 [v0.28.9](https://github.com/flannel-io/flannel/releases/tag/v0.28.9)。本书未找到官方针对 Kubernetes v1.37 的兼容矩阵；安装前核对上游发布说明和集群前提。按 [Flannel 版本化指南](flannel.md)安装，不要使用 `master` 清单。
 
-## [Weave Net](weave.md)
+## Weave Net 历史架构
 
-> **历史项目。** Weave Net 上游已归档。此处只保留原理概述；安装指令见 [历史说明](weave.md)，不要在当前集群执行。
-
-Weave Net 曾使用 Gossip 控制平面和 UDP overlay。其 Kubernetes 安装端点及示例清单已过时。
+Weave Net 曾使用 Gossip 控制平面和 UDP overlay。上游仓库已归档，旧 Kubernetes 安装端点与清单不能用于当前集群。历史技术细节见[归档索引](https://github.com/fun-ed/kubernetes-handbook/blob/main/archive/index.md)。
 
 ## [Calico](calico.md)
 
@@ -98,11 +96,9 @@ OVN 为 Kubernetes 提供了两种网络方案：
 
 其中，容器网络的配置是通过 OVN 的 CNI 插件来实现。
 
-## [Contiv](contiv.md)
+## Contiv 历史架构
 
-> 仅保留架构背景。本书未核实可用于 Kubernetes v1.37.1 的 Contiv 发行版或兼容矩阵；不要把旧安装脚本用于当前集群。
-
-Contiv 曾提供多租户容器网络与策略管理。
+Contiv 曾提供多租户容器网络与策略管理。上游仓库已归档，旧安装步骤不能用于当前集群。历史技术细节见[归档索引](https://github.com/fun-ed/kubernetes-handbook/blob/main/archive/index.md)。
 
 ## Romana
 
@@ -149,9 +145,7 @@ Canal 组合 Calico 网络策略和 Flannel 网络实现。该旧简介未记录
 
 ### Kuryr-Kubernetes（已退役）
 
-> OpenStack Kuryr-Kubernetes 的 [2024.1-eom 发布](https://github.com/openstack/kuryr-kubernetes/releases/tag/2024.1-eom)明确标记项目为 **RETIRED**（2025-10-31）。不要用于新集群；以下页面只保留历史背景。
-
-Kuryr-Kubernetes 曾集成 Neutron 网络和 Kubernetes CNI。
+> OpenStack Kuryr-Kubernetes 的 [2024.1-eom 发布](https://github.com/openstack/kuryr-kubernetes/releases/tag/2024.1-eom)明确标记项目为 **RETIRED**（2025-10-31）。不要用于新集群；旧教程与配置见[归档索引](https://github.com/fun-ed/kubernetes-handbook/blob/main/archive/index.md)。
 
 ### [Cilium](https://github.com/cilium/cilium)
 
@@ -166,3 +160,5 @@ Cilium 是基于 eBPF 和 XDP 的网络实现，提供 CNI 和网络策略功能
 [Kube-router](https://github.com/cloudnativelabs/kube-router) 是一个基于 BGP 的网络插件，并提供了可选的 ipvs 服务发现（替代 kube-proxy）以及网络策略功能。
 
 > **历史安装说明（不可执行）**：本页旧例使用 `master` 清单、删除 kube-proxy DaemonSet 和 Docker Engine 命令，均不是当前 Kubernetes v1.37.1 的安全部署步骤。本书未确认 Kube-router 的当前稳定版本或 v1.37 兼容性；不要运行旧命令，须先查项目发行说明和支持矩阵。
+
+Cilium 的 BGP 控制平面与 IPv6 路由场景另见 [Cilium BGP 与 IPv6](cilium-bgp-ipv6.md)。如使用 nftables kube-proxy 模式，请参阅 [nftables 专章](../../network/nftables.md)；模式兼容性取决于集群环境与版本，不应视为默认值。

@@ -1,0 +1,36 @@
+{
+  "title": "Kubernetes Handbook（台灣繁體中文版）",
+  "author": "Pengfei Ni",
+  "gitbook": ">=3.2.2",
+  "language": "zh-tw",
+  "plugins": [
+    "editlink",
+    "handbook-rendering",
+    "-lunr",
+    "-search",
+    "search-plus",
+    "tbfed-pagefooter"
+  ],
+  "pdf": {
+    "toc": true,
+    "pageNumbers": true,
+    "fontSize": 11
+  },
+  "links": {
+    "sidebar": {
+      "GitHub": "https://github.com/fun-ed/kubernetes-handbook"
+    }
+  },
+  "pluginsConfig": {
+    "editlink": {
+      "base": "https://github.com/fun-ed/kubernetes-handbook/edit/main/zh-TW",
+      "label": "編輯本頁"
+    },
+    "tbfed-pagefooter": {
+      "copyright": "&copy Pengfei Ni",
+      "modify_label": "更新時間",
+      "modify_format": "YYYY-MM-DD HH:mm:ss"
+    }
+  },
+  "generator": "site"
+}

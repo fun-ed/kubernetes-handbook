@@ -11,9 +11,7 @@
   * [kube-controller-manager](components/controller-manager.md)
   * [kubelet](components/kubelet.md)
   * [kube-proxy](components/kube-proxy.md)
-  * [kube-dns]()
-  * [Federation](components/federation.md)
+  * [kube-dns](components/kube-dns.md)
   * [kubeadm](components/kubeadm.md)
-  * [hyperkube](components/hyperkube.md)
   * [kubectl](components/kubectl.md)
 

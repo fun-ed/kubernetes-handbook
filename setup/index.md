@@ -5,6 +5,8 @@
 - **新建集群：** [使用 kubeadm 部署 v1.37.1](cluster/kubeadm.md)
 - **从旧版本迁移：** [Kubernetes v1.37 迁移说明](kubernetes-v1.37.md)
 - **兼容版本与上游来源：** [组件版本清单](component-versions.md)
+- **现行版本与示例核对：** [组件及 sample YAML 版本核对](component-current-status.md)
+- **发行版部署：** [k0s](cluster/k0s.md) 与 [RKE2](cluster/rke2.md)。使用发行版自身的 Kubernetes 与依赖组合，不直接套用 kubeadm 的组件版本。
 - **版本偏差与升级顺序：** [升级和版本偏差](upgrade.md)
 - **功能门控：** [Feature Gates](feature-gates.md)
 
@@ -28,12 +30,8 @@
 - CNI 插件、`crictl`、监控组件、Helm chart 和云厂商自动扩缩器有各自的发布周期，不能把 Kubernetes 源码中的依赖版本误当成整套集群的自动安装版本。
 - 即使 Kubernetes 将 `metrics.k8s.io/v1` 标为 GA，聚合 API 仍须由实际后端提供相应版本。上游 metrics-server 0.9.0 manifest 注册的是 `metrics.k8s.io/v1beta1`，应以所部署后端的 discovery 结果为准。
 
-## 仍保留的历史教程
+## 旧教程归档
 
-以下页面保留用于理解旧方案和历史，不是 Kubernetes v1.37.1 部署说明。页面内旧命令不要直接用于新集群。
+针对旧 Kubernetes 版本、已移除 API 或已退役组件的安装教程与清单已移出当前导航。归档目录保留原始内容，仅供历史参考；其中的命令和资源不能用于 Kubernetes v1.36/v1.37 部署。
 
-- [Kubernetes The Hard Way](k8s-hard-way/README.md)：固定使用 Kubernetes 1.18.6、containerd 1.3.6、旧 CNI/etcd/CoreDNS 版本，并创建 GCE 资源。
-- [kops](cluster/kops.md)、[LinuxKit](cluster/k8s-linuxkit.md) 与其他旧云环境笔记：按页面注明的时间和版本理解，不代表当前供应商兼容矩阵。
-- [早期 Frakti 教程](../deploy/frakti/ubuntu.md)：Frakti 已非当前 Kubernetes CRI 部署路径。
-
-历史教程的替代入口是当前 [kubeadm v1.37.1 指南](cluster/kubeadm.md)。云托管 Kubernetes 应使用云厂商当前的产品文档和其明确支持的 Kubernetes 版本。
+查看[归档索引](https://github.com/fun-ed/kubernetes-handbook/blob/main/archive/index.md)。当前自建集群入口是 [kubeadm v1.37.1 指南](cluster/kubeadm.md)；云托管 Kubernetes 请使用云厂商针对目标版本的官方文档。

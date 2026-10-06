@@ -30,6 +30,8 @@ helm install cilium cilium/cilium \
 
 来源：[Cilium v1.20.2 release](https://github.com/cilium/cilium/releases/tag/v1.20.2)、[Cilium v1.20 Kubernetes 兼容矩阵](https://docs.cilium.io/en/v1.20/network/kubernetes/compatibility/)、[Cilium v1.20 Helm 安装指南](https://docs.cilium.io/en/v1.20/installation/k8s-install-helm/)。
 
+如需深入了解 Cilium 的 BGP 控制平面与 IPv6 路由场景，请参阅 [Cilium BGP 与 IPv6](cilium-bgp-ipv6.md)；本页的版本兼容性限制仍然适用。
+
 [eBPF](https://docs.cilium.io/en/v1.20/reference-guides/bpf/) 和 XDP 背景介绍如下。
 
 

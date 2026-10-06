@@ -1,379 +1,51 @@
 # Gateway API
 
-Gateway API 是 Kubernetes 社区推出的用于配置和管理网关的新一代 API，它是 Ingress 资源的演进版本，提供了更强大、更灵活和更具表达力的流量管理能力。
+Gateway API 是 Kubernetes SIG Network 維護的可擴充網路 API。它提供比 Ingress 更細緻的角色分工及路由資源；API 物件本身不會安裝資料平面或控制器，也不保證叢集支援特定功能。
 
-## 什么是 Gateway API？
+截至 Kubernetes v1.37，本章依 Gateway API v1.6.2 的標準 API 文件說明。必須先安裝相容的 Gateway API CRD，再部署支援所需 API 版本與功能的 Gateway Controller。請先檢查控制器實作清單及安裝指南；不同實作支援的資源、欄位、政策和功能通道可能不同。
 
-Gateway API 是一个由 Kubernetes 网络特殊兴趣小组 (SIG-NETWORK) 维护的开源项目，旨在通过提供表达性强、可扩展和面向角色的接口来改进服务网络。
+## 核心資源
 
-Gateway API 解决了传统 Ingress 的以下限制：
+- `GatewayClass` 由基礎設施提供者建立，識別管理 Gateway 的控制器。
+- `Gateway` 表達一個或多個監聽器及其所屬的 GatewayClass。
+- `HTTPRoute`、`GRPCRoute` 等 Route 資源描述如何將協定流量導向後端。跨 Namespace 引用及附加仍受各資源的權限與政策限制。
 
-- **表达能力有限**：Ingress 只能处理简单的 HTTP 路由
-- **可扩展性差**：依赖于特定控制器的注解来扩展功能
-- **角色混乱**：缺乏清晰的角色分离和权限边界
-
-## 核心概念
-
-Gateway API 引入了以下核心资源：
-
-### Gateway
-
-Gateway 描述了如何将流量转换为集群内的服务。它定义了监听器，每个监听器定义一个端口、协议和主机名。
-
-```yaml
-apiVersion: gateway.networking.k8s.io/v1
-kind: Gateway
-metadata:
-  name: example-gateway
-  namespace: default
-spec:
-  gatewayClassName: example-class
-  listeners:
-  - name: http
-    port: 80
-    protocol: HTTP
-    hostname: "*.example.com"
-```
-
-### GatewayClass
-
-GatewayClass 定义了一组网关，这些网关共享公共配置和行为。它类似于 StorageClass，但用于网关。
-
-```yaml
-apiVersion: gateway.networking.k8s.io/v1
-kind: GatewayClass
-metadata:
-  name: example-class
-spec:
-  controllerName: example.com/gateway-controller
-```
-
-### HTTPRoute
-
-HTTPRoute 定义了 HTTP 请求如何路由到后端服务。
+例如，以下 `HTTPRoute` 參照名為 `example-gateway` 的 Gateway，並將符合條件的請求送至同一 Namespace 的 `web` Service：
 
 ```yaml
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
 metadata:
-  name: example-route
+  name: web
   namespace: default
 spec:
   parentRefs:
-  - name: example-gateway
+    - name: example-gateway
   hostnames:
-  - "api.example.com"
+    - www.example.test
   rules:
-  - matches:
-    - path:
-        type: PathPrefix
-        value: /api/v1
-    backendRefs:
-    - name: api-service
-      port: 8080
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: web
+          port: 80
 ```
 
-## Gateway API v1.3.0 新特性
+`.test` 是保留作測試用途的網域；範例不含可直接使用的外部 IP、憑證或叢集專屬設定。部署前請確認對應的 Gateway、Service、HTTPRoute CRD 及控制器功能均已安裝且相容，再以 `kubectl get gatewayclass,gateway,httproute -A` 及狀態條件確認控制器已接受設定並完成程式化。
 
-### 标准通道特性
+## 角色與相容性
 
-#### 基于百分比的请求镜像
+基礎設施提供者通常管理 `GatewayClass`，叢集操作人員管理 `Gateway`，應用團隊建立 Route。`allowedRoutes`、ReferenceGrant 及其他政策可限制 Route 附加與跨 Namespace 參照；請依信任邊界授予所需權限，不要假設所有 Namespace 都可任意附加路由。
 
-v1.3.0 引入了基于百分比的请求镜像功能，允许将指定百分比的请求镜像到另一个后端：
+Gateway API 會以標準通道和實驗通道發佈功能。只有標準通道的 API 保證已標準化；實驗通道資源需使用對應的 CRD 發行包，且可能變更。API 版本與功能支援會因控制器版本而異，請核對[相容性矩陣](https://gateway-api.sigs.k8s.io/implementations/)和所選控制器文件。
 
-```yaml
-apiVersion: gateway.networking.k8s.io/v1
-kind: HTTPRoute
-metadata:
-  name: example-route
-spec:
-  parentRefs:
-  - name: example-gateway
-  rules:
-  - matches:
-    - path:
-        type: PathPrefix
-        value: /api
-    backendRefs:
-    - name: production-service
-      port: 8080
-    filters:
-    - type: RequestMirror
-      requestMirror:
-        backendRef:
-          name: test-service
-          port: 8080
-        percent: 10  # 镜像 10% 的请求
-```
+## 參考文件
 
-### 实验性通道特性
+- [Gateway API v1.6.2 文件](https://gateway-api.sigs.k8s.io/)
+- [安裝 Gateway API](https://gateway-api.sigs.k8s.io/guides/)
+- [Gateway API 實作與相容性](https://gateway-api.sigs.k8s.io/implementations/)
+- [Kubernetes Gateway API 概念](https://kubernetes.io/docs/concepts/services-networking/gateway/)
 
-#### CORS 过滤
-
-新增的 CORS 过滤器支持跨域资源共享配置：
-
-```yaml
-apiVersion: gateway.networking.x-k8s.io/v1alpha1
-kind: HTTPRoute
-metadata:
-  name: cors-example
-spec:
-  parentRefs:
-  - name: example-gateway
-  rules:
-  - matches:
-    - path:
-        type: PathPrefix
-        value: /api
-    filters:
-    - type: ExtensionRef
-      extensionRef:
-        group: gateway.networking.x-k8s.io
-        kind: CORSPolicy
-        name: cors-policy
-    backendRefs:
-    - name: api-service
-      port: 8080
----
-apiVersion: gateway.networking.x-k8s.io/v1alpha1
-kind: CORSPolicy
-metadata:
-  name: cors-policy
-spec:
-  allowOrigins:
-  - "https://example.com"
-  - "https://*.example.com"
-  allowMethods:
-  - GET
-  - POST
-  - PUT
-  allowHeaders:
-  - "Content-Type"
-  - "Authorization"
-  allowCredentials: true
-  maxAge: "24h"
-```
-
-#### 重试预算 (XBackendTrafficPolicy)
-
-重试预算功能限制客户端在服务端点间的重试行为：
-
-```yaml
-apiVersion: gateway.networking.x-k8s.io/v1alpha1
-kind: XBackendTrafficPolicy
-metadata:
-  name: retry-budget
-spec:
-  targetRefs:
-  - group: ""
-    kind: Service
-    name: api-service
-  retry:
-    attempts: 3
-    backoff: "1s"
-    budget:
-      percentage: 20  # 最多 20% 的请求可以重试
-      interval: "10s"
-```
-
-#### XListenerSets
-
-XListenerSets 提供了标准化的 Gateway 监听器合并机制：
-
-```yaml
-apiVersion: gateway.networking.x-k8s.io/v1alpha1
-kind: XListenerSet
-metadata:
-  name: shared-listeners
-  namespace: gateway-system
-spec:
-  listeners:
-  - name: http
-    port: 80
-    protocol: HTTP
-  - name: https
-    port: 443
-    protocol: HTTPS
-    tls:
-      mode: Terminate
-      certificateRefs:
-      - name: wildcard-cert
-```
-
-#### Inference Extension（AI/ML 推理扩展）
-
-Gateway API Inference Extension 是专为生成式 AI 和大语言模型 (LLM) 推理工作负载设计的扩展，提供了智能路由和负载平衡能力。
-
-**核心组件：**
-
-**InferencePool** - 定义运行模型服务器的 Pod 池：
-```yaml
-apiVersion: gateway.networking.x-k8s.io/v1alpha1
-kind: InferencePool
-metadata:
-  name: llama2-pool
-spec:
-  deployment:
-    replicas: 3
-    template:
-      spec:
-        containers:
-        - name: model-server
-          image: vllm/vllm-openai:latest
-          resources:
-            limits:
-              nvidia.com/gpu: 1
-```
-
-**InferenceModel** - 用户面向的模型端点：
-```yaml
-apiVersion: gateway.networking.x-k8s.io/v1alpha1
-kind: InferenceModel
-metadata:
-  name: llama2-7b
-spec:
-  poolRef:
-    name: llama2-pool
-  routing:
-    priority: high
-    trafficSplit:
-    - weight: 90
-      version: stable
-    - weight: 10
-      version: canary
-```
-
-**主要特性：**
-- **模型感知路由**：基于模型类型和状态进行智能路由
-- **请求优先级**：支持每请求的重要性级别设置
-- **安全模型发布**：支持金丝雀发布和 A/B 测试
-- **优化负载平衡**：基于实时指标进行 GPU 资源优化
-
-**性能优势：**
-- 降低 AI/ML 工作负载延迟
-- 提高 GPU 利用率
-- 标准化 AI 服务路由方式
-- 支持前缀缓存感知的负载平衡
-
-## 角色分离
-
-Gateway API 设计了清晰的角色分离：
-
-- **基础设施提供者**：管理 GatewayClass 和基础设施
-- **集群操作员**：管理 Gateway 资源和网络策略
-- **应用开发者**：管理 Route 资源和应用流量
-
-## 支持的协议
-
-Gateway API 支持多种协议：
-
-- **HTTP/HTTPS**：通过 HTTPRoute 资源
-- **TLS**：通过 TLSRoute 资源
-- **TCP**：通过 TCPRoute 资源
-- **UDP**：通过 UDPRoute 资源
-- **gRPC**：通过 GRPCRoute 资源
-
-## 与 Ingress 的对比
-
-| 特性 | Ingress | Gateway API |
-|------|---------|-------------|
-| 协议支持 | 仅 HTTP/HTTPS | HTTP/HTTPS/TCP/UDP/TLS/gRPC |
-| 角色分离 | 无 | 清晰的角色分离 |
-| 可扩展性 | 通过注解 | 原生 API 扩展 |
-| 表达能力 | 有限 | 丰富的流量管理能力 |
-| 类型安全 | 部分 | 完全类型安全 |
-
-## 兼容性
-
-- **Kubernetes 版本**：要求 Kubernetes 1.26 或更高版本
-- **API 稳定性**：标准通道功能已达到 v1 稳定版本
-- **实现**：Envoy Gateway、Istio、Cilium、Airlock 等多个实现
-
-## 迁移指南
-
-### 从 Ingress 迁移
-
-1. **安装 Gateway API CRDs**：
-```bash
-kubectl apply -f https://github.com/kubernetes-sigs/gateway-api/releases/download/v1.3.0/standard-install.yaml
-```
-
-2. **创建 GatewayClass**：
-```yaml
-apiVersion: gateway.networking.k8s.io/v1
-kind: GatewayClass
-metadata:
-  name: nginx
-spec:
-  controllerName: nginx.org/nginx-gateway-controller
-```
-
-3. **创建 Gateway**：
-```yaml
-apiVersion: gateway.networking.k8s.io/v1
-kind: Gateway
-metadata:
-  name: nginx-gateway
-spec:
-  gatewayClassName: nginx
-  listeners:
-  - name: http
-    port: 80
-    protocol: HTTP
-```
-
-4. **将 Ingress 转换为 HTTPRoute**：
-```yaml
-# 原 Ingress
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: example-ingress
-spec:
-  rules:
-  - host: example.com
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: example-service
-            port:
-              number: 80
-
-# 转换为 HTTPRoute
-apiVersion: gateway.networking.k8s.io/v1
-kind: HTTPRoute
-metadata:
-  name: example-route
-spec:
-  parentRefs:
-  - name: nginx-gateway
-  hostnames:
-  - "example.com"
-  rules:
-  - matches:
-    - path:
-        type: PathPrefix
-        value: /
-    backendRefs:
-    - name: example-service
-      port: 80
-```
-
-## 最佳实践
-
-1. **渐进式迁移**：先在测试环境验证，再逐步迁移生产环境
-2. **角色分离**：明确定义不同角色的职责和权限
-3. **监控观察**：部署适当的监控和日志记录
-4. **安全配置**：使用 TLS 终止和适当的安全策略
-5. **性能测试**：验证新配置的性能表现
-
-## 参考文档
-
-* [Gateway API 官方文档](https://gateway-api.sigs.k8s.io/)
-* [Gateway API v1.3.0 发布说明](https://kubernetes.io/blog/2025/06/02/gateway-api-v1-3/)
-* [Gateway API Inference Extension 介绍](https://kubernetes.io/blog/2025/06/05/introducing-gateway-api-inference-extension/)
-* [Gateway API GitHub 仓库](https://github.com/kubernetes-sigs/gateway-api)
-* [Gateway API 实现列表](https://gateway-api.sigs.k8s.io/implementations/)
+舊版功能通道摘要及特定控制器範例已移至[歷史歸檔](https://github.com/fun-ed/kubernetes-handbook/blob/main/archive/concepts/objects/gateway-api-legacy.md)。

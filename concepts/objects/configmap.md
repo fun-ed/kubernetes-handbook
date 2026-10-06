@@ -94,7 +94,7 @@ metadata:
 spec:
   containers:
     - name: test-container
-      image: gcr.io/google_containers/busybox
+      image: busybox:1.37.0
       command: ["/bin/sh", "-c", "env"]
       env:
         - name: SPECIAL_LEVEL_KEY
@@ -133,7 +133,7 @@ metadata:
 spec:
   containers:
     - name: test-container
-      image: gcr.io/google_containers/busybox
+      image: busybox:1.37.0
       command: ["/bin/sh", "-c", "echo $(SPECIAL_LEVEL_KEY) $(SPECIAL_TYPE_KEY)" ]
       env:
         - name: SPECIAL_LEVEL_KEY
@@ -167,7 +167,7 @@ metadata:
 spec:
   containers:
     - name: test-container
-      image: gcr.io/google_containers/busybox
+      image: busybox:1.37.0
       command: ["/bin/sh", "-c", "cat /etc/config/special.how"]
       volumeMounts:
       - name: config-volume
@@ -195,7 +195,7 @@ metadata:
 spec:
   containers:
     - name: test-container
-      image: gcr.io/google_containers/busybox
+      image: busybox:1.37.0
       command: ["/bin/sh","-c","cat /etc/config/keys/special.level"]
       volumeMounts:
       - name: config-volume
@@ -226,7 +226,7 @@ metadata:
 spec:
   containers:
     - name: test-container
-      image: gcr.io/google_containers/busybox
+      image: busybox:1.37.0
       command: ["/bin/sh","-c","sleep 36000"]
       volumeMounts:
       - name: config-volume
@@ -274,7 +274,7 @@ metadata:
 spec:
   containers:
     - name: test-container
-      image: nginx
+      image: nginx:1.30.5
       command: ["/bin/sh","-c","sleep 36000"]
       volumeMounts:
       - name: config-volume
@@ -309,13 +309,15 @@ root@dapi-test-pod:/#
 * 保护应用，使之免受意外更新所带来的负面影响。
 * 通过大幅降低对 kube-apiserver 的压力提升集群性能，这是因为 Kubernetes 会关闭不可变 ConfigMap 的监视操作。
 
+以下是一個可直接套用的不可變 ConfigMap。建立後，`data` 與 `binaryData` 都不能再修改；需要變更設定時，請建立新的 ConfigMap，並更新工作負載引用。
+
 ```yaml
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  ...
+  name: app-config-v1
 data:
-  ...
+  log_level: "info"
 immutable: true
 ```
 

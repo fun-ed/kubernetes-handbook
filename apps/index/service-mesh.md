@@ -24,6 +24,6 @@ Service Mesh并非一个全新的功能，而是将已存在于众多应用之�
 常见的 Service Mesh 框架包括
 
 * [Istio](../istio/)
-* [Conduit（历史项目，参见 Linkerd 的当前说明）](linkerd.md)
-* [Linkerd](linkerd.md)
+* [Conduit（历史项目）](https://github.com/fun-ed/kubernetes-handbook/blob/main/archive/index.md)
+* [Linkerd OSS 状态与评估](linkerd2.md)
 

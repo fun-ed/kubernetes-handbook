@@ -1,0 +1,26 @@
+# 資源物件
+
+Kubernetes 主要概念和物件介紹。
+
+* [Autoscaling \(HPA\)](autoscaling.md)
+* [ConfigMap](configmap.md)
+* [CronJob](cronjob.md)
+* [CustomResourceDefinition]()
+* [DaemonSet](daemonset.md)
+* [Deployment](deployment.md)
+* [Ingress](ingress.md)
+* [Job](job.md)
+* [LocalVolume](local-volume.md)
+* [Namespace](namespace.md)
+* [NetworkPolicy](network-policy.md)
+* [Node](node.md)
+* [PersistentVolume](persistent-volume.md)
+* [Pod](pod.md)
+* [ReplicaSet](replicaset.md)
+* [Resource Quota](quota.md)
+* [Secret](secret.md)
+* [SecurityContext](security-context.md)
+* [Service](service.md)
+* [ServiceAccount](serviceaccount.md)
+* [StatefulSet](statefulset.md)
+* [Volume](volume.md)

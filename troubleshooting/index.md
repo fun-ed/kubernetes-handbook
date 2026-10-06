@@ -6,14 +6,14 @@ Kubernetes 集群以及应用排错的一般方法，主要包括
 * [Pod运行异常排错](pod.md)
 * [网络异常排错](network.md)
 * [持久化存储异常排错](pv/)
-  * [AzureDisk 排错](pv/azuredisk.md)
-  * [AzureFile 排错](pv/azurefile.md)
+  * [Azure Disk CSI 排错](pv/azuredisk.md)
+  * [Azure Files CSI 排错](pv/azurefile.md)
 * [Windows容器排错](windows.md)
 * [云平台异常排错](cloud/)
   * [Azure 排错](cloud/azure.md)
 * [常用排错工具](tools.md)
 
-你可以使用 [kube-copilot](https://github.com/feiskyer/kube-copilot) 借助 OpenAI 来帮你自动排查集群中的问题并通过自然语言的方式与集群进行交互。
+第三方 AI 排错工具若具备 Kubernetes API 存取权限，应先审查其维护状态、权限范围、凭证处理及数据留存政策；不得将未审查的工具连接至生产集群。
 
 在排错过程中，`kubectl` 是最重要的工具，通常也是定位错误的起点。这里也列出一些常用的命令，在后续的各种排错过程中都会经常用到。
 
@@ -93,6 +93,5 @@ $ kubectl -n kube-system logs kube-proxy-42zpn
 ## 参考文档
 
 * [hjacobs/kubernetes-failure-stories](https://github.com/hjacobs/kubernetes-failure-stories) 整理了一些公开的 Kubernetes 异常案例。
-* [https://docs.microsoft.com/en-us/azure/aks/troubleshooting](https://docs.microsoft.com/en-us/azure/aks/troubleshooting) 包含了 AKS 中排错的一般思路
-* [https://cloud.google.com/kubernetes-engine/docs/troubleshooting](https://cloud.google.com/kubernetes-engine/docs/troubleshooting) 包含了 GKE 中问题排查的一般思路
-* [https://www.oreilly.com/ideas/kubernetes-recipes-maintenance-and-troubleshooting](https://www.oreilly.com/ideas/kubernetes-recipes-maintenance-and-troubleshooting)
+* [AKS 疑难排解](https://learn.microsoft.com/azure/aks/troubleshooting)提供 Azure Kubernetes Service 的官方排错资料。
+* [GKE 疑难排解](https://cloud.google.com/kubernetes-engine/docs/troubleshooting)提供 Google Kubernetes Engine 的官方排错资料。

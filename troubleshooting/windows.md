@@ -6,45 +6,7 @@
 
 Node 管理优先使用云平台控制台、受控 Bastion 或组织批准的远程管理通道。不要把 RDP 3389 端口直接暴露到公网。
 
-如在隔离测试环境中确需通过 Service 转发，可使用 [`examples/rdp.yaml`](../examples/rdp.yaml) 中的无 selector Service 与手工维护的 EndpointSlice。清单中的 `192.0.2.10` 为文档示例地址，应用前必须替换为 Node 的私网 IP；同时在云防火墙或负载均衡器侧将来源限制为可信管理网段：
-
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: rdp-to-node
-spec:
-  type: LoadBalancer
-  ports:
-  - name: rdp
-    protocol: TCP
-    port: 3389
-    targetPort: 3389
----
-apiVersion: discovery.k8s.io/v1
-kind: EndpointSlice
-metadata:
-  name: rdp-to-node-1
-  labels:
-    kubernetes.io/service-name: rdp-to-node
-    endpointslice.kubernetes.io/managed-by: handbook-manual
-addressType: IPv4
-endpoints:
-- addresses:
-  - "192.0.2.10"
-ports:
-- name: rdp
-  protocol: TCP
-  port: 3389
-```
-
-```bash
-kubectl apply -f examples/rdp.yaml
-kubectl get service rdp-to-node
-kubectl get endpointslices -l kubernetes.io/service-name=rdp-to-node
-```
-
-该 EndpointSlice 只记录网络后端，不会验证 Node 的 RDP 服务是否运行，也不会自动限制访问来源。仅在具备私有负载均衡器和网络访问控制的隔离环境中使用此模式。
+除非平台文件明确提供负载均衡器的私有配置与来源限制，否则不要使用 `type: LoadBalancer` 转发 RDP；通用 Service 示例可能创建公开端点。需要远程管理时，使用云平台控制台、受控 Bastion 或组织批准的管理通道。若经授权确需经网络转发，仅采用相应云平台支持的私有负载均衡器配置和网络访问控制，并先验证不会产生公网入口。
 
 ## Windows 容器镜像与主机版本
 

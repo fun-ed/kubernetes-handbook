@@ -38,5 +38,5 @@ Gateway API v1.6.2 是截至 2026-10-05 的最新发布，但与 Traefik v3.7.13
 * [Ingress 基础用法](../../concepts/objects/ingress.md)
 * [Traefik Gateway API 示例](service-discovery-and-load-balancing.md)
 * [Let's Encrypt / cert-manager 兼容性说明](ingress_letsencrypt.md)
-* [旧 Minikube ingress-nginx 实验](minikube-ingress.md)
-* [Keepalived VIP 实验](keepalived-vip.md)
+* [Minikube 网络入口说明](minikube-ingress.md)
+* [Keepalived VIP 历史实验已归档](https://github.com/fun-ed/kubernetes-handbook/blob/main/archive/index.md)

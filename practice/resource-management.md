@@ -5,7 +5,7 @@
 ## CPU 和内存请求、限制
 
 - `requests` 是调度器放置 Pod 时考虑的资源量；容器在节点上仍可能使用超过 request 的可用资源。
-- `limits.cpu` 由内核通过节流执行；`limits.memory` 在节点内存压力下可能导致容器被 OOM kill，并非超限即刻终止。
+- 在 Linux 节点，`limits.cpu` 由内核节流执行；容器的 `limits.memory` 由 cgroup 限制，达到限制且回收无法满足后续内存分配时，内核可能触发 cgroup OOM kill（不必等到节点整体内存不足）。这不同于 kubelet 根据节点级内存压力驱逐 Pod；此说明不应套用于 Windows。
 - 为工作负载设置经过测量的请求和限制，并结合工作负载峰值、节点可用容量及命名空间策略调整，不要仅复制示例数值。
 
 ```yaml
@@ -26,7 +26,7 @@ spec:
     spec:
       containers:
       - name: nginx
-        image: nginx:1.29.0
+        image: nginx:1.30.5
         resources:
           requests:
             cpu: "100m"
@@ -36,7 +36,7 @@ spec:
             memory: "512Mi"
 ```
 
-`nginx:1.29.0` 是示例镜像标签；生产环境应使用组织审查过的镜像，并按供应链策略固定 digest。集群中先创建 `research` namespace，并确保策略允许示例中的镜像。
+`nginx:1.30.5` 是本手册截点前核查的 NGINX stable 示例标签（并非 Kubernetes v1.37 兼容性声明，也不是不可变 digest）；生产环境应使用组织审查过的镜像，并按供应链策略固定 digest。集群中先创建 `research` namespace，并确保策略允许示例中的镜像。
 
 资源单位、Pod 汇总和额外资源类型（包括 `ephemeral-storage`、HugePages 与 extended resources）详见 [Kubernetes 资源管理文档](https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/)。
 
@@ -121,7 +121,7 @@ spec:
 
 ```bash
 kubectl apply -f resize-demo.yaml
-kubectl patch pod resize-demo -n research --subresource resize --type=merge \
+kubectl patch pod resize-demo -n research --subresource resize --type=strategic \
   -p '{"spec":{"containers":[{"name":"pause","resources":{"requests":{"cpu":"800m"},"limits":{"cpu":"800m"}}}]}}'
 kubectl get pod resize-demo -n research -o yaml
 ```

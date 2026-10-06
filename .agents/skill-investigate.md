@@ -40,8 +40,8 @@ description: 調查 Kubernetes 版本升級、元件發布與相容性、API 移
 
    ```bash
    # 前提：rg；只列路徑及 API 欄位，逐筆判斷歷史標記與實際用途。
-   rg -n --glob '*.yaml' --glob '*.yml' --glob '*.json' '^[[:space:]]*apiVersion:' examples manifests deploy
-   rg -n 'HISTORICAL:' examples manifests deploy
+   rg -n --glob '*.yaml' --glob '*.yml' --glob '*.json' '^[[:space:]]*apiVersion:' examples manifests deploy archive
+   rg -n 'HISTORICAL:' examples manifests deploy archive
    ```
 
    叢集側可在明確指定的測試 context 查 API discovery 與棄用指標；沒有指標資料不能解讀成沒有舊 API 使用。

@@ -16,7 +16,7 @@
 restartPolicy: Always
 terminationGracePeriodSeconds: 30
 containers:
-- image: nginx
+- image: nginx:1.30.5
   lifecycle:
     preStop:
       exec:

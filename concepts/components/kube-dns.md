@@ -26,7 +26,7 @@ spec:
   hostname: busybox-2
   subdomain: default-subdomain
   containers:
-  - image: busybox
+  - image: busybox:1.37.0
     command:
       - sleep
       - "3600"

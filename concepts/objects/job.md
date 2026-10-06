@@ -59,7 +59,7 @@ spec:
     spec:
       containers:
       - name: pi
-        image: perl
+        image: perl:5.44.0
         command: ["perl",  "-Mbignum=bpi", "-wle", "print bpi(2000)"]
       restartPolicy: Never
 ```
@@ -85,7 +85,7 @@ Pod Template:
         job-name=pi
   Containers:
    pi:
-    Image:    perl
+    Image:    perl:5.44.0
     Port:
     Command:
       perl
@@ -127,7 +127,7 @@ spec:
     spec:
       containers:
       - name: busybox
-        image: busybox
+        image: busybox:1.37.0
         command: ["echo", "hello"]
       restartPolicy: Never
 ```
@@ -169,7 +169,7 @@ spec:
     spec:
       containers:
       - name: worker
-        image: busybox
+        image: busybox:1.37.0
         command: 
         - sh
         - -c
@@ -228,7 +228,7 @@ spec:
     spec:
       containers:
       - name: worker
-        image: busybox
+        image: busybox:1.37.0
         command: ["sh", "-c", "echo Processing index $JOB_COMPLETION_INDEX && sleep $((RANDOM % 60))"]
       restartPolicy: Never
 ```
@@ -252,7 +252,7 @@ spec:
     spec:
       containers:
       - name: worker
-        image: busybox
+        image: busybox:1.37.0
         command: 
         - sh
         - -c
@@ -289,7 +289,7 @@ spec:
     spec:
       containers:
       - name: worker
-        image: busybox
+        image: busybox:1.37.0
         command: ["sh", "-c", "echo Processing index $JOB_COMPLETION_INDEX && sleep 10"]
       restartPolicy: Never
 ```
@@ -315,15 +315,13 @@ spec:
 - **结合失败策略**：可与 `backoffLimitPerIndex` 和 `maxFailedIndexes` 结合使用
 - **监控 Job 状态**：通过 Job conditions 监控成功条件的达成
 
-## Pod 自动清理
+## 完成後自動清理 Job
 
-TTL 控制器用来自动清理已经结束的 Pod，如处于 Complete 或 Failed 状态的 Job。Pod 停止之后的 TTL 可以通过 `.spec.ttlSecondsAfterFinished` 来设置。
+TTL-after-finished 控制器會在 Job 進入 `Complete` 或 `Failed` 後，等待 `.spec.ttlSecondsAfterFinished` 指定的秒數，再刪除該 Job 及其相依資源（包含 Job 建立的 Pods）。此欄位屬於 Job，不是 Pod；若需要保留記錄或輸出，請在到期前先行保存。各節點及控制平面的時鐘應保持同步。詳見 [Job 自動清理文件](https://kubernetes.io/docs/concepts/workloads/controllers/ttlafterfinished/)。
 
-注意，该特性要求集群中各节点（包括控制节点）的时间一致，比如在所有节点中运行 NTP 服务。
+## 暫停及繼續 Job
 
-## 暂停和重启 Job
-
-从 v1.21 开始，可通过 `.spec.suspend` 暂停和重启 Job：
+Job 的 `.spec.suspend` 自 v1.24 起為穩定功能。以下完整範例會先建立一個暫停的 Job；將 `suspend` 設為 `false` 會繼續 Job，並在需要時建立 Pod。暫停 Job 會終止正在執行的 Pod；繼續 Job 不會重新啟動同一個既有 Pod。詳見 [Job 文件](https://kubernetes.io/docs/concepts/workloads/controllers/job/)。
 
 ```yaml
 apiVersion: batch/v1
@@ -332,28 +330,26 @@ metadata:
   name: myjob
 spec:
   suspend: true
+  ttlSecondsAfterFinished: 3600
   parallelism: 1
-  completions: 5
+  completions: 1
   template:
     spec:
-      ...
+      restartPolicy: Never
+      containers:
+        - name: worker
+          image: busybox:1.37.0
+          command: ["sh", "-c", "echo job completed"]
 ```
-
-当 Job 暂停后，Job conditions 中会新增一条 Job 暂停的事件：
 
 ```sh
-$ kubectl get jobs/myjob -o yaml
-apiVersion: batch/v1
-kind: Job
-# .metadata and .spec omitted
-status:
-  conditions:
-  - lastProbeTime: "2021-02-05T13:14:33Z"
-    lastTransitionTime: "2021-02-05T13:14:33Z"
-    status: "True"
-    type: Suspended
-  startTime: "2021-02-05T13:13:48Z"
+kubectl apply -f job.yaml
+kubectl get job myjob
+kubectl patch job myjob --type=merge -p '{"spec":{"suspend":false}}'
+kubectl get job myjob
 ```
+
+若要從頭執行一個新的工作，請建立新的 Job（通常使用新的名稱）；不要把繼續既有 Job 誤認為重啟同一個 Pod。
 
 ## Bare Pods
 

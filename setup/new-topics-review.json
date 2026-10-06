@@ -1,0 +1,196 @@
+{
+  "schema_version": 1,
+  "review": "New-topic integration for Kubernetes v1.37.1",
+  "source_cutoff": "2026-10-05",
+  "verification_run_date": "2026-10-06",
+  "coverage": {
+    "historical_review_snapshot_pairs": 178,
+    "new_chapter_pairs": 7,
+    "installation_order_guide_pairs": 1,
+    "new_review_record_pairs": 1,
+    "current_taiwan_coverage_pairs": 187,
+    "historical_review_claims_rewritten": false,
+    "frozen_component_versions_snapshot_changed": false
+  },
+  "topics": [
+    {
+      "name": "Argo CD",
+      "version": "v3.5.3",
+      "release": "https://github.com/argoproj/argo-cd/releases/tag/v3.5.3",
+      "kubernetes_test_matrix": "1.33-1.36; no v1.37 entry",
+      "matrix_source": "https://github.com/argoproj/argo-cd/blob/v3.5.3/docs/operator-manual/tested-kubernetes-versions.md",
+      "watchlist": "Existing baseline retained; support range updated from pinned versioned test table. No version upgrade."
+    },
+    {
+      "name": "Argo Workflows",
+      "version": "v4.1.4",
+      "release": "https://github.com/argoproj/argo-workflows/releases/tag/v4.1.4",
+      "kubernetes_compatibility": "No affirmative official v1.37 matrix found.",
+      "rbac_source": "https://github.com/argoproj/argo-workflows/blob/v4.1.4/docs/workflow-rbac.md",
+      "watchlist": "Added stable v-tag baseline; support remains unconfirmed. Executor documentation includes workflowtaskresults create/patch permission."
+    },
+    {
+      "name": "KubeVirt",
+      "version": "v1.9.0",
+      "release": "https://github.com/kubevirt/kubevirt/releases/tag/v1.9.0",
+      "release_date": "2026-07-30",
+      "selection_note": "Highest stable version found at cutoff; v1.10.0-alpha.0 excluded. No affirmative Kubernetes v1.37 compatibility statement found.",
+      "watchlist": "Added stable v-tag baseline; support remains unconfirmed."
+    },
+    {
+      "name": "Kubeflow Community Distribution",
+      "version": "26.03.1",
+      "release": "https://github.com/kubeflow/community-distribution/releases/tag/26.03.1",
+      "release_date": "2026-06-15",
+      "included_components": [
+        "Pipelines 2.16.1",
+        "Trainer 2.2.0",
+        "Istio 1.30.1",
+        "cert-manager 1.20.2",
+        "Dex 2.45.1",
+        "Notebooks v1.11.0"
+      ],
+      "kubernetes_compatibility": "Release notes mention Kubernetes 1.36 CI and do not state v1.37 support.",
+      "release_order_check": {
+        "command": "gh api 'repos/kubeflow/community-distribution/releases?per_page=100&page=1' --jq 'map({tag_name,prerelease,draft,published_at})'",
+        "result": "All 75 releases were returned in the complete history query; CalVer tuple ordering and draft/prerelease filtering selected 26.03.1 as the highest stable release found.",
+        "watchlist": "Recorded manually. Not represented as one SemVer component because the distribution has independently versioned products and uses CalVer."
+      }
+    },
+    {
+      "name": "Longhorn",
+      "version": "v1.13.0",
+      "release": "https://github.com/longhorn/longhorn/releases/tag/v1.13.0",
+      "chart_version": "1.13.0",
+      "chart_source": "https://github.com/longhorn/longhorn/blob/v1.13.0/chart/Chart.yaml",
+      "kubernetes_minimum": "v1.34; the v1.37.1 target meets the stated minimum, not a full platform certification.",
+      "watchlist": "Added stable v-tag baseline; support remains unconfirmed. The lab StorageClass sets dataEngine=v1 explicitly."
+    },
+    {
+      "name": "Cilium BGP and IPv6",
+      "version": "v1.20.2",
+      "release": "https://github.com/cilium/cilium/releases/tag/v1.20.2",
+      "kubernetes_test_matrix": "1.33-1.36; v1.37 excluded",
+      "matrix_source": "https://docs.cilium.io/en/v1.20/operations/support/",
+      "watchlist": "Existing Cilium baseline retained without an automatic version change. The full-history release check below found no newer stable release."
+    },
+    {
+      "name": "Kubernetes nftables kube-proxy mode",
+      "version": "v1.37.1",
+      "source": "https://kubernetes.io/docs/reference/networking/virtual-ips/#nftables-proxy-mode",
+      "facts": "GA since v1.33, Linux kernel >=5.13, and not the v1.37 default. This is a kube-proxy mode, not a separate component release."
+    },
+    {
+      "name": "Istio Ambient",
+      "version": "1.31.1",
+      "release": "https://github.com/istio/istio/releases/tag/1.31.1",
+      "support_source": "https://istio.io/latest/docs/releases/supported-releases/",
+      "kubernetes_compatibility": "The reviewed support table lists Kubernetes 1.32-1.36, not v1.37.",
+      "watchlist": "Existing Istio baseline retained without an automatic version change."
+    }
+  ],
+  "verification": {
+    "verification_timestamp_utc": "2026-10-05T18:56:22Z",
+    "verification_local_timezone": "Asia/Taipei (UTC+08:00)",
+    "python_tests": {
+      "command": "uv run --with pyyaml==6.0.3 --with jsonschema==4.25.1 python -m unittest discover -s tests",
+      "exit_code": 0,
+      "tests_passed": 53
+    },
+    "npm_tests": {
+      "command": "mise exec node@24.21.0 -- npm test",
+      "exit_code": 0,
+      "tests_passed": 12
+    },
+    "markdown_yaml_schema_scan": {
+      "command": "uv run --script scripts/check-current-content.py --output /tmp/kubernetes-newtopics-content-validation.json",
+      "exit_code": 0,
+      "markdown_pages": 377,
+      "yaml_fences": 410,
+      "builtin_resources": 338,
+      "strict_json_schema_validated": 328,
+      "official_go_crd_validated": 10,
+      "builtin_errors": 0,
+      "custom_api_unvalidated": 50,
+      "native_configuration_unvalidated": 10,
+      "plain_yaml_unvalidated": 42,
+      "template_blocks": 0,
+      "new_builtin_examples_validated": 12
+    },
+    "localized_asset_inventory": {
+      "asset": "setup/component-watchlist.json",
+      "source_bytes": 21168,
+      "localized_bytes": 20982,
+      "note": "The translated support_notes strings intentionally differ; all machine component facts match."
+    },
+    "root_site_build": {
+      "build_command": "mise exec node@24.21.0 -- npm run build",
+      "check_command": "mise exec node@24.21.0 -- npm run check:book",
+      "result": "Final root build and output check passed after the review report and JSON were added.",
+      "pages": 162,
+      "assets": 1011
+    },
+    "taiwan_site_build": {
+      "build_command": "mise exec node@24.21.0 -- npm exec -- honkit build zh-TW /tmp/kubernetes-handbook-zh-tw-book",
+      "rendered_check": "Existing checkRenderedBook API with rootDir=zh-TW and output=/tmp/kubernetes-handbook-zh-tw-book",
+      "result": "Final Taiwan build and rendered-output check passed after the review report and JSON were added.",
+      "pages": 186,
+      "assets": 89
+    },
+    "local_references_and_fragments": {
+      "root_local_references": 29936,
+      "taiwan_local_references": 38807,
+      "unresolved_references": 0,
+      "scoped_new_topic_guide_references": 9,
+      "scoped_new_topic_guide_reference_failures": 0,
+      "full_fragment_references_per_edition": 8,
+      "fragments_passed_per_edition": 6,
+      "preexisting_fragment_failures_per_edition": 2,
+      "preexisting_fragment_failures": [
+        "concepts/components/apiserver.html#%20认证",
+        "concepts/components/apiserver.html#%20授权"
+      ],
+      "fragment_failure_note": "These unchanged API-server links contain a leading encoded space and are outside the new-topic scope. Do not report the full fragment audit as all-pass."
+    },
+    "bilingual_guide_code_fences": {
+      "chapter_pairs_checked": 9,
+      "normalized_code_fences_identical": true,
+      "note": "Only localized prose comments differ."
+    },
+    "release_watch": {
+      "command": "python3 /tmp/kubernetes-newtopics-check-releases.py",
+      "result": "Full-history scan passed for all 29 watchlist repositories; no repository had a newer stable release than its recorded baseline.",
+      "authenticated_public_get_requests": 96,
+      "transport_note": "The parent used a keyring-backed local GET adapter. No credential value was recorded. This was not a GitHub Actions run or a stock checker CLI invocation."
+    },
+    "kubeflow_manual_calver_release_query": {
+      "command": "gh api 'repos/kubeflow/community-distribution/releases?per_page=100&page=1' --jq 'map({tag_name,prerelease,draft,published_at})'",
+      "result": "All 75 releases were returned; CalVer ordering and draft/prerelease filtering selected 26.03.1, published 2026-06-15, as the highest stable version found.",
+      "credential_values_recorded": false
+    }
+  },
+  "source_fingerprints_sha256": {
+    "setup/new-topics-review.md": "1ccb453729c30738fe6cc762658aba27e7ff4de541bc95cf917be7d0b41c15c2",
+    "zh-TW/setup/new-topics-review.md": "75e981abdd7637f2da948a54b464d633bbbd4ff350fec5926ed2612f938a6bda",
+    "setup/component-installation-order.md": "32ace963caa41caa383a02122ee2a06c8e015cd4a9ee666aa08438822364aa71",
+    "zh-TW/setup/component-installation-order.md": "9116481ff57dc3e407821e1469c60c2622318c54d059d99fafbd332bc554b65c",
+    "SUMMARY.md": "43ce21f6f01374a79242d0f38024ed332ff8495677e3facb08930f1bae41702e",
+    "zh-TW/SUMMARY.md": "c7c5e43d784477f054b9a06144350dd40e0cf673860955d0da645b298b91ec3a",
+    "zh-TW/coverage.json": "a5eb495a0464b0ee11938b4af2689838983d653c1a56b701a38974e4e4b65bd8",
+    "setup/component-watchlist.json": "647951ba17b8b89561ee28325a56d34b8f6bca09b681834aecb5fedc824eee4a",
+    "zh-TW/setup/component-watchlist.json": "25f50fd22732e24fd449f7cc46941045a8e38ba256bbe8280c689f811568db95"
+  },
+  "limits": [
+    "Of 410 YAML fences, 328 built-in resources passed strict JSON-schema validation and ten CRD examples were checked with their official Go libraries (338 validated built-in examples total, including 12 new examples); zero built-in errors were reported.",
+    "Fifty custom API/vendor-schema examples were not validated; ten native configuration documents were classified but not checked against Kubernetes API schemas, and 42 plain YAML blocks were not treated as built-in API objects.",
+    "No component installation, live-cluster, production platform, or user-data cleanup operation was performed; no data was deleted and no disk space was freed.",
+    "The earlier 178-pair current-content review remains a historical snapshot and does not claim to cover these new chapters or the small intro crosslinks.",
+    "The two fragment failures recorded above are preexisting API-server links and are outside the new-topic guide scope."
+  ],
+  "cleanup": {
+    "data_deleted": false,
+    "disk_space_freed": false,
+    "components_installed": false,
+    "policy": "Inventory is read-only. Any cleanup decision and execution remain with an authorized human after backup and recovery review. No host-specific inventory is included here."
+  }
+}

@@ -71,7 +71,7 @@ done
 
 - Go 變更在對應 `go.mod` 所屬 module 執行 `go test ./...` 和 `go vet ./...`。如輸出 `? ... [no test files]`，照實註明沒有 unit test 檔，不能把套件編譯等同功能測試。
 - Python 驗證先用同一個 `python -m pip` 與 `python` 確認套件安裝位置，必要時在 repo 外臨時 venv 裝依賴；不要以其他 interpreter 的 `pip` 結果判斷環境。
-- GitBook 命令按 [AGENTS.md](../AGENTS.md)、`Makefile`、`package.json` 與 `book.json` 實際定義執行。`npm test` 是明確失敗的 placeholder，不是測試。此倉庫目前已觀察到外部舊建置阻塞：首次 `make build` 缺少 `gitbook`；隔離 Node 10 / GitBook 3.2.3 / npm 3.9.2 的 plugin installer 回報 `Missing required argument #1`；QA-only 以 npm 6 繞過 installer 後，`make build` 仍因 `gitbook-plugin-github@3.0.0` 要求 GitBook `>=4.0.0-alpha.0` 而失敗，且 `search-plus` 的 `latest` dist-tag 曾選到 `1.0.4-alpha-3`。保留完整版本與錯誤作為**來源相依相容性 blocker**，不要聲稱 production render/build 通過，也不要為內容任務擴大成根框架遷移。若之後環境或依賴變更，重新實測並另行記錄結果。
+- 本書目前使用 HonKit，依現行 [網站建置說明](../setup/site-build.md)、`Makefile`、`package.json` 與 `book.json` 執行實際定義的命令。`npm test` 執行 `node --test scripts/*.test.mjs`；它不是 placeholder。將測試、build 和輸出檢查分別報告，不可把其中一項代替其他項。舊 GitBook CLI／GitBook 3 的安裝與 plugin 相容性錯誤是遷移前的歷史證據，保留在其日期化記錄中，不得描述為目前 HonKit 的建置 blocker。若維護時重新驗證，記錄當時 Node/npm、鎖定依賴、精確命令與完整結果；不要執行出版或部署命令，除非任務另有明確授權。
 
 每次報告分項列出實際執行命令、結果、未執行項及阻塞原因。lint/build 沒有跑不能寫成 pass；server dry-run pass 不代表 smoke test pass。
 
@@ -195,10 +195,10 @@ done
 
 ## 驗收
 
-升級前完成元件/安全盤點、可還原備份及明確回滾門檻；active 清單逐檔通過 built-in 與 vendor CRD 的 strict server dry-run；目標測試叢集已檢查 API discovery、DNS、網路、儲存、Gateway HTTP/HTTPS、憑證及監控。Go test/vet、文件檢查與 build 按實際執行結果逐項報告，GitBook blocker 明確標受阻。
+驗證範圍依變更風險選擇並逐項報告：文件改動核對 diff、內部連結、錨點及圖片；程式／渲染改動依 [網站建置說明](../setup/site-build.md) 使用當前 HonKit 工具鏈測試、建置和輸出檢查；清單改動按 active manifest 逐檔驗證。只有實際執行且通過的檢查可列為 pass；明列未執行檢查及其原因。隔離叢集、外部控制器、雲端服務和 production 行為不是靜態驗證的推論結果。
 
 若執行 publication，公開 repo 的 owner、public visibility、default branch、README、commit SHA 與 upstream tracking 均已核對；clean snapshot 沒有原歷史 ancestry；原本地 branch/remote 仍在；授權和 attribution 保留；secret scanner findings 有逐項分類；沒有 token、`.serena` 私密資料、QA secret 或強制 push。
 
 ## 限制
 
-本 SOP 不授權直接操作生產叢集、無人核准的遠端建立/發布、升級後直接降版或清理非本工作資源。Kubernetes/外掛支援範圍依[版本證據矩陣](../setup/component-versions.md)，unknown 不得寫成 supported。GitBook 目前的 installer/plugin 相容性錯誤是已知來源建置 blocker，不能由 QA workaround 推論公開版可成功 render。
+本 SOP 不授權直接操作生產叢集、無人核准的遠端建立/發布、升級後直接降版或清理非本工作資源。Kubernetes/外掛支援範圍依[版本證據矩陣](../setup/component-versions.md)，unknown 不得寫成 supported。舊 GitBook CLI／插件錯誤只作遷移前歷史記錄；目前文件的建置狀態以固定 HonKit 工具鏈的日期化驗證記錄為準，不能從過往失敗或 QA workaround 推論現況。

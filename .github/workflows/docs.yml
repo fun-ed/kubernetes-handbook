@@ -1,0 +1,42 @@
+name: Build handbook site
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Run rendering and checker unit tests
+        run: npm test
+
+      - name: Build the book
+        run: npm run build
+
+      - name: Check rendered output
+        run: npm run check:book
+
+      - name: Upload static site artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: kubernetes-handbook-site
+          path: _book/
+          if-no-files-found: error
+          retention-days: 7

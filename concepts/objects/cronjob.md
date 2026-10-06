@@ -29,7 +29,7 @@ spec:
         spec:
           containers:
           - name: hello
-            image: busybox
+            image: busybox:1.37.0
             imagePullPolicy: IfNotPresent
             command:
             - /bin/sh
@@ -40,7 +40,7 @@ spec:
 
 ```bash
 # kubectl run 当前用于创建 Pod，不用于创建 CronJob。
-kubectl create cronjob hello --image=busybox:1.36 --schedule="*/1 * * * *" -- \
+kubectl create cronjob hello --image=busybox:1.37.0 --schedule="*/1 * * * *" -- \
   /bin/sh -c "date; echo Hello from the Kubernetes cluster"
 
 kubectl get cronjob hello

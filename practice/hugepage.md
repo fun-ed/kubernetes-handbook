@@ -23,7 +23,7 @@ metadata:
 spec:
   containers:
   - name: example
-    image: busybox:1.36.1
+    image: busybox:1.37.0
     command: ["sh", "-c", "sleep 3600"]
     volumeMounts:
     - name: hugepages

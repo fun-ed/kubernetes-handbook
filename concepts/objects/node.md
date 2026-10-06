@@ -1,6 +1,6 @@
 # Node
 
-Node 是 Pod 真正运行的主机，可以是物理机，也可以是虚拟机。为了管理 Pod，每个 Node 节点上至少要运行 container runtime（比如 `docker` 或者 `rkt`）、`kubelet` 和 `kube-proxy` 服务。
+Node 是 Pod 實際執行的主機，可以是實體機或虛擬機器。每個 Node 都需要 kubelet 和符合 CRI 的容器執行時。kube-proxy 通常負責實作 Service 網路，但部分網路實作會取代它。
 
 ![node](../../.gitbook/assets/node%20%284%29.png)
 
@@ -30,11 +30,11 @@ metadata:
 
 每个 Node 都包括以下状态信息：
 
-* 地址：包括 hostname、外网 IP 和内网 IP
-* 条件（Condition）：包括 OutOfDisk、Ready、MemoryPressure 和 DiskPressure
-* 容量（Capacity）：Node 上的可用资源，包括 CPU、内存和 Pod 总数
-* 可分配（Allocatable）：Node 上可分配给 Pod 的资源量，包括 CSI 卷附件限制等动态资源
-* 基本信息（Info）：包括内核版本、容器引擎版本、OS 类型等
+* 位址：包含 hostname、外部 IP 和內部 IP
+* 條件（Condition）：包含 Ready、MemoryPressure、DiskPressure、PIDPressure 等狀態；OutOfDisk 已移除
+* 容量（Capacity）：Node 上的總資源，包括 CPU、記憶體和 Pod 數量
+* 可分配（Allocatable）：扣除系統保留後，可分配給 Pod 的資源量；部分資源限制取決於叢集設定
+* 基本資訊（Info）：包含核心、容器執行時與作業系統版本等資訊
 
 ## Taints 和 tolerations
 
@@ -47,7 +47,7 @@ kubectl taint nodes node1 key1=value1:NoSchedule
 kubectl taint nodes node1 key1=value2:NoExecute
 ```
 
-Taints 和 tolerations 的具体使用方法请参考 [调度器章节](../components/scheduler.md#Taints%20和%20tolerations)。
+Taints 和 tolerations 的具体使用方法请参考 [调度器章节](../components/scheduler.md#taints-和-tolerations)。
 
 ## Node 维护模式
 
@@ -71,17 +71,11 @@ Node 非优雅关闭正是为了解决这些问题。用户可以手动将具有
 
 ## 动态节点资源分配
 
-从 Kubernetes 1.33 开始，通过 `MutableCSINodeAllocatableCount` 特性（Alpha），CSI 驱动程序能够动态更新节点的可分配资源信息，特别是卷附件的数量限制。这提高了调度器对节点真实容量的感知能力，避免将 Pod 调度到资源不足的节点上。
+`MutableCSINodeAllocatableCount` 在 v1.33 以 Alpha 引入，v1.34 升為 Beta，並自 v1.35 起預設啟用；v1.37 中仍為 Beta。它允許 CSI 驅動更新節點可分配的卷附件數量，讓調度器使用較新的限制資訊。CSI 驅動與 kubelet 必須支援此功能；行為與設定細節請依目標 CSI 驅動文件確認。
 
-该特性主要影响：
-
-* **节点可分配资源的实时更新**：CSI 驱动程序可以根据实际存储后端的状态动态调整节点的卷附件限制
-* **更准确的调度决策**：调度器基于最新的节点可分配信息进行 Pod 调度，减少调度失败
-* **存储资源优化**：提高存储资源的利用效率，避免静态配置的局限性
-
-相关配置详见 [CSI 章节](../../extension/volume/csi.md#kubernetes-133-新特性动态-csi-节点分配计数)。
+此功能受 `MutableCSINodeAllocatableCount` feature gate 控制。v1.37 預設已啟用，除非有明確需要，勿為此額外設定 feature gate。參閱 [CSI 章節](../../extension/volume/csi.md#csidriver-对象和节点可分配卷数)與[v1.37.1 feature gate 原始碼](https://github.com/kubernetes/kubernetes/blob/v1.37.1/pkg/features/kube_features.go)。
 
 ## 参考文档
 
 * [Kubernetes Node](https://kubernetes.io/docs/concepts/architecture/nodes/)
-* [Taints 和 tolerations](https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#taints-and-tolerations-beta-feature)
+* [Taints 和 tolerations](https://kubernetes.io/docs/concepts/scheduling-eviction/taint-and-toleration/)

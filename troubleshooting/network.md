@@ -71,7 +71,7 @@ kubectl -n kube-system get services
 # Replace with the DNS Service name shown above
 DNS_SERVICE='<dns-service-name>'
 kubectl -n kube-system get endpointslices -l "kubernetes.io/service-name=$DNS_SERVICE"
-kubectl run dns-check --image=busybox:1.36 --restart=Never --rm -it -- \
+kubectl run dns-check --image=busybox:1.37.0 --restart=Never --rm -it -- \
   nslookup kubernetes.default.svc.cluster.local
 ```
 

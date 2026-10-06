@@ -4,13 +4,13 @@ Secret 解决了密码、token、密钥等敏感数据的配置问题，而不�
 
 ## Secret 类型
 
-Secret 有三种类型：
+Secret 常見型別如下：
 
-* Opaque：base64 编码格式的 Secret，用来存储密码、密钥等；但数据也通过 base64 --decode 解码得到原始数据，所有加密性很弱。
-* `kubernetes.io/dockerconfigjson`：用来存储私有 docker registry 的认证信息。
-* `kubernetes.io/service-account-token`： 用于被 serviceaccount 引用。serviceaccout 创建时 Kubernetes 会默认创建对应的 secret。Pod 如果使用了 serviceaccount，对应的 secret 会自动挂载到 Pod 的 `/run/secrets/kubernetes.io/serviceaccount` 目录中。
+* `Opaque`：用來存放一般鍵值資料。Secret 的 `.data` 欄位以 Base64 編碼，Base64 不是加密；需保護資料時，應設定 etcd 靜態加密並限制 RBAC 存取。
+* `kubernetes.io/dockerconfigjson`：存放私有映像檔儲存庫的認證設定。
+* `kubernetes.io/service-account-token`：保留給需長期相容憑證的情境；不會在現代 Kubernetes 中自動為每個 ServiceAccount 建立。Pod 通常透過 projected volume 取得短期令牌。
 
-备注：serviceaccount 用来使得 Pod 能够访问 Kubernetes API
+ServiceAccount 為 Pod 提供 API 身分，但不會自行授予 RBAC 權限。無需呼叫 API 的工作負載應設定 `automountServiceAccountToken: false`。
 
 ## API 版本对照表
 
@@ -44,14 +44,12 @@ data:
 
 创建 secret：`kubectl create -f secrets.yml`。
 
-```bash
-# kubectl get secret
-NAME                  TYPE                                  DATA      AGE
-default-token-cty7p   kubernetes.io/service-account-token   3         45d
-mysecret              Opaque                                2         7s
+```text
+NAME      TYPE     DATA   AGE
+mysecret  Opaque   2      <age>
 ```
 
-注意：其中 default-token-cty7p 为创建集群时默认创建的 secret，被 serviceacount/default 引用。
+Kubernetes v1.24 起不再自動為每個 ServiceAccount 建立長期 token Secret。不要依賴舊版 `default-token-*` 輸出或將該類 token 用於一般工作負載。
 
 如果是从文件创建 secret，则可以用更简单的 kubectl 命令，比如创建 tls 的 secret：
 
@@ -68,14 +66,15 @@ $ kubectl create secret generic helloworld-tls \
 * 以 Volume 方式
 * 以环境变量方式
 
+以下範例用 PostgreSQL 展示 Secret Volume。請先依前文建立 `mysecret`；資料只寫入容器的暫存檔案系統，僅適用於教學，正式資料庫應配置持久儲存與備份。
 ### 将 Secret 挂载到 Volume 中
 
-```text
+```yaml
 apiVersion: v1
 kind: Pod
 metadata:
   labels:
-    name: db
+    app: db
   name: db
 spec:
   volumes:
@@ -83,16 +82,26 @@ spec:
     secret:
       secretName: mysecret
   containers:
-  - image: gcr.io/my_project_id/pg:v1
+  - image: postgres:18.6-alpine3.24
     name: db
+    env:
+    - name: POSTGRES_USER
+      valueFrom:
+        secretKeyRef:
+          name: mysecret
+          key: username
+    - name: POSTGRES_PASSWORD
+      valueFrom:
+        secretKeyRef:
+          name: mysecret
+          key: password
     volumeMounts:
     - name: secrets
       mountPath: "/etc/secrets"
       readOnly: true
     ports:
-    - name: cp
+    - name: postgres
       containerPort: 5432
-      hostPort: 5432
 ```
 
 查看 Pod 中对应的信息：
@@ -128,7 +137,7 @@ spec:
     spec:
       containers:
       - name: wordpress
-        image: wordpress:6
+        image: wordpress:7.1.2
         ports:
         - containerPort: 80
         env:
@@ -186,65 +195,7 @@ psd
 usr
 ```
 
- **注意** ：
-
-1、`kubernetes.io/dockerconfigjson` 和 `kubernetes.io/service-account-token` 类型的 secret 也同样可以被挂载成文件 \(目录\)。 如果使用 `kubernetes.io/dockerconfigjson` 类型的 secret 会在目录下创建一个. dockercfg 文件
-
-```bash
-root@db:/etc/secrets# ls -al
-total 4
-drwxrwxrwt  3 root root  100 Aug  5 16:06 .
-drwxr-xr-x 42 root root 4096 Aug  5 16:06 ..
-drwxr-xr-x  2 root root   60 Aug  5 16:06 ..8988_06_08_00_06_52.433429084
-lrwxrwxrwx  1 root root   31 Aug  5 16:06 ..data -> ..8988_06_08_00_06_52.433429084
-lrwxrwxrwx  1 root root   17 Aug  5 16:06 .dockercfg -> ..data/.dockercfg
-```
-
-如果使用 `kubernetes.io/service-account-token` 类型的 secret 则会创建 ca.crt，namespace，token 三个文件
-
-```bash
-root@db:/etc/secrets# ls
-ca.crt    namespace  token
-```
-
-2、secrets 使用时被挂载到一个临时目录，Pod 被删除后 secrets 挂载时生成的文件也会被删除。
-
-```bash
-root@db:/etc/secrets# df
-Filesystem     1K-blocks    Used Available Use% Mounted on
-none           123723748 4983104 112432804   5% /
-tmpfs            1957660       0   1957660   0% /dev
-tmpfs            1957660       0   1957660   0% /sys/fs/cgroup
-/dev/vda1       51474044 2444568  46408092   6% /etc/hosts
-tmpfs            1957660      12   1957648   1% /etc/secrets
-/dev/vdb       123723748 4983104 112432804   5% /etc/hostname
-shm                65536       0     65536   0% /dev/shm
-```
-
-但如果在 Pod 运行的时候，在 Pod 部署的节点上还是可以看到：
-
-```bash
-# 查看 Pod 中容器 Secret 的相关信息，其中 4392b02d-79f9-11e7-a70a-525400bc11f0 为 Pod 的 UUID
-"Mounts": [
-  {
-    "Source": "/var/lib/kubelet/pods/4392b02d-79f9-11e7-a70a-525400bc11f0/volumes/kubernetes.io~secret/secrets",
-    "Destination": "/etc/secrets",
-    "Mode": "ro",
-    "RW": false,
-    "Propagation": "rprivate"
-  }
-]
-#在 Pod 部署的节点查看
-root@VM-0-178-ubuntu:/var/lib/kubelet/pods/4392b02d-79f9-11e7-a70a-525400bc11f0/volumes/kubernetes.io~secret/secrets# ls -al
-total 4
-drwxrwxrwt 3 root root  140 Aug  6 00:15 .
-drwxr-xr-x 3 root root 4096 Aug  6 00:15 ..
-drwxr-xr-x 2 root root  100 Aug  6 00:15 ..8988_06_08_00_15_14.253276142
-lrwxrwxrwx 1 root root   31 Aug  6 00:15 ..data -> ..8988_06_08_00_15_14.253276142
-lrwxrwxrwx 1 root root   13 Aug  6 00:15 ca.crt -> ..data/ca.crt
-lrwxrwxrwx 1 root root   16 Aug  6 00:15 namespace -> ..data/namespace
-lrwxrwxrwx 1 root root   12 Aug  6 00:15 token -> ..data/token
-```
+服務帳戶短期權杖通常由 projected volume 提供，kubelet 會在有效期限內更新令牌。不要自行掛載長期 `kubernetes.io/service-account-token` Secret，也不要到節點檔案系統讀取容器憑證。令牌 Secret 的歷史輸出和舊 kubelet 路徑已移至[歷史歸檔](https://github.com/fun-ed/kubernetes-handbook/blob/main/archive/concepts/serviceaccount-token-legacy.md)。
 
 ## kubernetes.io/dockerconfigjson
 
@@ -260,11 +211,10 @@ kubectl create secret docker-registry myregistrykey \
 secret/myregistrykey created
 ```
 
-> **安全更新（Kubernetes v1.33）**
+> **Kubernetes v1.37**
 >
-> 1. **Service Account Token Integration for Kubelet Credential Providers**（Alpha）：推荐使用 Pod 的服务账户令牌动态获取镜像拉取凭证，避免长期密钥的安全风险。详见[安全章节](../../practice/security.md#镜像拉取认证安全v133-新特性)。
->
-> 2. **Ensure Secret Pulled Images**（Alpha）：通过 `KubeletEnsureSecretPulledImages` 特性门控，确保只有具备适当凭证的 Pod 才能访问私有镜像，即使镜像已存在于节点上。详见[安全章节](../../practice/security.md#镜像拉取安全v133-新特性)。
+> * `KubeletServiceAccountTokenForCredentialProviders` 自 v1.34 起為預設啟用的 Beta 功能。它允許已設定的 kubelet credential provider 取得 Pod 綁定的 ServiceAccount 權杖；仍需安裝並設定支援此功能的外掛。[官方說明](https://kubernetes.io/docs/tasks/administer-cluster/kubelet-credential-provider/#service-account-token-for-image-pulls)。
+> * `KubeletEnsureSecretPulledImages` 自 v1.35 起為預設啟用的 Beta 功能。節點會驗證私有映像檔拉取憑證；實際行為取決於 kubelet 設定及憑證。[映像檔文件](https://kubernetes.io/docs/concepts/containers/images/)。
 
 创建命令会生成 `kubernetes.io/dockerconfigjson` 类型的 Secret，其中 `.dockerconfigjson` 是合法 Docker 配置的 Base64 编码。下面是省略动态 metadata 后的示例；该值解码为 JSON，且只包含上面的虚构占位数据。
 
@@ -299,6 +249,7 @@ kubectl create secret generic myregistrykey \
 ```
 
 在创建 Pod 的时候，通过 `imagePullSecrets` 来引用刚创建的 `myregistrykey`:
+`registry.example.invalid/project/awesomeapp:replace-me` 是無法拉取的佔位映像檔；請換成已推送至前述私有儲存庫的實際映像檔標籤。
 
 ```yaml
 apiVersion: v1
@@ -308,7 +259,7 @@ metadata:
 spec:
   containers:
     - name: foo
-      image: janedoe/awesomeapp:v1
+      image: registry.example.invalid/project/awesomeapp:replace-me
   imagePullSecrets:
     - name: myregistrykey
 ```
@@ -336,13 +287,16 @@ API Server 当前使用 `--encryption-provider-config` 指定加密配置文件�
 * 保护应用，使之免受意外更新所带来的负面影响。
 * 通过大幅降低对 kube-apiserver 的压力提升集群性能，这是因为 Kubernetes 会关闭不可变 Secret 的监视操作。
 
+此範例的 `data` 值只是字串 `example` 的 Base64 編碼，不是密碼或加密。請勿將真實憑證寫入文件或版控儲存庫。
+
 ```yaml
 apiVersion: v1
 kind: Secret
 metadata:
-  ...
+  name: app-secret-v1
+type: Opaque
 data:
-  ...
+  username: ZXhhbXBsZQ==
 immutable: true
 ```
 

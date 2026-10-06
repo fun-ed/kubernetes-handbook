@@ -1,0 +1,27 @@
+name: Manifest regression
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  local-regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+      - name: Install pinned verifier runner
+        run: python -m pip install uv==0.12.23
+      - name: Test verifier and release checker failure cases
+        run: uv run --with PyYAML==6.0.3 --with jsonschema==4.25.1 python -m unittest discover -s tests
+      - name: Validate active standalone manifests against the exact-version schemas
+        run: uv run --locked --script scripts/verify.py

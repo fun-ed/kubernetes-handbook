@@ -14,17 +14,11 @@
 * [一般准则](patterns.md)
 * [滚动升级](service-rolling-update.md)
 * [Helm](helm.md)
-* [Operator](operator.md)
 * [Service Mesh](service-mesh.md)
-* [Linkerd](linkerd.md)
-* [Istio](../istio/)
-  * [安装](../istio/istio-deploy.md)
-  * [流量管理](../istio/istio-traffic-management.md)
-  * [安全管理](../istio/istio-security.md)
-  * [策略管理](../istio/istio-policy.md)
-  * [Metrics](../istio/istio-metrics.md)
-  * [排错](../istio/istio-troubleshoot.md)
-  * [社区](../istio/istio-community.md)
+* [Linkerd 状态与评估](linkerd2.md)
+* [Istio 安装](../istio/istio-deploy.md)
+* [Istio 排错](../istio/istio-troubleshoot.md)
+* [Istio 社区](../istio/istio-community.md)
 * [Devops](../devops/)
   * [Draft](../devops/draft.md)
   * [Jenkins X](../devops/jenkinsx.md)
@@ -33,4 +27,6 @@
   * [Skaffold](../devops/skaffold.md)
   * [Argo](../devops/argo.md)
   * [Flux GitOps](../devops/flux.md)
+
+已退役的 Linkerd 1.x、旧 CoreOS Operator 和早期 Istio Mixer/API 教程已移入[历史归档](https://github.com/fun-ed/kubernetes-handbook/blob/main/archive/index.md)。保留的 Istio 安装页面也明确说明 v1.37 兼容性尚未得到官方确认。
 

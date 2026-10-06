@@ -1,0 +1,2081 @@
+{
+  "edition": "zh-TW",
+  "source_version": "Kubernetes v1.37.1",
+  "excluded_archived_sections": [
+    {
+      "source": "troubleshooting/cloud/azure.md",
+      "section": "Node 的 GPU 数总是 0",
+      "archived_as": "archive/troubleshooting/cloud/azure-gpu-device-plugin.md",
+      "reason": "Only the obsolete extensions/v1beta1 NVIDIA device-plugin example was archived; the current chapter and its updated diagnostics remain included."
+    },
+    {
+      "source": "concepts/objects/service.md",
+      "section": "Legacy Endpoints example",
+      "archived_as": "archive/concepts/endpoints-legacy.md",
+      "reason": "Replaced deprecated Endpoints guidance with EndpointSlice; the localized current page has current guidance and links to the canonical historical extraction."
+    },
+    {
+      "source": "concepts/objects/service.md",
+      "section": "Legacy source-IP-specific examples",
+      "archived_as": "archive/concepts/objects/service-source-ip-legacy.md",
+      "localized_archived_as": "archive/concepts/objects/service-source-ip-legacy-zh-TW.md",
+      "reason": "Replaced obsolete details with current traffic-policy guidance in both current language pages."
+    },
+    {
+      "source": "concepts/objects/pod.md",
+      "section": "Legacy kubenet bandwidth annotations and cbr0 tc procedure",
+      "archived_as": "archive/concepts/objects/pod-bandwidth-legacy.md",
+      "localized_archived_as": "archive/concepts/objects/pod-bandwidth-legacy-zh-TW.md",
+      "reason": "Plugin-specific obsolete runnable instructions removed from current pages."
+    },
+    {
+      "source": "concepts/objects/secret.md",
+      "section": "Legacy ServiceAccount token-secret and kubelet hostPath example",
+      "archived_as": "archive/concepts/serviceaccount-token-legacy.md",
+      "reason": "Replaced by projected short-lived-token guidance."
+    },
+    {
+      "source": "concepts/objects/volume.md",
+      "section": "Legacy volume examples",
+      "archived_as": "archive/concepts/objects/volume-legacy-examples.md",
+      "reason": "Replaced stale runnable examples with current guidance."
+    },
+    {
+      "source": "extension/api/customresourcedefinition.md",
+      "section": "Legacy procedural/examples",
+      "archived_as": "archive/extension/api/customresourcedefinition.md",
+      "localized_archived_as": "archive/zh-TW/extension/api/customresourcedefinition.md",
+      "reason": "Removed apiextensions.k8s.io/v1beta1 schemas and deprecated Kubebuilder 1.x commands."
+    },
+    {
+      "source": "extension/auth/rbac.md",
+      "section": "Legacy procedural/examples",
+      "archived_as": "archive/extension/auth/rbac.md",
+      "localized_archived_as": "archive/zh-TW/extension/auth/rbac.md",
+      "reason": "Removed executable insecure ABAC and cluster-admin binding examples."
+    },
+    {
+      "source": "extension/cri/README.md",
+      "section": "Legacy procedural/examples",
+      "archived_as": "archive/extension/cri/README.md",
+      "localized_archived_as": "archive/zh-TW/extension/cri/README.md",
+      "reason": "Removed CRI v1alpha2 implementation code and deprecated runtime flags."
+    },
+    {
+      "source": "extension/cri/cri-tools.md",
+      "section": "Legacy diagnostics output",
+      "archived_as": "archive/extension/cri/cri-tools.md",
+      "localized_archived_as": "archive/zh-TW/extension/cri/cri-tools.md",
+      "reason": "Archived obsolete registries, images, and historical node data."
+    },
+    {
+      "source": "extension/network/calico.md",
+      "section": "Legacy deployment examples",
+      "archived_as": "archive/extension/network/calico.md",
+      "localized_archived_as": "archive/zh-TW/extension/network/calico.md",
+      "reason": "Removed old v3.1 manifests, Docker/etcd procedures, and insecure TLS kubeconfig."
+    },
+    {
+      "source": "extension/network/flannel.md",
+      "section": "Legacy deployment examples",
+      "archived_as": "archive/extension/network/flannel.md",
+      "localized_archived_as": "archive/zh-TW/extension/network/flannel.md",
+      "reason": "Removed obsolete Docker daemon/CNI procedures and unpinned cluster install output."
+    }
+  ],
+  "included_markdown": [
+    {
+      "source": "CHANGELOG.md",
+      "localized": "CHANGELOG.md"
+    },
+    {
+      "source": "README.md",
+      "localized": "README.md"
+    },
+    {
+      "source": "SUMMARY.md",
+      "localized": "SUMMARY.md"
+    },
+    {
+      "source": "appendix/contributing.md",
+      "localized": "appendix/contributing.md"
+    },
+    {
+      "source": "appendix/ecosystem.md",
+      "localized": "appendix/ecosystem.md"
+    },
+    {
+      "source": "appendix/index.md",
+      "localized": "appendix/index.md"
+    },
+    {
+      "source": "appendix/mirrors.md",
+      "localized": "appendix/mirrors.md"
+    },
+    {
+      "source": "appendix/reference.md",
+      "localized": "appendix/reference.md"
+    },
+    {
+      "source": "appendix/tutorial.md",
+      "localized": "appendix/tutorial.md"
+    },
+    {
+      "source": "apps/cicd.md",
+      "localized": "apps/cicd.md"
+    },
+    {
+      "source": "apps/devops/README.md",
+      "localized": "apps/devops/README.md"
+    },
+    {
+      "source": "apps/devops/argo-cd.md",
+      "localized": "apps/devops/argo-cd.md"
+    },
+    {
+      "source": "apps/devops/argo.md",
+      "localized": "apps/devops/argo.md"
+    },
+    {
+      "source": "apps/devops/draft.md",
+      "localized": "apps/devops/draft.md"
+    },
+    {
+      "source": "apps/devops/flux.md",
+      "localized": "apps/devops/flux.md"
+    },
+    {
+      "source": "apps/devops/jenkinsx.md",
+      "localized": "apps/devops/jenkinsx.md"
+    },
+    {
+      "source": "apps/devops/kompose.md",
+      "localized": "apps/devops/kompose.md"
+    },
+    {
+      "source": "apps/devops/skaffold.md",
+      "localized": "apps/devops/skaffold.md"
+    },
+    {
+      "source": "apps/devops/spinnaker.md",
+      "localized": "apps/devops/spinnaker.md"
+    },
+    {
+      "source": "apps/index/README.md",
+      "localized": "apps/index/README.md"
+    },
+    {
+      "source": "apps/index/helm.md",
+      "localized": "apps/index/helm.md"
+    },
+    {
+      "source": "apps/index/linkerd2.md",
+      "localized": "apps/index/linkerd2.md"
+    },
+    {
+      "source": "apps/index/patterns.md",
+      "localized": "apps/index/patterns.md"
+    },
+    {
+      "source": "apps/index/service-mesh.md",
+      "localized": "apps/index/service-mesh.md"
+    },
+    {
+      "source": "apps/index/service-rolling-update.md",
+      "localized": "apps/index/service-rolling-update.md"
+    },
+    {
+      "source": "apps/istio/README.md",
+      "localized": "apps/istio/README.md"
+    },
+    {
+      "source": "apps/istio/ambient.md",
+      "localized": "apps/istio/ambient.md"
+    },
+    {
+      "source": "apps/istio/istio-community.md",
+      "localized": "apps/istio/istio-community.md"
+    },
+    {
+      "source": "apps/istio/istio-deploy.md",
+      "localized": "apps/istio/istio-deploy.md"
+    },
+    {
+      "source": "apps/istio/istio-troubleshoot.md",
+      "localized": "apps/istio/istio-troubleshoot.md"
+    },
+    {
+      "source": "apps/kubeflow.md",
+      "localized": "apps/kubeflow.md"
+    },
+    {
+      "source": "apps/kubevirt.md",
+      "localized": "apps/kubevirt.md"
+    },
+    {
+      "source": "community/contribute.md",
+      "localized": "community/contribute.md"
+    },
+    {
+      "source": "community/index.md",
+      "localized": "community/index.md"
+    },
+    {
+      "source": "community/testing.md",
+      "localized": "community/testing.md"
+    },
+    {
+      "source": "concepts/architecture.md",
+      "localized": "concepts/architecture.md"
+    },
+    {
+      "source": "concepts/cloud-native.md",
+      "localized": "concepts/cloud-native.md"
+    },
+    {
+      "source": "concepts/components/README.md",
+      "localized": "concepts/components/README.md"
+    },
+    {
+      "source": "concepts/components/apiserver.md",
+      "localized": "concepts/components/apiserver.md"
+    },
+    {
+      "source": "concepts/components/controller-manager.md",
+      "localized": "concepts/components/controller-manager.md"
+    },
+    {
+      "source": "concepts/components/etcd.md",
+      "localized": "concepts/components/etcd.md"
+    },
+    {
+      "source": "concepts/components/kube-dns.md",
+      "localized": "concepts/components/kube-dns.md"
+    },
+    {
+      "source": "concepts/components/kube-proxy.md",
+      "localized": "concepts/components/kube-proxy.md"
+    },
+    {
+      "source": "concepts/components/kubeadm.md",
+      "localized": "concepts/components/kubeadm.md"
+    },
+    {
+      "source": "concepts/components/kubectl.md",
+      "localized": "concepts/components/kubectl.md"
+    },
+    {
+      "source": "concepts/components/kubelet.md",
+      "localized": "concepts/components/kubelet.md"
+    },
+    {
+      "source": "concepts/components/scheduler.md",
+      "localized": "concepts/components/scheduler.md"
+    },
+    {
+      "source": "concepts/concepts.md",
+      "localized": "concepts/concepts.md"
+    },
+    {
+      "source": "concepts/index.md",
+      "localized": "concepts/index.md"
+    },
+    {
+      "source": "concepts/objects/README.md",
+      "localized": "concepts/objects/README.md"
+    },
+    {
+      "source": "concepts/objects/autoscaling.md",
+      "localized": "concepts/objects/autoscaling.md"
+    },
+    {
+      "source": "concepts/objects/configmap.md",
+      "localized": "concepts/objects/configmap.md"
+    },
+    {
+      "source": "concepts/objects/cronjob.md",
+      "localized": "concepts/objects/cronjob.md"
+    },
+    {
+      "source": "concepts/objects/customresourcedefinition.md",
+      "localized": "concepts/objects/customresourcedefinition.md"
+    },
+    {
+      "source": "concepts/objects/daemonset.md",
+      "localized": "concepts/objects/daemonset.md"
+    },
+    {
+      "source": "concepts/objects/deployment.md",
+      "localized": "concepts/objects/deployment.md"
+    },
+    {
+      "source": "concepts/objects/gateway-api.md",
+      "localized": "concepts/objects/gateway-api.md"
+    },
+    {
+      "source": "concepts/objects/ingress.md",
+      "localized": "concepts/objects/ingress.md"
+    },
+    {
+      "source": "concepts/objects/job.md",
+      "localized": "concepts/objects/job.md"
+    },
+    {
+      "source": "concepts/objects/local-volume.md",
+      "localized": "concepts/objects/local-volume.md"
+    },
+    {
+      "source": "concepts/objects/namespace.md",
+      "localized": "concepts/objects/namespace.md"
+    },
+    {
+      "source": "concepts/objects/network-policy.md",
+      "localized": "concepts/objects/network-policy.md"
+    },
+    {
+      "source": "concepts/objects/node.md",
+      "localized": "concepts/objects/node.md"
+    },
+    {
+      "source": "concepts/objects/persistent-volume.md",
+      "localized": "concepts/objects/persistent-volume.md"
+    },
+    {
+      "source": "concepts/objects/pod.md",
+      "localized": "concepts/objects/pod.md"
+    },
+    {
+      "source": "concepts/objects/quota.md",
+      "localized": "concepts/objects/quota.md"
+    },
+    {
+      "source": "concepts/objects/replicaset.md",
+      "localized": "concepts/objects/replicaset.md"
+    },
+    {
+      "source": "concepts/objects/secret.md",
+      "localized": "concepts/objects/secret.md"
+    },
+    {
+      "source": "concepts/objects/security-context.md",
+      "localized": "concepts/objects/security-context.md"
+    },
+    {
+      "source": "concepts/objects/service.md",
+      "localized": "concepts/objects/service.md"
+    },
+    {
+      "source": "concepts/objects/serviceaccount.md",
+      "localized": "concepts/objects/serviceaccount.md"
+    },
+    {
+      "source": "concepts/objects/statefulset.md",
+      "localized": "concepts/objects/statefulset.md"
+    },
+    {
+      "source": "concepts/objects/volume.md",
+      "localized": "concepts/objects/volume.md"
+    },
+    {
+      "source": "deploy/certificate.md",
+      "localized": "deploy/certificate.md"
+    },
+    {
+      "source": "examples/README.md",
+      "localized": "examples/README.md"
+    },
+    {
+      "source": "examples/calico/README.md",
+      "localized": "examples/calico/README.md"
+    },
+    {
+      "source": "examples/client/README.md",
+      "localized": "examples/client/README.md"
+    },
+    {
+      "source": "examples/network-policy/README.md",
+      "localized": "examples/network-policy/README.md"
+    },
+    {
+      "source": "examples/nginx-ha/README.md",
+      "localized": "examples/nginx-ha/README.md"
+    },
+    {
+      "source": "examples/nodelocaldns/README.md",
+      "localized": "examples/nodelocaldns/README.md"
+    },
+    {
+      "source": "extension/api/README.md",
+      "localized": "extension/api/README.md"
+    },
+    {
+      "source": "extension/api/aggregation.md",
+      "localized": "extension/api/aggregation.md"
+    },
+    {
+      "source": "extension/api/customresourcedefinition.md",
+      "localized": "extension/api/customresourcedefinition.md"
+    },
+    {
+      "source": "extension/auth/README.md",
+      "localized": "extension/auth/README.md"
+    },
+    {
+      "source": "extension/auth/admission.md",
+      "localized": "extension/auth/admission.md"
+    },
+    {
+      "source": "extension/auth/authentication.md",
+      "localized": "extension/auth/authentication.md"
+    },
+    {
+      "source": "extension/auth/rbac.md",
+      "localized": "extension/auth/rbac.md"
+    },
+    {
+      "source": "extension/cloud-provider.md",
+      "localized": "extension/cloud-provider.md"
+    },
+    {
+      "source": "extension/cri/README.md",
+      "localized": "extension/cri/README.md"
+    },
+    {
+      "source": "extension/cri/cri-tools.md",
+      "localized": "extension/cri/cri-tools.md"
+    },
+    {
+      "source": "extension/device.md",
+      "localized": "extension/device.md"
+    },
+    {
+      "source": "extension/ingress/README.md",
+      "localized": "extension/ingress/README.md"
+    },
+    {
+      "source": "extension/ingress/ingress_letsencrypt.md",
+      "localized": "extension/ingress/ingress_letsencrypt.md"
+    },
+    {
+      "source": "extension/ingress/minikube-ingress.md",
+      "localized": "extension/ingress/minikube-ingress.md"
+    },
+    {
+      "source": "extension/ingress/service-discovery-and-load-balancing.md",
+      "localized": "extension/ingress/service-discovery-and-load-balancing.md"
+    },
+    {
+      "source": "extension/network-policy.md",
+      "localized": "extension/network-policy.md"
+    },
+    {
+      "source": "extension/network/README.md",
+      "localized": "extension/network/README.md"
+    },
+    {
+      "source": "extension/network/calico.md",
+      "localized": "extension/network/calico.md"
+    },
+    {
+      "source": "extension/network/cilium-bgp-ipv6.md",
+      "localized": "extension/network/cilium-bgp-ipv6.md"
+    },
+    {
+      "source": "extension/network/cilium.md",
+      "localized": "extension/network/cilium.md"
+    },
+    {
+      "source": "extension/network/cni.md",
+      "localized": "extension/network/cni.md"
+    },
+    {
+      "source": "extension/network/flannel.md",
+      "localized": "extension/network/flannel.md"
+    },
+    {
+      "source": "extension/network/opencontrail.md",
+      "localized": "extension/network/opencontrail.md"
+    },
+    {
+      "source": "extension/network/ovn-kubernetes.md",
+      "localized": "extension/network/ovn-kubernetes.md"
+    },
+    {
+      "source": "extension/network/romana.md",
+      "localized": "extension/network/romana.md"
+    },
+    {
+      "source": "extension/network/sriov.md",
+      "localized": "extension/network/sriov.md"
+    },
+    {
+      "source": "extension/scheduler.md",
+      "localized": "extension/scheduler.md"
+    },
+    {
+      "source": "extension/volume/README.md",
+      "localized": "extension/volume/README.md"
+    },
+    {
+      "source": "extension/volume/csi.md",
+      "localized": "extension/volume/csi.md"
+    },
+    {
+      "source": "extension/volume/longhorn.md",
+      "localized": "extension/volume/longhorn.md"
+    },
+    {
+      "source": "introduction/101.md",
+      "localized": "introduction/101.md"
+    },
+    {
+      "source": "introduction/201.md",
+      "localized": "introduction/201.md"
+    },
+    {
+      "source": "introduction/cluster.md",
+      "localized": "introduction/cluster.md"
+    },
+    {
+      "source": "introduction/concepts.md",
+      "localized": "introduction/concepts.md"
+    },
+    {
+      "source": "introduction/index.md",
+      "localized": "introduction/index.md"
+    },
+    {
+      "source": "manifests/README.md",
+      "localized": "manifests/README.md"
+    },
+    {
+      "source": "manifests/gateway-api/README.md",
+      "localized": "manifests/gateway-api/README.md"
+    },
+    {
+      "source": "network/canal/index.md",
+      "localized": "network/canal/index.md"
+    },
+    {
+      "source": "network/index.md",
+      "localized": "network/index.md"
+    },
+    {
+      "source": "network/ipvs/index.md",
+      "localized": "network/ipvs/index.md"
+    },
+    {
+      "source": "network/kope/index.md",
+      "localized": "network/kope/index.md"
+    },
+    {
+      "source": "network/midonet/index.md",
+      "localized": "network/midonet/index.md"
+    },
+    {
+      "source": "network/nftables.md",
+      "localized": "network/nftables.md"
+    },
+    {
+      "source": "network/nuage/index.md",
+      "localized": "network/nuage/index.md"
+    },
+    {
+      "source": "plugins/index.md",
+      "localized": "plugins/index.md"
+    },
+    {
+      "source": "practice/app-ha.md",
+      "localized": "practice/app-ha.md"
+    },
+    {
+      "source": "practice/audit.md",
+      "localized": "practice/audit.md"
+    },
+    {
+      "source": "practice/backup.md",
+      "localized": "practice/backup.md"
+    },
+    {
+      "source": "practice/big-cluster.md",
+      "localized": "practice/big-cluster.md"
+    },
+    {
+      "source": "practice/certificate-rotation.md",
+      "localized": "practice/certificate-rotation.md"
+    },
+    {
+      "source": "practice/debugging.md",
+      "localized": "practice/debugging.md"
+    },
+    {
+      "source": "practice/gpu.md",
+      "localized": "practice/gpu.md"
+    },
+    {
+      "source": "practice/ha.md",
+      "localized": "practice/ha.md"
+    },
+    {
+      "source": "practice/hugepage.md",
+      "localized": "practice/hugepage.md"
+    },
+    {
+      "source": "practice/index.md",
+      "localized": "practice/index.md"
+    },
+    {
+      "source": "practice/introduction/README.md",
+      "localized": "practice/introduction/README.md"
+    },
+    {
+      "source": "practice/introduction/spark.md",
+      "localized": "practice/introduction/spark.md"
+    },
+    {
+      "source": "practice/introduction/tensorflow.md",
+      "localized": "practice/introduction/tensorflow.md"
+    },
+    {
+      "source": "practice/portforward.md",
+      "localized": "practice/portforward.md"
+    },
+    {
+      "source": "practice/portmap.md",
+      "localized": "practice/portmap.md"
+    },
+    {
+      "source": "practice/resource-management.md",
+      "localized": "practice/resource-management.md"
+    },
+    {
+      "source": "practice/security.md",
+      "localized": "practice/security.md"
+    },
+    {
+      "source": "practice/serverless.md",
+      "localized": "practice/serverless.md"
+    },
+    {
+      "source": "practice/service-discovery-lb/distributed-load-test.md",
+      "localized": "practice/service-discovery-lb/distributed-load-test.md"
+    },
+    {
+      "source": "practice/service-discovery-lb/edge-node-configuration.md",
+      "localized": "practice/service-discovery-lb/edge-node-configuration.md"
+    },
+    {
+      "source": "practice/service-discovery-lb/network-and-cluster-perfermance-test.md",
+      "localized": "practice/service-discovery-lb/network-and-cluster-perfermance-test.md"
+    },
+    {
+      "source": "practice/service-discovery-lb/traefik-ingress-installation.md",
+      "localized": "practice/service-discovery-lb/traefik-ingress-installation.md"
+    },
+    {
+      "source": "practice/user-management.md",
+      "localized": "practice/user-management.md"
+    },
+    {
+      "source": "setup/addon-list/README.md",
+      "localized": "setup/addon-list/README.md"
+    },
+    {
+      "source": "setup/addon-list/cluster-autoscaler.md",
+      "localized": "setup/addon-list/cluster-autoscaler.md"
+    },
+    {
+      "source": "setup/addon-list/dashboard.md",
+      "localized": "setup/addon-list/dashboard.md"
+    },
+    {
+      "source": "setup/addon-list/gpu.md",
+      "localized": "setup/addon-list/gpu.md"
+    },
+    {
+      "source": "setup/addon-list/ip-masq-agent.md",
+      "localized": "setup/addon-list/ip-masq-agent.md"
+    },
+    {
+      "source": "setup/addon-list/kube-dns.md",
+      "localized": "setup/addon-list/kube-dns.md"
+    },
+    {
+      "source": "setup/addon-list/logging.md",
+      "localized": "setup/addon-list/logging.md"
+    },
+    {
+      "source": "setup/addon-list/metrics.md",
+      "localized": "setup/addon-list/metrics.md"
+    },
+    {
+      "source": "setup/addon-list/monitor.md",
+      "localized": "setup/addon-list/monitor.md"
+    },
+    {
+      "source": "setup/cluster/README.md",
+      "localized": "setup/cluster/README.md"
+    },
+    {
+      "source": "setup/cluster/k0s.md",
+      "localized": "setup/cluster/k0s.md"
+    },
+    {
+      "source": "setup/cluster/kubeadm.md",
+      "localized": "setup/cluster/kubeadm.md"
+    },
+    {
+      "source": "setup/cluster/rke2.md",
+      "localized": "setup/cluster/rke2.md"
+    },
+    {
+      "source": "setup/compatibility-tracking.md",
+      "localized": "setup/compatibility-tracking.md"
+    },
+    {
+      "source": "setup/component-current-status.md",
+      "localized": "setup/component-current-status.md"
+    },
+    {
+      "source": "setup/component-installation-order.md",
+      "localized": "setup/component-installation-order.md"
+    },
+    {
+      "source": "setup/component-versions.md",
+      "localized": "setup/component-versions.md"
+    },
+    {
+      "source": "setup/current-content-review.md",
+      "localized": "setup/current-content-review.md"
+    },
+    {
+      "source": "setup/feature-gates.md",
+      "localized": "setup/feature-gates.md"
+    },
+    {
+      "source": "setup/index.md",
+      "localized": "setup/index.md"
+    },
+    {
+      "source": "setup/kubectl.md",
+      "localized": "setup/kubectl.md"
+    },
+    {
+      "source": "setup/kubernetes-configuration-best-practice.md",
+      "localized": "setup/kubernetes-configuration-best-practice.md"
+    },
+    {
+      "source": "setup/kubernetes-v1.37.md",
+      "localized": "setup/kubernetes-v1.37.md"
+    },
+    {
+      "source": "setup/new-topics-review.md",
+      "localized": "setup/new-topics-review.md"
+    },
+    {
+      "source": "setup/single.md",
+      "localized": "setup/single.md"
+    },
+    {
+      "source": "setup/site-build.md",
+      "localized": "setup/site-build.md"
+    },
+    {
+      "source": "setup/upgrade.md",
+      "localized": "setup/upgrade.md"
+    },
+    {
+      "source": "setup/verification.md",
+      "localized": "setup/verification.md"
+    },
+    {
+      "source": "troubleshooting/cloud/README.md",
+      "localized": "troubleshooting/cloud/README.md"
+    },
+    {
+      "source": "troubleshooting/cloud/azure.md",
+      "localized": "troubleshooting/cloud/azure.md"
+    },
+    {
+      "source": "troubleshooting/cluster.md",
+      "localized": "troubleshooting/cluster.md"
+    },
+    {
+      "source": "troubleshooting/index.md",
+      "localized": "troubleshooting/index.md"
+    },
+    {
+      "source": "troubleshooting/network.md",
+      "localized": "troubleshooting/network.md"
+    },
+    {
+      "source": "troubleshooting/pod.md",
+      "localized": "troubleshooting/pod.md"
+    },
+    {
+      "source": "troubleshooting/pv/README.md",
+      "localized": "troubleshooting/pv/README.md"
+    },
+    {
+      "source": "troubleshooting/pv/azuredisk.md",
+      "localized": "troubleshooting/pv/azuredisk.md"
+    },
+    {
+      "source": "troubleshooting/pv/azurefile.md",
+      "localized": "troubleshooting/pv/azurefile.md"
+    },
+    {
+      "source": "troubleshooting/tools.md",
+      "localized": "troubleshooting/tools.md"
+    },
+    {
+      "source": "troubleshooting/windows.md",
+      "localized": "troubleshooting/windows.md"
+    }
+  ],
+  "excluded_markdown": [
+    {
+      "source": "en/CONTRIBUTING.md",
+      "reason": "English mirror is kept separate and is not part of the Taiwan edition."
+    },
+    {
+      "source": "en/README.md",
+      "reason": "English mirror is kept separate and is not part of the Taiwan edition."
+    },
+    {
+      "source": "en/addons/cluster-autoscaler.md",
+      "reason": "English mirror is kept separate and is not part of the Taiwan edition."
+    },
+    {
+      "source": "en/addons/dashboard.md",
+      "reason": "English mirror is kept separate and is not part of the Taiwan edition."
+    },
+    {
+      "source": "en/addons/index.md",
+      "reason": "English mirror is kept separate and is not part of the Taiwan edition."
+    },
+    {
+      "source": "en/addons/logging.md",
+      "reason": "English mirror is kept separate and is not part of the Taiwan edition."
+    },
+    {
+      "source": "en/addons/metrics.md",
+      "reason": "English mirror is kept separate and is not part of the Taiwan edition."
+    },
+    {
+      "source": "en/addons/monitor.md",
+      "reason": "English mirror is kept separate and is not part of the Taiwan edition."
+    },
+    {
+      "source": "en/deploy/kubernetes-the-hard-way/index.md",
+      "reason": "English mirror is kept separate and is not part of the Taiwan edition."
+    },
+    {
+      "source": "en/troubleshooting/azure.md",
+      "reason": "English mirror is kept separate and is not part of the Taiwan edition."
+    },
+    {
+      "source": "en/troubleshooting/azuredisk.md",
+      "reason": "English mirror is kept separate and is not part of the Taiwan edition."
+    },
+    {
+      "source": "en/troubleshooting/azurefile.md",
+      "reason": "English mirror is kept separate and is not part of the Taiwan edition."
+    },
+    {
+      "source": "en/troubleshooting/cloud.md",
+      "reason": "English mirror is kept separate and is not part of the Taiwan edition."
+    },
+    {
+      "source": "en/troubleshooting/cluster.md",
+      "reason": "English mirror is kept separate and is not part of the Taiwan edition."
+    },
+    {
+      "source": "en/troubleshooting/index.md",
+      "reason": "English mirror is kept separate and is not part of the Taiwan edition."
+    },
+    {
+      "source": "en/troubleshooting/network.md",
+      "reason": "English mirror is kept separate and is not part of the Taiwan edition."
+    },
+    {
+      "source": "en/troubleshooting/pod.md",
+      "reason": "English mirror is kept separate and is not part of the Taiwan edition."
+    },
+    {
+      "source": "en/troubleshooting/pv.md",
+      "reason": "English mirror is kept separate and is not part of the Taiwan edition."
+    },
+    {
+      "source": "en/troubleshooting/tools.md",
+      "reason": "English mirror is kept separate and is not part of the Taiwan edition."
+    },
+    {
+      "source": "en/troubleshooting/windows.md",
+      "reason": "English mirror is kept separate and is not part of the Taiwan edition."
+    },
+    {
+      "source": ".agents/skill-debug.md",
+      "reason": ".agents/skill-*.md are repository maintenance SOPs, not handbook chapters"
+    },
+    {
+      "source": " .agents/skill-investigate.md",
+      "reason": ".agents/skill-*.md are repository maintenance SOPs, not handbook chapters"
+    },
+    {
+      "source": ".agents/skill-investigate.md",
+      "reason": ".agents/skill-*.md are repository maintenance SOPs, not handbook chapters"
+    },
+    {
+      "source": ".agents/skill-maintenance.md",
+      "reason": ".agents/skill-*.md are repository maintenance SOPs, not handbook chapters"
+    },
+    {
+      "source": "AGENTS.md",
+      "reason": "repository instructions, not handbook content"
+    },
+    {
+      "source": "CONTRIBUTING.md",
+      "reason": "repository-level contribution instructions, not handbook chapter content"
+    },
+    {
+      "source": "CODE_OF_CONDUCT.md",
+      "reason": "repository conduct policy, not handbook chapter content"
+    },
+    {
+      "source": "archive/README.md",
+      "reason": "Archive navigation describes archived material; the Taiwan edition links to the canonical archive online but does not include archive chapters."
+    },
+    {
+      "source": "archive/index.md",
+      "reason": "Archive navigation describes archived material; the Taiwan edition links to the canonical archive online but does not include archive chapters."
+    }
+  ],
+  "shared_asset_symlinks": [],
+  "excluded_archived_markdown": [
+    {
+      "source": "appendix/play-with-k8s.md",
+      "archived_as": "archive/appendix/play-with-k8s.md",
+      "reason": "Kubernetes v1.7 Play with Kubernetes installation walkthrough."
+    },
+    {
+      "source": "apps/deis.md",
+      "archived_as": "archive/apps/deis.md",
+      "reason": "Retired Deis/Hephy PaaS deployment tutorial."
+    },
+    {
+      "source": "apps/index/linkerd.md",
+      "archived_as": "archive/apps/index/linkerd.md",
+      "reason": "Retired Linkerd 1.x installation tutorial."
+    },
+    {
+      "source": "apps/index/operator.md",
+      "archived_as": "archive/apps/index/operator.md",
+      "reason": "Obsolete CoreOS etcd-operator tutorial."
+    },
+    {
+      "source": "apps/istio/istio-metrics.md",
+      "archived_as": "archive/apps/istio/istio-metrics.md",
+      "reason": "Entire chapter documents removed Istio Mixer metrics APIs and servicegraph."
+    },
+    {
+      "source": "apps/istio/istio-policy.md",
+      "archived_as": "archive/apps/istio/istio-policy.md",
+      "reason": "Entire chapter documents removed Istio Mixer APIs."
+    },
+    {
+      "source": "apps/istio/istio-security.md",
+      "archived_as": "archive/apps/istio/istio-security.md",
+      "reason": "Entire chapter documents removed Istio authorization APIs."
+    },
+    {
+      "source": "apps/istio/istio-traffic-management.md",
+      "archived_as": "archive/apps/istio/istio-traffic-management.md",
+      "reason": "Obsolete Istio API and command tutorial."
+    },
+    {
+      "source": "concepts/components/federation.md",
+      "archived_as": "archive/concepts/components/federation.md",
+      "reason": "Retired Kubernetes Federation v1 tutorial and API."
+    },
+    {
+      "source": "concepts/components/hyperkube.md",
+      "archived_as": "archive/concepts/components/hyperkube.md",
+      "reason": "Obsolete hyperkube all-in-one binary tutorial."
+    },
+    {
+      "source": "concepts/objects/podpreset.md",
+      "archived_as": "archive/concepts/objects/podpreset.md",
+      "reason": "Removed API tutorial."
+    },
+    {
+      "source": "deploy/frakti/centos.md",
+      "archived_as": "archive/deploy/frakti/centos.md",
+      "reason": "Obsolete Frakti installation tutorial."
+    },
+    {
+      "source": "deploy/frakti/ubuntu.md",
+      "archived_as": "archive/deploy/frakti/ubuntu.md",
+      "reason": "Obsolete Frakti installation tutorial."
+    },
+    {
+      "source": "extension/cri/frakti.md",
+      "archived_as": "archive/extension/cri/frakti.md",
+      "reason": "Obsolete Frakti runtime tutorial."
+    },
+    {
+      "source": "extension/ingress/keepalived-vip.md",
+      "archived_as": "archive/extension/ingress/keepalived-vip.md",
+      "reason": "Obsolete Keepalived-VIP tutorial."
+    },
+    {
+      "source": "extension/network/contiv.md",
+      "archived_as": "archive/extension/network/contiv.md",
+      "reason": "Obsolete Contiv networking tutorial."
+    },
+    {
+      "source": "extension/network/kuryr.md",
+      "archived_as": "archive/extension/network/kuryr.md",
+      "reason": "Retired Kuryr Kubernetes installation tutorial."
+    },
+    {
+      "source": "extension/network/weave.md",
+      "archived_as": "archive/extension/network/weave.md",
+      "reason": "Unmaintained Weave Net installation/tutorial content."
+    },
+    {
+      "source": "extension/volume/flex-volume.md",
+      "archived_as": "archive/extension/volume/flex-volume.md",
+      "reason": "Deprecated exec-based storage plugin tutorial."
+    },
+    {
+      "source": "extension/volume/glusterfs.md",
+      "archived_as": "archive/extension/volume/glusterfs.md",
+      "reason": "Removed in-tree GlusterFS volume plugin tutorial."
+    },
+    {
+      "source": "manifests/fluentd-elasticsearch/README.md",
+      "archived_as": "archive/manifests/fluentd-elasticsearch/README.md",
+      "reason": "Historical Fluentd/Elasticsearch/Kibana manifest notes."
+    },
+    {
+      "source": "manifests/ingress-nginx/README.md",
+      "archived_as": "archive/manifests/ingress-nginx/README.md",
+      "reason": "Legacy ingress-nginx and kube-lego manifests."
+    },
+    {
+      "source": "manifests/ingress-nginx/dashboard/README.md",
+      "archived_as": "archive/manifests/ingress-nginx/dashboard/README.md",
+      "reason": "Legacy ingress-nginx and kube-lego manifests."
+    },
+    {
+      "source": "manifests/prometheus/README.md",
+      "archived_as": "archive/manifests/prometheus/README.md",
+      "reason": "Historical Prometheus Operator and Ingress manifest notes."
+    },
+    {
+      "source": "setup/addon-list/addon-manager.md",
+      "archived_as": "archive/setup/addon-list/addon-manager.md",
+      "reason": "Historical kube-addon-manager tutorial."
+    },
+    {
+      "source": "setup/cluster/azure.md",
+      "archived_as": "archive/setup/cluster/azure.md",
+      "reason": "Obsolete Azure ACS/AKS preview and acs-engine tutorial."
+    },
+    {
+      "source": "setup/cluster/k8s-linuxkit.md",
+      "archived_as": "archive/setup/cluster/k8s-linuxkit.md",
+      "reason": "Old LinuxKit cluster-building tutorial not verified for v1.37."
+    },
+    {
+      "source": "setup/cluster/kops.md",
+      "archived_as": "archive/setup/cluster/kops.md",
+      "reason": "Outdated kOps tutorial with old, unverified installation procedures."
+    },
+    {
+      "source": "setup/cluster/kubespray.md",
+      "archived_as": "archive/setup/cluster/kubespray.md",
+      "reason": "Obsolete Kubespray v1.7.3 tutorial."
+    },
+    {
+      "source": "setup/cluster/windows.md",
+      "archived_as": "archive/setup/cluster/windows.md",
+      "reason": "Obsolete Windows node installation tutorial."
+    },
+    {
+      "source": "setup/k8s-hard-way/01-prerequisites.md",
+      "archived_as": "archive/setup/k8s-hard-way/01-prerequisites.md",
+      "reason": "Kubernetes the Hard Way v1.18.6 GCE lab."
+    },
+    {
+      "source": "setup/k8s-hard-way/02-client-tools.md",
+      "archived_as": "archive/setup/k8s-hard-way/02-client-tools.md",
+      "reason": "Kubernetes the Hard Way v1.18.6 GCE lab."
+    },
+    {
+      "source": "setup/k8s-hard-way/03-compute-resources.md",
+      "archived_as": "archive/setup/k8s-hard-way/03-compute-resources.md",
+      "reason": "Kubernetes the Hard Way v1.18.6 GCE lab."
+    },
+    {
+      "source": "setup/k8s-hard-way/04-certificate-authority.md",
+      "archived_as": "archive/setup/k8s-hard-way/04-certificate-authority.md",
+      "reason": "Kubernetes the Hard Way v1.18.6 GCE lab."
+    },
+    {
+      "source": "setup/k8s-hard-way/05-kubernetes-configuration-files.md",
+      "archived_as": "archive/setup/k8s-hard-way/05-kubernetes-configuration-files.md",
+      "reason": "Kubernetes the Hard Way v1.18.6 GCE lab."
+    },
+    {
+      "source": "setup/k8s-hard-way/06-data-encryption-keys.md",
+      "archived_as": "archive/setup/k8s-hard-way/06-data-encryption-keys.md",
+      "reason": "Kubernetes the Hard Way v1.18.6 GCE lab."
+    },
+    {
+      "source": "setup/k8s-hard-way/07-bootstrapping-etcd.md",
+      "archived_as": "archive/setup/k8s-hard-way/07-bootstrapping-etcd.md",
+      "reason": "Kubernetes the Hard Way v1.18.6 GCE lab."
+    },
+    {
+      "source": "setup/k8s-hard-way/08-bootstrapping-kubernetes-controllers.md",
+      "archived_as": "archive/setup/k8s-hard-way/08-bootstrapping-kubernetes-controllers.md",
+      "reason": "Kubernetes the Hard Way v1.18.6 GCE lab."
+    },
+    {
+      "source": "setup/k8s-hard-way/09-bootstrapping-kubernetes-workers.md",
+      "archived_as": "archive/setup/k8s-hard-way/09-bootstrapping-kubernetes-workers.md",
+      "reason": "Kubernetes the Hard Way v1.18.6 GCE lab."
+    },
+    {
+      "source": "setup/k8s-hard-way/10-configuring-kubectl.md",
+      "archived_as": "archive/setup/k8s-hard-way/10-configuring-kubectl.md",
+      "reason": "Kubernetes the Hard Way v1.18.6 GCE lab."
+    },
+    {
+      "source": "setup/k8s-hard-way/11-pod-network-routes.md",
+      "archived_as": "archive/setup/k8s-hard-way/11-pod-network-routes.md",
+      "reason": "Kubernetes the Hard Way v1.18.6 GCE lab."
+    },
+    {
+      "source": "setup/k8s-hard-way/12-dns-addon.md",
+      "archived_as": "archive/setup/k8s-hard-way/12-dns-addon.md",
+      "reason": "Kubernetes the Hard Way v1.18.6 GCE lab."
+    },
+    {
+      "source": "setup/k8s-hard-way/13-smoke-test.md",
+      "archived_as": "archive/setup/k8s-hard-way/13-smoke-test.md",
+      "reason": "Kubernetes the Hard Way v1.18.6 GCE lab."
+    },
+    {
+      "source": "setup/k8s-hard-way/14-cleanup.md",
+      "archived_as": "archive/setup/k8s-hard-way/14-cleanup.md",
+      "reason": "Kubernetes the Hard Way v1.18.6 GCE lab."
+    },
+    {
+      "source": "setup/k8s-hard-way/README.md",
+      "archived_as": "archive/setup/k8s-hard-way/README.md",
+      "reason": "Kubernetes the Hard Way v1.18.6 GCE lab."
+    }
+  ],
+  "source_replacements": [
+    {
+      "source": "concepts/objects/deployment.md",
+      "localized": "concepts/objects/deployment.md",
+      "archived_as": "archive/concepts/objects/deployment-legacy.md",
+      "localized_archived_as": "archive/concepts/objects/deployment-legacy-zh-TW.md",
+      "source_replaced": true
+    },
+    {
+      "source": "concepts/objects/replicaset.md",
+      "localized": "concepts/objects/replicaset.md",
+      "archived_as": "archive/concepts/objects/replicaset-legacy.md",
+      "localized_archived_as": "archive/concepts/objects/replicaset-legacy-zh-TW.md",
+      "source_replaced": true
+    },
+    {
+      "source": "concepts/objects/gateway-api.md",
+      "localized": "concepts/objects/gateway-api.md",
+      "archived_as": "archive/concepts/objects/gateway-api-legacy.md",
+      "localized_archived_as": "archive/concepts/objects/gateway-api-legacy-zh-TW.md",
+      "source_replaced": true
+    },
+    {
+      "source": "concepts/objects/local-volume.md",
+      "localized": "concepts/objects/local-volume.md",
+      "archived_as": "archive/concepts/objects/local-volume-legacy.md",
+      "localized_archived_as": "archive/concepts/objects/local-volume-legacy-zh-TW.md",
+      "source_replaced": true
+    },
+    {
+      "source": "concepts/concepts.md",
+      "localized": "concepts/concepts.md",
+      "archived_as": "archive/concepts/design-principles-legacy.md",
+      "localized_archived_as": "archive/concepts/design-principles-legacy-zh-TW.md",
+      "source_replaced": true
+    },
+    {
+      "source": "concepts/components/controller-manager.md",
+      "localized": "concepts/components/controller-manager.md",
+      "archived_as": "archive/concepts/components/controller-manager-legacy.md",
+      "localized_archived_as": "archive/concepts/components/controller-manager-legacy-zh-TW.md",
+      "source_replaced": true
+    },
+    {
+      "source": "introduction/101.md",
+      "localized": "introduction/101.md",
+      "archived_as": "archive/introduction/101-legacy-transcript.md",
+      "localized_archived_as": "archive/introduction/101-legacy-transcript-zh-TW.md",
+      "source_replaced": true
+    },
+    {
+      "source": "apps/devops/jenkinsx.md",
+      "localized": "apps/devops/jenkinsx.md",
+      "archived_as": "archive/apps/devops/jenkinsx.md",
+      "localized_archived_as": "archive/zh-TW/apps/devops/jenkinsx.md",
+      "source_replaced": true
+    },
+    {
+      "source": "apps/devops/spinnaker.md",
+      "localized": "apps/devops/spinnaker.md",
+      "archived_as": "archive/apps/devops/spinnaker.md",
+      "localized_archived_as": "archive/zh-TW/apps/devops/spinnaker.md",
+      "source_replaced": true
+    },
+    {
+      "source": "practice/security.md",
+      "localized": "practice/security.md",
+      "archived_as": "archive/practice/security.md",
+      "localized_archived_as": "archive/zh-TW/practice/security.md",
+      "source_replaced": true
+    },
+    {
+      "source": "practice/user-management.md",
+      "localized": "practice/user-management.md",
+      "archived_as": "archive/practice/user-management.md",
+      "localized_archived_as": "archive/zh-TW/practice/user-management.md",
+      "source_replaced": true
+    },
+    {
+      "source": "practice/ha.md",
+      "localized": "practice/ha.md",
+      "archived_as": "archive/practice/ha.md",
+      "localized_archived_as": "archive/zh-TW/practice/ha.md",
+      "source_replaced": true
+    },
+    {
+      "source": "practice/big-cluster.md",
+      "localized": "practice/big-cluster.md",
+      "archived_as": "archive/practice/big-cluster.md",
+      "localized_archived_as": "archive/zh-TW/practice/big-cluster.md",
+      "source_replaced": true
+    },
+    {
+      "source": "troubleshooting/cloud/azure.md",
+      "localized": "troubleshooting/cloud/azure.md",
+      "archived_as": "archive/troubleshooting/cloud/azure.md",
+      "localized_archived_as": "archive/zh-TW/troubleshooting/cloud/azure.md",
+      "source_replaced": true
+    },
+    {
+      "source": "troubleshooting/pv/README.md",
+      "localized": "troubleshooting/pv/README.md",
+      "archived_as": "archive/troubleshooting/pv/README.md",
+      "localized_archived_as": "archive/zh-TW/troubleshooting/pv/README.md",
+      "source_replaced": true
+    },
+    {
+      "source": "troubleshooting/pv/azuredisk.md",
+      "localized": "troubleshooting/pv/azuredisk.md",
+      "archived_as": "archive/troubleshooting/pv/azuredisk.md",
+      "localized_archived_as": "archive/zh-TW/troubleshooting/pv/azuredisk.md",
+      "source_replaced": true
+    },
+    {
+      "source": "troubleshooting/pv/azurefile.md",
+      "localized": "troubleshooting/pv/azurefile.md",
+      "archived_as": "archive/troubleshooting/pv/azurefile.md",
+      "localized_archived_as": "archive/zh-TW/troubleshooting/pv/azurefile.md",
+      "source_replaced": true
+    },
+    {
+      "source": "network/ipvs/index.md",
+      "localized": "network/ipvs/index.md",
+      "archived_as": "archive/network/ipvs/index.md",
+      "localized_archived_as": "archive/zh-TW/network/ipvs/index.md",
+      "source_replaced": true
+    },
+    {
+      "source": "extension/network/cni.md",
+      "localized": "extension/network/cni.md",
+      "archived_as": "archive/extension/network/cni.md",
+      "localized_archived_as": "archive/zh-TW/extension/network/cni.md",
+      "source_replaced": true
+    },
+    {
+      "source": "examples/multi-container-patterns.yaml",
+      "localized": null,
+      "archived_as": "archive/examples/multi-container-patterns.yaml",
+      "localized_archived_as": null,
+      "source_replaced": true
+    },
+    {
+      "source": "deploy/certificate.md",
+      "localized": "deploy/certificate.md",
+      "archived_as": "archive/deploy/certificate.md",
+      "localized_archived_as": null,
+      "source_replaced": true
+    }
+  ],
+  "excluded_archived_non_markdown": [
+    {
+      "source": "concepts/cronjob.txt",
+      "archived_as": "archive/concepts/cronjob-legacy.txt",
+      "reason": "Unreferenced batch/v2alpha1 example archived as a non-Markdown historical artifact."
+    },
+    {
+      "source": "concepts/web.txt",
+      "archived_as": "archive/concepts/web-statefulset-legacy.txt",
+      "reason": "Obsolete StatefulSet example archived as a non-Markdown historical artifact."
+    },
+    {
+      "source": "concepts/zookeeper.txt",
+      "archived_as": "archive/concepts/zookeeper-statefulset-legacy.txt",
+      "reason": "Obsolete StatefulSet example archived as a non-Markdown historical artifact."
+    },
+    {
+      "source": "examples/rdp.yaml",
+      "archived_as": "archive/examples/rdp.yaml",
+      "reason": "Generic public-capable RDP LoadBalancer example removed from current guidance."
+    },
+    {
+      "source": "zh-TW/examples/rdp.yaml",
+      "archived_as": "archive/zh-TW/examples/rdp.yaml",
+      "reason": "Localized duplicate of the unsafe generic RDP LoadBalancer example."
+    },
+    {
+      "source": "examples/windows-pod-projected.yaml",
+      "archived_as": "archive/examples/windows-pod-projected.yaml",
+      "reason": "Windows manifest used an old custom image and host assumptions without current compatibility evidence; no localized YAML source existed."
+    },
+    {
+      "source": "concepts/nginx.txt",
+      "archived_as": "archive/concepts/nginx.txt",
+      "reason": "Legacy nginx Deployment example uses a removed Kubernetes API."
+    },
+    {
+      "source": "examples/job-master.yaml",
+      "archived_as": "archive/examples/job-master.yaml",
+      "reason": "Kubernetes v1.13 kube-bench host-path examples."
+    },
+    {
+      "source": "examples/job-node.yaml",
+      "archived_as": "archive/examples/job-node.yaml",
+      "reason": "Kubernetes v1.13 kube-bench host-path examples."
+    },
+    {
+      "source": "examples/nodelocaldns/nodelocaldns-azure-cni.yaml",
+      "archived_as": "archive/examples/nodelocaldns/nodelocaldns-azure-cni.yaml",
+      "reason": "Provider-specific historical NodeLocal DNS configuration."
+    },
+    {
+      "source": "examples/nodelocaldns/nodelocaldns-kubenet.yaml",
+      "archived_as": "archive/examples/nodelocaldns/nodelocaldns-kubenet.yaml",
+      "reason": "Provider-specific historical NodeLocal DNS configuration."
+    },
+    {
+      "source": "manifests/addon-manager/addon-manager.yaml",
+      "archived_as": "archive/manifests/addon-manager/addon-manager.yaml",
+      "reason": "Standalone manifest is explicitly excluded from current compatibility validation."
+    },
+    {
+      "source": "manifests/dashboard/kubernetes-dashboard.yaml",
+      "archived_as": "archive/manifests/dashboard/kubernetes-dashboard.yaml",
+      "reason": "Kubernetes Dashboard installation manifest for a retired project."
+    },
+    {
+      "source": "manifests/fluentd-elasticsearch/basic-auth.yaml",
+      "archived_as": "archive/manifests/fluentd-elasticsearch/basic-auth.yaml",
+      "reason": "Legacy Fluentd/Elasticsearch/Kibana manifest bundle."
+    },
+    {
+      "source": "manifests/fluentd-elasticsearch/es-service.yaml",
+      "archived_as": "archive/manifests/fluentd-elasticsearch/es-service.yaml",
+      "reason": "Legacy Fluentd/Elasticsearch/Kibana manifest bundle."
+    },
+    {
+      "source": "manifests/fluentd-elasticsearch/es-statefulset.yaml",
+      "archived_as": "archive/manifests/fluentd-elasticsearch/es-statefulset.yaml",
+      "reason": "Legacy Fluentd/Elasticsearch/Kibana manifest bundle."
+    },
+    {
+      "source": "manifests/fluentd-elasticsearch/fluentd-es-configmap.yaml",
+      "archived_as": "archive/manifests/fluentd-elasticsearch/fluentd-es-configmap.yaml",
+      "reason": "Legacy Fluentd/Elasticsearch/Kibana manifest bundle."
+    },
+    {
+      "source": "manifests/fluentd-elasticsearch/fluentd-es-ds.yaml",
+      "archived_as": "archive/manifests/fluentd-elasticsearch/fluentd-es-ds.yaml",
+      "reason": "Legacy Fluentd/Elasticsearch/Kibana manifest bundle."
+    },
+    {
+      "source": "manifests/fluentd-elasticsearch/kibana-deployment.yaml",
+      "archived_as": "archive/manifests/fluentd-elasticsearch/kibana-deployment.yaml",
+      "reason": "Legacy Fluentd/Elasticsearch/Kibana manifest bundle."
+    },
+    {
+      "source": "manifests/fluentd-elasticsearch/kibana-ingress.yaml",
+      "archived_as": "archive/manifests/fluentd-elasticsearch/kibana-ingress.yaml",
+      "reason": "Legacy Fluentd/Elasticsearch/Kibana manifest bundle."
+    },
+    {
+      "source": "manifests/fluentd-elasticsearch/kibana-service.yaml",
+      "archived_as": "archive/manifests/fluentd-elasticsearch/kibana-service.yaml",
+      "reason": "Legacy Fluentd/Elasticsearch/Kibana manifest bundle."
+    },
+    {
+      "source": "manifests/gateway-api/v1.3-features/cors-policy.yaml",
+      "archived_as": "archive/manifests/gateway-api/v1.3-features/cors-policy.yaml",
+      "reason": "Obsolete Gateway API CORSPolicy sample."
+    },
+    {
+      "source": "manifests/glusterfs/glusterfs-endpoints.json",
+      "archived_as": "archive/manifests/glusterfs/glusterfs-endpoints.json",
+      "reason": "Legacy GlusterFS service endpoint resource."
+    },
+    {
+      "source": "manifests/glusterfs/glusterfs-pod.json",
+      "archived_as": "archive/manifests/glusterfs/glusterfs-pod.json",
+      "reason": "Removed in-tree GlusterFS volume Pod resource."
+    },
+    {
+      "source": "manifests/glusterfs/glusterfs-pv.yaml",
+      "archived_as": "archive/manifests/glusterfs/glusterfs-pv.yaml",
+      "reason": "Manifests for removed GlusterFS in-tree storage."
+    },
+    {
+      "source": "manifests/glusterfs/glusterfs-pvc.yaml",
+      "archived_as": "archive/manifests/glusterfs/glusterfs-pvc.yaml",
+      "reason": "Manifests for removed GlusterFS in-tree storage."
+    },
+    {
+      "source": "manifests/glusterfs/glusterfs-service.json",
+      "archived_as": "archive/manifests/glusterfs/glusterfs-service.json",
+      "reason": "Legacy GlusterFS service resource."
+    },
+    {
+      "source": "manifests/glusterfs/nginx-deployment.yaml",
+      "archived_as": "archive/manifests/glusterfs/nginx-deployment.yaml",
+      "reason": "Manifests for removed GlusterFS in-tree storage."
+    },
+    {
+      "source": "manifests/heapster/grafana.yaml",
+      "archived_as": "archive/manifests/heapster/grafana.yaml",
+      "reason": "Heapster and its bundled monitoring manifests are retired."
+    },
+    {
+      "source": "manifests/heapster/heapster-rbac.yaml",
+      "archived_as": "archive/manifests/heapster/heapster-rbac.yaml",
+      "reason": "Heapster and its bundled monitoring manifests are retired."
+    },
+    {
+      "source": "manifests/heapster/heapster.yaml",
+      "archived_as": "archive/manifests/heapster/heapster.yaml",
+      "reason": "Heapster and its bundled monitoring manifests are retired."
+    },
+    {
+      "source": "manifests/heapster/influxdb.yaml",
+      "archived_as": "archive/manifests/heapster/influxdb.yaml",
+      "reason": "Heapster and its bundled monitoring manifests are retired."
+    },
+    {
+      "source": "manifests/ingress-nginx/dashboard/auth",
+      "archived_as": "archive/manifests/ingress-nginx/dashboard/auth",
+      "reason": "Legacy Dashboard basic-auth data file."
+    },
+    {
+      "source": "manifests/ingress-nginx/dashboard/basic-auth.yaml",
+      "archived_as": "archive/manifests/ingress-nginx/dashboard/basic-auth.yaml",
+      "reason": "Legacy ingress-nginx and kube-lego manifests."
+    },
+    {
+      "source": "manifests/ingress-nginx/dashboard/dashboard-ingress.yaml",
+      "archived_as": "archive/manifests/ingress-nginx/dashboard/dashboard-ingress.yaml",
+      "reason": "Legacy ingress-nginx and kube-lego manifests."
+    },
+    {
+      "source": "manifests/ingress-nginx/echoserver/00-namespace.yaml",
+      "archived_as": "archive/manifests/ingress-nginx/echoserver/00-namespace.yaml",
+      "reason": "Legacy ingress-nginx and kube-lego manifests."
+    },
+    {
+      "source": "manifests/ingress-nginx/echoserver/deployment.yaml",
+      "archived_as": "archive/manifests/ingress-nginx/echoserver/deployment.yaml",
+      "reason": "Legacy ingress-nginx and kube-lego manifests."
+    },
+    {
+      "source": "manifests/ingress-nginx/echoserver/ingress-notls.yaml",
+      "archived_as": "archive/manifests/ingress-nginx/echoserver/ingress-notls.yaml",
+      "reason": "Legacy ingress-nginx and kube-lego manifests."
+    },
+    {
+      "source": "manifests/ingress-nginx/echoserver/ingress-tls.yaml",
+      "archived_as": "archive/manifests/ingress-nginx/echoserver/ingress-tls.yaml",
+      "reason": "Legacy ingress-nginx and kube-lego manifests."
+    },
+    {
+      "source": "manifests/ingress-nginx/echoserver/service.yaml",
+      "archived_as": "archive/manifests/ingress-nginx/echoserver/service.yaml",
+      "reason": "Legacy ingress-nginx and kube-lego manifests."
+    },
+    {
+      "source": "manifests/ingress-nginx/lego/00-namespace.yaml",
+      "archived_as": "archive/manifests/ingress-nginx/lego/00-namespace.yaml",
+      "reason": "Legacy ingress-nginx and kube-lego manifests."
+    },
+    {
+      "source": "manifests/ingress-nginx/lego/cluster-role-binding.yaml",
+      "archived_as": "archive/manifests/ingress-nginx/lego/cluster-role-binding.yaml",
+      "reason": "Legacy ingress-nginx and kube-lego manifests."
+    },
+    {
+      "source": "manifests/ingress-nginx/lego/cluster-role.yaml",
+      "archived_as": "archive/manifests/ingress-nginx/lego/cluster-role.yaml",
+      "reason": "Legacy ingress-nginx and kube-lego manifests."
+    },
+    {
+      "source": "manifests/ingress-nginx/lego/configmap.yaml",
+      "archived_as": "archive/manifests/ingress-nginx/lego/configmap.yaml",
+      "reason": "Legacy ingress-nginx and kube-lego manifests."
+    },
+    {
+      "source": "manifests/ingress-nginx/lego/deployment.yaml",
+      "archived_as": "archive/manifests/ingress-nginx/lego/deployment.yaml",
+      "reason": "Legacy ingress-nginx and kube-lego manifests."
+    },
+    {
+      "source": "manifests/ingress-nginx/lego/service-account.yaml",
+      "archived_as": "archive/manifests/ingress-nginx/lego/service-account.yaml",
+      "reason": "Legacy ingress-nginx and kube-lego manifests."
+    },
+    {
+      "source": "manifests/kubedns/kube-dns.yaml",
+      "archived_as": "archive/manifests/kubedns/kube-dns.yaml",
+      "reason": "Superseded kube-dns addon manifest."
+    },
+    {
+      "source": "manifests/prometheus/basic-auth.yaml",
+      "archived_as": "archive/manifests/prometheus/basic-auth.yaml",
+      "reason": "Legacy Prometheus authentication and Ingress examples."
+    },
+    {
+      "source": "manifests/prometheus/prometheus-ingress.yaml",
+      "archived_as": "archive/manifests/prometheus/prometheus-ingress.yaml",
+      "reason": "Legacy Prometheus authentication and Ingress examples."
+    },
+    {
+      "source": "manifests/systemd/docker.service",
+      "archived_as": "archive/manifests/systemd/docker.service",
+      "reason": "Historical host-managed Kubernetes and Docker service units."
+    },
+    {
+      "source": "manifests/systemd/etcd.service",
+      "archived_as": "archive/manifests/systemd/etcd.service",
+      "reason": "Historical host-managed Kubernetes and Docker service units."
+    },
+    {
+      "source": "manifests/systemd/flanneld.service",
+      "archived_as": "archive/manifests/systemd/flanneld.service",
+      "reason": "Historical host-managed Kubernetes and Docker service units."
+    },
+    {
+      "source": "manifests/systemd/kube-apiserver.service",
+      "archived_as": "archive/manifests/systemd/kube-apiserver.service",
+      "reason": "Historical host-managed Kubernetes and Docker service units."
+    },
+    {
+      "source": "manifests/systemd/kube-controller-manager.service",
+      "archived_as": "archive/manifests/systemd/kube-controller-manager.service",
+      "reason": "Historical host-managed Kubernetes and Docker service units."
+    },
+    {
+      "source": "manifests/systemd/kube-proxy.service",
+      "archived_as": "archive/manifests/systemd/kube-proxy.service",
+      "reason": "Historical host-managed Kubernetes and Docker service units."
+    },
+    {
+      "source": "manifests/systemd/kube-scheduler.service",
+      "archived_as": "archive/manifests/systemd/kube-scheduler.service",
+      "reason": "Historical host-managed Kubernetes and Docker service units."
+    },
+    {
+      "source": "manifests/systemd/kubelet.service",
+      "archived_as": "archive/manifests/systemd/kubelet.service",
+      "reason": "Historical host-managed Kubernetes and Docker service units."
+    },
+    {
+      "source": "manifests/test/filebeat-test.yaml",
+      "archived_as": "archive/manifests/test/filebeat-test.yaml",
+      "reason": "Legacy Filebeat test workload."
+    },
+    {
+      "source": "manifests/test/logstash-test.yaml",
+      "archived_as": "archive/manifests/test/logstash-test.yaml",
+      "reason": "Legacy Logstash test workload."
+    },
+    {
+      "source": "manifests/traefik-ingress/ui.yaml",
+      "archived_as": "archive/manifests/traefik-ingress/ui.yaml",
+      "reason": "Legacy Traefik administrative UI manifest."
+    }
+  ],
+  "copied_assets": [
+    {
+      "localized": "setup/cluster/samples/k0s/k0s.yaml",
+      "source": "setup/cluster/samples/k0s/k0s.yaml",
+      "bytes": 343
+    },
+    {
+      "localized": "setup/cluster/samples/rke2/server-config.yaml",
+      "source": "setup/cluster/samples/rke2/server-config.yaml",
+      "bytes": 279
+    },
+    {
+      "localized": "setup/cluster/samples/rke2/agent-config.yaml",
+      "source": "setup/cluster/samples/rke2/agent-config.yaml",
+      "bytes": 245
+    },
+    {
+      "localized": "appendix/../.gitbook/assets/CloudNativeLandscape.png",
+      "source": ".gitbook/assets/CloudNativeLandscape.png",
+      "bytes": 3234559
+    },
+    {
+      "localized": "appendix/../.gitbook/assets/CNCF_TrailMap_latest.png",
+      "source": ".gitbook/assets/CNCF_TrailMap_latest.png",
+      "bytes": 4659192
+    },
+    {
+      "localized": "appendix/../.gitbook/assets/CloudNativeLandscape_Serverless_latest.png",
+      "source": ".gitbook/assets/CloudNativeLandscape_Serverless_latest.png",
+      "bytes": 1173101
+    },
+    {
+      "localized": "apps/devops/../../.gitbook/assets/jenkinsx (1).png",
+      "source": ".gitbook/assets/jenkinsx (1).png",
+      "bytes": 449015
+    },
+    {
+      "localized": "apps/index/../../.gitbook/assets/pattern-service-mesh (1).png",
+      "source": ".gitbook/assets/pattern-service-mesh (1).png",
+      "bytes": 28300
+    },
+    {
+      "localized": "community/../.gitbook/assets/SIG-diagram.png",
+      "source": ".gitbook/assets/SIG-diagram.png",
+      "bytes": 57149
+    },
+    {
+      "localized": "concepts/../.gitbook/assets/borg (4).png",
+      "source": ".gitbook/assets/borg (4).png",
+      "bytes": 73683
+    },
+    {
+      "localized": "concepts/../.gitbook/assets/architecture (5).png",
+      "source": ".gitbook/assets/architecture (5).png",
+      "bytes": 268126
+    },
+    {
+      "localized": "concepts/../.gitbook/assets/components (6).png",
+      "source": ".gitbook/assets/components (6).png",
+      "bytes": 65388
+    },
+    {
+      "localized": "concepts/../.gitbook/assets/14937095836427 (4).jpg",
+      "source": ".gitbook/assets/14937095836427 (4).jpg",
+      "bytes": 115795
+    },
+    {
+      "localized": "concepts/../.gitbook/assets/core-packages.png",
+      "source": ".gitbook/assets/core-packages.png",
+      "bytes": 82187
+    },
+    {
+      "localized": "concepts/../.gitbook/assets/core-apis (4).png",
+      "source": ".gitbook/assets/core-apis (4).png",
+      "bytes": 107258
+    },
+    {
+      "localized": "concepts/../.gitbook/assets/core-ecosystem (3).png",
+      "source": ".gitbook/assets/core-ecosystem (3).png",
+      "bytes": 61640
+    },
+    {
+      "localized": "concepts/components/../../.gitbook/assets/components (11).png",
+      "source": ".gitbook/assets/components (11).png",
+      "bytes": 27535
+    },
+    {
+      "localized": "concepts/components/../../.gitbook/assets/workflow (1).png",
+      "source": ".gitbook/assets/workflow (1).png",
+      "bytes": 55902
+    },
+    {
+      "localized": "concepts/components/../../.gitbook/assets/ports.png",
+      "source": ".gitbook/assets/ports.png",
+      "bytes": 65442
+    },
+    {
+      "localized": "concepts/components/../../.gitbook/assets/API-server-space (2).png",
+      "source": ".gitbook/assets/API-server-space (2).png",
+      "bytes": 24484
+    },
+    {
+      "localized": "concepts/components/../../.gitbook/assets/access_control (3).png",
+      "source": ".gitbook/assets/access_control (3).png",
+      "bytes": 57668
+    },
+    {
+      "localized": "concepts/components/../../.gitbook/assets/kube-apiserver.png",
+      "source": ".gitbook/assets/kube-apiserver.png",
+      "bytes": 158340
+    },
+    {
+      "localized": "concepts/components/../../.gitbook/assets/post-ccm-arch (4).png",
+      "source": ".gitbook/assets/post-ccm-arch (4).png",
+      "bytes": 548591
+    },
+    {
+      "localized": "concepts/components/../../.gitbook/assets/etcd-log (1).png",
+      "source": ".gitbook/assets/etcd-log (1).png",
+      "bytes": 3471
+    },
+    {
+      "localized": "concepts/components/../../.gitbook/assets/etcd-v2 (1).png",
+      "source": ".gitbook/assets/etcd-v2 (1).png",
+      "bytes": 71331
+    },
+    {
+      "localized": "concepts/components/../../.gitbook/assets/etcd-v3 (1).png",
+      "source": ".gitbook/assets/etcd-v3 (1).png",
+      "bytes": 63178
+    },
+    {
+      "localized": "concepts/components/../../.gitbook/assets/dns-demo (3).png",
+      "source": ".gitbook/assets/dns-demo (3).png",
+      "bytes": 477317
+    },
+    {
+      "localized": "concepts/components/../../.gitbook/assets/iptables-mode (1).png",
+      "source": ".gitbook/assets/iptables-mode (1).png",
+      "bytes": 289203
+    },
+    {
+      "localized": "concepts/components/../../.gitbook/assets/kube-proxy-nat-flow.png",
+      "source": ".gitbook/assets/kube-proxy-nat-flow.png",
+      "bytes": 343922
+    },
+    {
+      "localized": "concepts/components/../../.gitbook/assets/ipvs-mode.png",
+      "source": ".gitbook/assets/ipvs-mode.png",
+      "bytes": 113723
+    },
+    {
+      "localized": "concepts/components/../../.gitbook/assets/kubelet (3).png",
+      "source": ".gitbook/assets/kubelet (3).png",
+      "bytes": 182407
+    },
+    {
+      "localized": "concepts/components/../../.gitbook/assets/pod-start (1).png",
+      "source": ".gitbook/assets/pod-start (1).png",
+      "bytes": 58961
+    },
+    {
+      "localized": "concepts/objects/../../.gitbook/assets/image-20190316184154726 (1).png",
+      "source": ".gitbook/assets/image-20190316184154726 (1).png",
+      "bytes": 52817
+    },
+    {
+      "localized": "concepts/objects/../../.gitbook/assets/job.png",
+      "source": ".gitbook/assets/job.png",
+      "bytes": 16066
+    },
+    {
+      "localized": "concepts/objects/../../.gitbook/assets/15022447799137 (1).jpg",
+      "source": ".gitbook/assets/15022447799137 (1).jpg",
+      "bytes": 85289
+    },
+    {
+      "localized": "concepts/objects/../../.gitbook/assets/15022448622429 (2).jpg",
+      "source": ".gitbook/assets/15022448622429 (2).jpg",
+      "bytes": 62225
+    },
+    {
+      "localized": "concepts/objects/../../.gitbook/assets/15022451724392 (3).gif",
+      "source": ".gitbook/assets/15022451724392 (3).gif",
+      "bytes": 97462
+    },
+    {
+      "localized": "concepts/objects/../../.gitbook/assets/15022452203435 (1).gif",
+      "source": ".gitbook/assets/15022452203435 (1).gif",
+      "bytes": 120999
+    },
+    {
+      "localized": "concepts/objects/../../.gitbook/assets/15022453441751.gif",
+      "source": ".gitbook/assets/15022453441751.gif",
+      "bytes": 85321
+    },
+    {
+      "localized": "concepts/objects/../../.gitbook/assets/15022454444461 (3).gif",
+      "source": ".gitbook/assets/15022454444461 (3).gif",
+      "bytes": 142885
+    },
+    {
+      "localized": "concepts/objects/../../.gitbook/assets/node (4).png",
+      "source": ".gitbook/assets/node (4).png",
+      "bytes": 131722
+    },
+    {
+      "localized": "concepts/objects/../../.gitbook/assets/pod.png",
+      "source": ".gitbook/assets/pod.png",
+      "bytes": 67193
+    },
+    {
+      "localized": "concepts/objects/../../.gitbook/assets/14735737093456 (4).jpg",
+      "source": ".gitbook/assets/14735737093456 (4).jpg",
+      "bytes": 42978
+    },
+    {
+      "localized": "concepts/objects/../../.gitbook/assets/service-flow (4).png",
+      "source": ".gitbook/assets/service-flow (4).png",
+      "bytes": 100605
+    },
+    {
+      "localized": "extension/auth/../../.gitbook/assets/authentication (2).png",
+      "source": ".gitbook/assets/authentication (2).png",
+      "bytes": 34627
+    },
+    {
+      "localized": "extension/auth/../../.gitbook/assets/rbac1 (1).png",
+      "source": ".gitbook/assets/rbac1 (1).png",
+      "bytes": 16983
+    },
+    {
+      "localized": "extension/auth/../../.gitbook/assets/rbac2.png",
+      "source": ".gitbook/assets/rbac2.png",
+      "bytes": 26136
+    },
+    {
+      "localized": "extension/cri/../../.gitbook/assets/cri (7).png",
+      "source": ".gitbook/assets/cri (7).png",
+      "bytes": 33220
+    },
+    {
+      "localized": "extension/cri/../../.gitbook/assets/image-20190316183052101.png",
+      "source": ".gitbook/assets/image-20190316183052101.png",
+      "bytes": 82985
+    },
+    {
+      "localized": "extension/cri/../../.gitbook/assets/image-20190316183005314 (1).png",
+      "source": ".gitbook/assets/image-20190316183005314 (1).png",
+      "bytes": 76190
+    },
+    {
+      "localized": "extension/cri/../../.gitbook/assets/cri-containerd (2).png",
+      "source": ".gitbook/assets/cri-containerd (2).png",
+      "bytes": 94822
+    },
+    {
+      "localized": "extension/cri/../../.gitbook/assets/containerd (1).png",
+      "source": ".gitbook/assets/containerd (1).png",
+      "bytes": 127220
+    },
+    {
+      "localized": "extension/../.gitbook/assets/policy-controller (1).jpg",
+      "source": ".gitbook/assets/policy-controller (1).jpg",
+      "bytes": 84238
+    },
+    {
+      "localized": "extension/network/../../.gitbook/assets/image-20190316183639488 (1).png",
+      "source": ".gitbook/assets/image-20190316183639488 (1).png",
+      "bytes": 58369
+    },
+    {
+      "localized": "extension/network/../../.gitbook/assets/image-20190316183650404.png",
+      "source": ".gitbook/assets/image-20190316183650404.png",
+      "bytes": 47515
+    },
+    {
+      "localized": "extension/network/../../.gitbook/assets/calico (1).png",
+      "source": ".gitbook/assets/calico (1).png",
+      "bytes": 69156
+    },
+    {
+      "localized": "extension/network/../../.gitbook/assets/calico2.png",
+      "source": ".gitbook/assets/calico2.png",
+      "bytes": 52079
+    },
+    {
+      "localized": "extension/network/../../.gitbook/assets/calico-components (1).png",
+      "source": ".gitbook/assets/calico-components (1).png",
+      "bytes": 47675
+    },
+    {
+      "localized": "extension/network/../../.gitbook/assets/calico-flow (3).png",
+      "source": ".gitbook/assets/calico-flow (3).png",
+      "bytes": 108494
+    },
+    {
+      "localized": "extension/network/../../.gitbook/assets/cilium.png",
+      "source": ".gitbook/assets/cilium.png",
+      "bytes": 175503
+    },
+    {
+      "localized": "extension/network/../../.gitbook/assets/bpf (2).png",
+      "source": ".gitbook/assets/bpf (2).png",
+      "bytes": 601169
+    },
+    {
+      "localized": "extension/network/../../.gitbook/assets/Chart_Container-Network-Interface-Drivers (3).png",
+      "source": ".gitbook/assets/Chart_Container-Network-Interface-Drivers (3).png",
+      "bytes": 21577
+    },
+    {
+      "localized": "extension/network/../../.gitbook/assets/cni-plugins (2).png",
+      "source": ".gitbook/assets/cni-plugins (2).png",
+      "bytes": 142643
+    },
+    {
+      "localized": "extension/network/../../.gitbook/assets/cni-bridge (1).png",
+      "source": ".gitbook/assets/cni-bridge (1).png",
+      "bytes": 82216
+    },
+    {
+      "localized": "extension/network/../../.gitbook/assets/cni-overlay (1).png",
+      "source": ".gitbook/assets/cni-overlay (1).png",
+      "bytes": 91306
+    },
+    {
+      "localized": "extension/network/../../.gitbook/assets/flannel (2).png",
+      "source": ".gitbook/assets/flannel (2).png",
+      "bytes": 76776
+    },
+    {
+      "localized": "extension/network/../../.gitbook/assets/flannel-components.png",
+      "source": ".gitbook/assets/flannel-components.png",
+      "bytes": 11276
+    },
+    {
+      "localized": "extension/network/../../.gitbook/assets/flannel-network (1).png",
+      "source": ".gitbook/assets/flannel-network (1).png",
+      "bytes": 69095
+    },
+    {
+      "localized": "extension/network/../../.gitbook/assets/Figure01 (2).png",
+      "source": ".gitbook/assets/Figure01 (2).png",
+      "bytes": 36705
+    },
+    {
+      "localized": "extension/network/../../.gitbook/assets/image05 (2).png",
+      "source": ".gitbook/assets/image05 (2).png",
+      "bytes": 16892
+    },
+    {
+      "localized": "extension/network/../../.gitbook/assets/ovn_kubernetes.png",
+      "source": ".gitbook/assets/ovn_kubernetes.png",
+      "bytes": 106577
+    },
+    {
+      "localized": "extension/network/../../.gitbook/assets/romana (2).png",
+      "source": ".gitbook/assets/romana (2).png",
+      "bytes": 47240
+    },
+    {
+      "localized": "extension/network/../../.gitbook/assets/routeagg (2).png",
+      "source": ".gitbook/assets/routeagg (2).png",
+      "bytes": 110667
+    },
+    {
+      "localized": "extension/network/../../.gitbook/assets/cidr (2).png",
+      "source": ".gitbook/assets/cidr (2).png",
+      "bytes": 109449
+    },
+    {
+      "localized": "extension/network/../../.gitbook/assets/sriov.png",
+      "source": ".gitbook/assets/sriov.png",
+      "bytes": 76385
+    },
+    {
+      "localized": "introduction/../.gitbook/assets/scale (2).png",
+      "source": ".gitbook/assets/scale (2).png",
+      "bytes": 45409
+    },
+    {
+      "localized": "introduction/../.gitbook/assets/architecture (7).png",
+      "source": ".gitbook/assets/architecture (7).png",
+      "bytes": 268126
+    },
+    {
+      "localized": "introduction/../.gitbook/assets/pod (5).png",
+      "source": ".gitbook/assets/pod (5).png",
+      "bytes": 88717
+    },
+    {
+      "localized": "introduction/../.gitbook/assets/node (3).png",
+      "source": ".gitbook/assets/node (3).png",
+      "bytes": 131722
+    },
+    {
+      "localized": "introduction/../.gitbook/assets/14731220608865.png",
+      "source": ".gitbook/assets/14731220608865.png",
+      "bytes": 175925
+    },
+    {
+      "localized": "introduction/../.gitbook/assets/architecture (10).png",
+      "source": ".gitbook/assets/architecture (10).png",
+      "bytes": 268126
+    },
+    {
+      "localized": "practice/../.gitbook/assets/ha (5).png",
+      "source": ".gitbook/assets/ha (5).png",
+      "bytes": 96238
+    },
+    {
+      "localized": "practice/../.gitbook/assets/attach-vectors (1).png",
+      "source": ".gitbook/assets/attach-vectors (1).png",
+      "bytes": 92580
+    },
+    {
+      "localized": "practice/../.gitbook/assets/virtual-kubelet (2).png",
+      "source": ".gitbook/assets/virtual-kubelet (2).png",
+      "bytes": 58105
+    },
+    {
+      "localized": "setup/component-watchlist.json",
+      "source": "setup/component-watchlist.json",
+      "bytes": 20982,
+      "source_bytes": 21168,
+      "note": "The support_notes strings are translated; all machine component facts match the source."
+    },
+    {
+      "localized": "troubleshooting/../examples/ssh.yaml",
+      "source": "examples/ssh.yaml",
+      "bytes": 756
+    }
+  ],
+  "missing_assets": [
+    {
+      "source_page": "network/midonet/index.md",
+      "localized_page": "network/midonet/index.md",
+      "source_asset": "1.png",
+      "reason": "Referenced asset is absent from the source repository; replaced with a note in the localized page."
+    },
+    {
+      "source_page": "network/midonet/index.md",
+      "localized_page": "network/midonet/index.md",
+      "source_asset": "2.png",
+      "reason": "Referenced asset is absent from the source repository; replaced with a note in the localized page."
+    }
+  ]
+}

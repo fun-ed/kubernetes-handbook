@@ -11,6 +11,8 @@ Istio 使用控制平面管理数据平面代理。当前控制平面由 `istiod
 
 同一应用不要同时通过注入标签和 ambient 标签加入两种数据平面。先确认 Kubernetes 版本、平台、CNI、策略和所需流量功能是否在当前 Istio 支持表中，再选择模式。见 [Istio ambient 文档](https://istio.io/latest/docs/ambient/)。
 
+本书另有 [Ambient 模式专章](ambient.md)，介绍 ztunnel、waypoint 与流量政策的角色；实际功能与兼容性仍应依部署版本的官方文件判定。
+
 ## 安装与日常检查
 
 [安装章节](istio-deploy.md)使用 `istioctl` 安装 Istio，并给出两种模式的 namespace 标签。部署前应固定 Istio release、查看官方 Kubernetes 支持表，并检查所用安装 profile。
@@ -25,6 +27,4 @@ istioctl proxy-status
 
 ## 旧版本章节
 
-本目录中旧的 Mixer 指标、Mixer 策略、`RbacConfig`、`ServiceRole`、手工 `kube-inject` 与 Galley 部署步骤均属于早期 Istio 版本。它们在各自页面标记为历史内容，不能应用于当前 Istio。
-
-当前流量管理与安全配置见 [Istio 官方文档](https://istio.io/latest/docs/)，不要把历史 CRD 示例改写成当前 API 而不先确认 schema 和版本。
+本目录中的旧 Mixer 指标、Mixer 策略、`RbacConfig`、`ServiceRole`、手工 `kube-inject` 与 Galley 部署教程已移入[历史归档](https://github.com/fun-ed/kubernetes-handbook/blob/main/archive/index.md)。它们的 API 和安装步骤不适用于当前 Istio。当前 API schema、安装方式和 Kubernetes 支持范围应以 Istio 对应 release 的官方文档为准。
