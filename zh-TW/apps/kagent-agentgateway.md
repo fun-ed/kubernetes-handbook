@@ -296,6 +296,42 @@ agentgateway UI 與模型入口是不同服務。本例未安裝 agentgateway UI
 - kagent UI 的 chart Service 為 `ClusterIP` 並關閉 Route／HTTPRoute，但 `controller.auth.mode=unsecure` 不提供認證。僅在受信任隔離測試環境使用，並以 loopback port-forward 存取；production 必須設定認證。
 - 將 prompt、工具輸入／輸出與模型回覆視為可能含機密的資料。設定保留、存取及日誌政策，避免在除錯輸出中記錄 Secret、token、個人資料或不必要的 prompt。
 
+## 後續研究：Microsoft Agent Host 與自訂 Harness
+
+本節是截至 **2026-10-07** 的官方資料核對與候選設計，尚未實作或部署，不改變前面的模型路由範例。MCP、A2A 與 AHP 是不同契約；不能把協定發布版本當成固定版 kagent／agentgateway 的互通認證。
+
+### 協定與執行模型
+
+- [Microsoft VS Code Agent Host](https://code.visualstudio.com/blogs/2026/08/26/agent-host-architecture)擁有 agent session，並透過 Agent Host Protocol（AHP）同步多個用戶端。官方 Claude adapter 使用 Anthropic Claude Agent SDK，映射 sessions、tools、permissions 與 subagents。這不是原生 A2A server，也不等於 Microsoft Agent Framework、Azure Foundry Hosted Agents 或 kagent AgentHarness。
+- [AHP spec 1.0.0](https://github.com/microsoft/agent-host-protocol/releases/tag/spec/v1.0.0)於 2026-10-02 發布；[changelog](https://github.com/microsoft/agent-host-protocol/blob/main/CHANGELOG.md)中的 1.1.0 尚未發布。協定、語言 SDK 與 VS Code 主程式獨立版本化。AHP MCP channel 的「1.2 release candidate」是[穩定性等級](https://github.com/microsoft/agent-host-protocol/blob/main/docs/specification/versioning.md)，不是 MCP 版本。
+- [MCP 2026-07-28](https://modelcontextprotocol.io/specification/2026-07-28/changelog)改為無狀態請求模型；[A2A 1.0](https://a2a-protocol.org/v1.0.0/specification/)的 Agent Card 使用 `supportedInterfaces[]` 宣告各介面的 URL、binding 與協定版本。[kagent BYO 文件](https://kagent.dev/docs/kagent/0.x/examples/a2a-byo.md)中的舊 Card 範例不能證明 A2A 1.0 互通。AHP、Harness SDK 及固定版 gateway 對這些協定版本的支援須另外核對。
+
+### 候選方案比較
+
+| 方案 | 適用方向 | 需要額外處理 |
+| --- | --- | --- |
+| Claude Agent SDK／自訂 Harness 加 A2A wrapper | 以 headless task workflow 為主 | Card、task、stream、cancel、認證與 session 隔離。本次未確認可直接套用的官方 Claude SDK→A2A adapter。 |
+| VS Code Agent Host／AHP | 互動 coding、多用戶端、人工批准與持續 session | 容器執行環境、用戶端依賴、身分驗證；需要 A2A 呼叫時另加 facade。 |
+| 自製 AHP-compatible host | 自己管理 Harness 與執行映像 | AHP state、reducers、capability negotiation、批准流程及 workspace 生命週期；任意 image 不會自動註冊為 VS Code host adapter。 |
+
+這是設計比較，不是效能測試。AHP 標準化用戶端工作階段，不規定 Harness 內部如何推理、管理上下文或呼叫工具。
+
+### Kubernetes 與跨 namespace 候選設計
+
+1. namespace A 的 AHP client 經受保護的 WSS 入口連接 namespace B 的 Agent Host。B 按 tenant／workspace 隔離 Harness 與工作目錄，再用 MCP client 呼叫 namespace C 的已核准工具。agentgateway 可列為模型或 MCP 出站入口候選，但需核對具體供應商 API、協定版本與認證，不推定透明相容。
+2. 若 kagent／A2A caller 也要呼叫 B，需獨立 A2A facade，把 task／context／message 映射為 AHP session／chat／turn，並處理結果、stream、approval、cancel 與重試冪等。不能直接把 AHP WebSocket 位址當成 A2A endpoint。
+3. 跨 namespace Service DNS 不等於授權。分別檢查 caller egress、目標 ingress、DNS、TLS、token audience／scope 與 task／tool owner。直接 DNS 呼叫不需要 `ReferenceGrant`；使用 Gateway API 時，跨 namespace Route attachment 與 backend 引用須遵守[各自規則](https://gateway-api.sigs.k8s.io/guides/multiple-ns/)。
+
+### 部署與驗收邊界
+
+- 官方[獨立 host](https://code.visualstudio.com/docs/agents/concepts/agent-host)命令為 `code agent host`，預設 localhost 並有 connection token。Service 不能讓其他 Pod 直接存取 localhost listener；須依目標版本核對 bind、port、token 與 TLS／proxy 契約，不杜撰 CLI flags。
+- 官方[遠端與 Dev Container 工作流程](https://code.visualstudio.com/docs/agents/run/remote-agent-sessions)不證明已有 Kubernetes Helm／operator、相容性矩陣或 SLA；本次未確認這些支援。用戶端重連也不等於 Pod 重啟後復原同一個 live Harness；PVC、Service 與增加 replicas 不會自動提供 HA 或 workspace ownership。
+- 候選容器採用 non-root、最小 ServiceAccount、獨立 workspace 與受限 egress；不掛 Docker socket 或 hostPath，無需 API 時不自動掛載 SA token。憑證不得來自個人訂閱登入狀態；依 Harness／供應商正式支援的授權方式設定。
+- Host 的基線能力可在用戶端離線時繼續，但用戶端貢獻的工具仍依賴該用戶端。批准者離線時應暫停或拒絕，不自動切換 allow-all。[自動批准不是 OS 安全邊界](https://code.visualstudio.com/docs/agents/run/security)，也不能將 Copilot sandbox 的支援推定涵蓋 Claude／自訂 Harness。
+- Host 讀取 `.mcp.json` 與 `~/.copilot/mcp-config.json`；`.vscode/mcp.json` 需要 VS Code 轉送且有互動輸入限制。headless 容器不能假設擁有編輯器的 secrets store 或認證互動。
+
+後續隔離 POC 應分別驗收協定協商、WSS／身分驗證、多用戶端同步與離線批准、Pod replacement、唯讀 MCP 呼叫、A2A task／turn／取消映射、tenant 隔離，以及 image／SDK／服務的授權條款。以上尚未執行，不構成正式環境相容性認證。
+
 ## 官方來源
 
 - [kagent 官方 0.x 使用 agentgateway 教學](https://kagent.dev/docs/kagent/0.x/examples/agentgateway/)
