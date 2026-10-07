@@ -27,6 +27,8 @@ Kubernetes 發展迅速，已成為容器編排領域的主流平台。中文資
 
 本指南以 **Kubernetes v1.37.1** 為部署基準，元件版本快照截至 **2026-10-05**。升級前請閱讀 [v1.37 相容性指南](setup/kubernetes-v1.37.md)、[元件版本清單](setup/component-versions.md)及[版本支援策略](setup/upgrade.md)。
 
+以 v1.37 為最新分支時，官方維護 v1.37、v1.36、v1.35；這與各元件允許的版本偏差不同。對應版本表見 [Kubernetes 簡介](introduction/index.md)的「Kubernetes 版本」一節。
+
 舊版教學及資源已移至[封存區](https://github.com/fun-ed/kubernetes-handbook/blob/main/archive/README.md)，供歷史參考，不是目前的安裝指南。舊版 API、啟動參數、退役元件及雲端平台步驟不能只替換版本號後直接使用。元件發布了新版本，也不代表該版本已通過 Kubernetes v1.37 相容性驗證。詳細變更請參閱 [CHANGELOG](https://github.com/fun-ed/kubernetes-handbook/blob/main/CHANGELOG.md)。
 
 本次現行內容檢查的範圍、修正、封存對照與未驗證項目，見[現行內容檢查記錄](setup/current-content-review.md)。
@@ -56,7 +58,7 @@ mise exec node@24.21.0 -- npm exec -- honkit build zh-TW /tmp/kubernetes-handboo
 
 ## 版本涵蓋範圍
 
-本版本涵蓋 `coverage.json` 列出的 178 篇目前內容，並包含本序言與完整目錄。清單納入主目錄未連結、但仍屬目前內容的範例、資訊清單說明、網路主題索引及附錄。封存的 46 篇 Markdown、英文版 `en/`、儲存庫維護規範及封存目錄頁面不納入本版本；排除項目與理由詳列於 `coverage.json`。程式碼範例、API 識別字、命令、URL 與資產檔名均依原文保留。
+本版本涵蓋 `coverage.json` 列出的 188 篇目前內容，並包含本序言與完整目錄。清單納入主目錄未連結、但仍屬目前內容的範例、資訊清單說明、網路主題索引及附錄。封存的 46 篇 Markdown、英文版 `en/`、儲存庫維護規範及封存目錄頁面不納入本版本；排除項目與理由詳列於 `coverage.json`。程式碼範例、API 識別字、命令、URL 與資產檔名均依原文保留。
 
 ## 授權
 

@@ -85,7 +85,7 @@ Kubernetes v1.33 為協商使用 JSON 或 Protobuf 的 List 回應新增逐項�
 * [kubectl](kubectl.md) 命令列工具
 * SDK，支援多種語言
   * [Go](https://github.com/kubernetes/client-go)
-  * [Python](https://github.com/kubernetes-incubator/client-python)
+  * [Python](https://github.com/kubernetes-client/python)
   * [Javascript](https://github.com/kubernetes-client/javascript)
   * [Java](https://github.com/kubernetes-client/java)
   * [CSharp](https://github.com/kubernetes-client/csharp)
@@ -95,9 +95,10 @@ Kubernetes v1.33 為協商使用 JSON 或 Protobuf 的 List 回應新增逐項�
 
 ```bash
 kubectl get --raw /api/v1/namespaces
-kubectl get --raw /apis/metrics.k8s.io/v1/nodes
-kubectl get --raw /apis/metrics.k8s.io/v1/pods
+kubectl get --raw /apis/metrics.k8s.io/v1beta1/nodes
+kubectl get --raw /apis/metrics.k8s.io/v1beta1/pods
 ```
+資源指標 API 的版本取決於已註冊的後端。本書基準 Metrics Server v0.9.0 註冊 `v1beta1.metrics.k8s.io`，未提供 `metrics.k8s.io/v1`；查詢前請檢查 API discovery。[Metrics Server v0.9.0 API 版本](https://github.com/kubernetes-sigs/metrics-server/blob/v0.9.0/README.md#compatibility-matrix)
 
 ### kubectl proxy
 

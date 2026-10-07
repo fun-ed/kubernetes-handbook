@@ -4,7 +4,7 @@ Horizontal Pod Autoscaler（HPA）根据 CPU、内存或已注册的自定义指
 
 * HPA 控制器定期读取指标，并按比例计算所需副本数。
 * Resource 指标由 Metrics API 提供；Pod、Object 和 External 自定义指标需要相应的 metrics API adapter。
-* 使用 HPA 前，需要部署与集群版本兼容的 metrics-server。Kubernetes v1.37 的资源指标 API 为 `metrics.k8s.io/v1`，指标后端也必须提供该版本。
+* 使用 HPA 前，需要部署与集群版本兼容的 metrics-server。Kubernetes v1.37 的 `metrics.k8s.io/v1` API 已稳定，但 API 后端实际提供的版本取决于所用实现。本书基线 Metrics Server v0.9.0 仅注册并提供 `metrics.k8s.io/v1beta1`，Kubernetes v1.37.1 的 HPA 资源指标客户端也使用 v1beta1；`kubectl top` 可先查询 v1，再回退至 v1beta1。请以集群 API discovery 为准，不要假设后端提供 v1。[Metrics Server v0.9.0 兼容矩阵](https://github.com/kubernetes-sigs/metrics-server/blob/v0.9.0/README.md#compatibility-matrix) · [Kubernetes v1.37.1 HPA client](https://github.com/kubernetes/kubernetes/blob/v1.37.1/pkg/controller/podautoscaler/metrics/client.go)
 
 Node 自动扩展请参考 [Cluster Autoscaler](../../setup/addon-list/cluster-autoscaler.md)。
 

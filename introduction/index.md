@@ -48,19 +48,34 @@ Kubernetes 集群由控制平面和工作节点组成。控制平面通过 API S
 
 ## Kubernetes 版本
 
-本手册的当前操作说明以 Kubernetes v1.37.1 为准。升级前请核对目标发行版的版本、组件版本和 API 兼容性。Kubernetes 项目维护最近三个次要版本分支；v1.19 及之后的版本通常获得约一年的补丁支持。实际支持状态以[发行版页面](https://kubernetes.io/releases/)为准。
+本节提供版本参考，不保证每个附加组件都支持表列版本。以下内容以本手册 **Kubernetes v1.37.1 / 2026-10-05 快照**，且 **v1.37 为最新次要版本分支**为前提。Kubernetes 项目维护最新次要版本分支及前两个分支：
 
-### 历史版本发布记录（2017 至 2019 年，不代表当前支持状态）
+| 发布分支 | 此快照中的状态 |
+| --- | --- |
+| v1.37 | 最新维护中的次要版本分支；本手册基线为 v1.37.1。 |
+| v1.36 | 前一个维护中的次要版本分支。 |
+| v1.35 | 前两个维护中的次要版本分支。 |
 
-| Kubernetes version | Release month | End-of-life-month |
-| :--- | :--- | :--- |
-| v1.6.x | March 2017 | December 2017 |
-| v1.7.x | June 2017 | March 2018 |
-| v1.8.x | September 2017 | June 2018 |
-| v1.9.x | December 2017 | September 2018 |
-| v1.10.x | March 2018 | December 2018 |
-| v1.11.x | June 2018 | March 2019 |
+这三个分支不是对未来三个版本的兼容承诺。补丁版本和生命周期日期会变动，请查看[官方 Kubernetes 发布页面](https://kubernetes.io/releases/)确认当前最新补丁和支持状态。Kubernetes 1.19 及更新版本通常获得约一年的补丁支持，具体以官方政策为准。本手册保留旧版本内容，用于说明历史设计和帮助迁移；归档内容或旧示例不是当前部署指南。
+
+### v1.37 API server 的组件版本偏差
+
+下表以**稳态时所有 kube-apiserver 均为 v1.37.x**为基准；HA 升级期间短暂混跑的情况另列于第一行。表中列出上游版本偏差允许范围，不代表建议任意混用补丁版本。请遵循[官方版本偏差策略](https://kubernetes.io/releases/version-skew-policy/)以及部署工具更严格的规则。
+
+| 组件 | 允许的次要版本 |
+| --- | --- |
+| HA 集群中的 kube-apiserver | 仅在升级过渡期间可混用 v1.36 和 v1.37；各实例间最多相差一个次要版本。 |
+| kubelet | v1.34–v1.37。版本不得高于任何 API server。 |
+| kube-proxy | v1.34–v1.37，且与同一节点上的 kubelet 最多相差三个次要版本。版本不得高于任何 API server。 |
+| kube-controller-manager、kube-scheduler、cloud-controller-manager | v1.36–v1.37；版本不得高于其通信对象中的任何 API server。 |
+| kubectl | v1.36–v1.38，比 API server 最多旧或新一个次要版本。此偏差范围不表示 v1.38 已发布。 |
+
+HA 升级期间若 API server 混用不同版本，其他组件的允许范围会缩小：必须逐一符合每个 API server 的版本偏差限制，不能只对照最新版本。升级不得跳过次要版本。v1.34 kubelet 虽在 v1.37 API server 的偏差允许范围内，但这不表示 v1.34 分支仍受官方维护。CNI、CSI 和第三方组件的兼容性须另行核对；Kubernetes 组件版本偏差策略不为它们提供兼容性认证。
+
+本手册基线及各组件的兼容性证据，请参阅 [v1.37.1 适配指南](../setup/kubernetes-v1.37.md)、[组件版本矩阵](../setup/component-versions.md)和[升级指南](../setup/upgrade.md)。
+
 ## 参考文档
+
 
 * [What is Kubernetes?](https://kubernetes.io/docs/concepts/overview/what-is-kubernetes/)
 * [HOW CUSTOMERS ARE REALLY USING KUBERNETES](https://apprenda.com/blog/customers-really-using-kubernetes/)

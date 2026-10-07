@@ -100,7 +100,7 @@ roleRef:
 
 從 v1.9 開始，在 ClusterRole 中可以透過 `aggregationRule` 來與其他 ClusterRole 聚合使用（該特性在 v1.11 GA）。
 
-比如
+本範例保留仍讀取 Endpoints 的用戶端所需權限，並授權讀取目前用於 Service 後端的 EndpointSlices。實際角色應依監控元件所需權限再行收斂。
 
 ```yaml
 kind: ClusterRole
@@ -123,6 +123,9 @@ metadata:
 rules:
 - apiGroups: [""]
   resources: ["services", "endpoints", "pods"]
+  verbs: ["get", "list", "watch"]
+- apiGroups: ["discovery.k8s.io"]
+  resources: ["endpointslices"]
   verbs: ["get", "list", "watch"]
 ```
 

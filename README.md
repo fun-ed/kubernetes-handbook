@@ -29,6 +29,8 @@ Kubernetes 发展非常迅速，已经成为容器编排领域的领导者。Kub
 
 本指南的当前部署基线为 **Kubernetes v1.37.1**，组件版本快照截止于 **2026-10-05**。升级前请阅读 [v1.37 适配指南](setup/kubernetes-v1.37.md)、[组件版本清单](setup/component-versions.md)和[版本支持策略](setup/upgrade.md)。
 
+以 v1.37 为最新分支时，官方维护 v1.37、v1.36、v1.35；这与各组件允许的版本偏差不同。对应版本表见 [Kubernetes 简介](introduction/index.md)的“Kubernetes 版本”一节。
+
 旧版教程和资源已归档，作为历史参考，不是当前安装指南。请查看[归档说明](https://github.com/fun-ed/kubernetes-handbook/blob/main/archive/README.md)和[归档目录](https://github.com/fun-ed/kubernetes-handbook/blob/main/archive/index.md)。旧版本的 API、启动参数、已退役组件和云平台步骤不能通过替换版本号直接复用。组件已发布最新版本也不等于已经验证对 v1.37 的兼容性。详细更新记录见 [CHANGELOG](CHANGELOG.md)，逐文件复核范围和未验证事项见[现行内容更新复核](setup/current-content-review.md)。
 
 本次升级的 SOP：

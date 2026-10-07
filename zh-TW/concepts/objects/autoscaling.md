@@ -4,7 +4,7 @@ Horizontal Pod Autoscaler（HPA）根據 CPU、記憶體或已註冊的自訂指
 
 * HPA 控制器定期讀取指標，並按比例計算所需副本數。
 * Resource 指標由 Metrics API 提供；Pod、Object 和 External 自訂指標需要相應的指標配接器。
-* 使用 HPA 前，需要部署與叢集版本相容的 metrics-server。Kubernetes v1.37 的資源指標 API 為 `metrics.k8s.io/v1`，指標後端也必須提供該版本。
+* 使用 HPA 前，需要部署與叢集版本相容的 metrics-server。Kubernetes v1.37 的 `metrics.k8s.io/v1` API 已達穩定版，但 API 後端實際提供的版本取決於所用實作。本書基準 Metrics Server v0.9.0 僅註冊並提供 `metrics.k8s.io/v1beta1`，Kubernetes v1.37.1 的 HPA 資源指標用戶端也使用 v1beta1；`kubectl top` 可先查詢 v1，再回退至 v1beta1。請以叢集 API discovery 為準，不要假設後端提供 v1。[Metrics Server v0.9.0 相容矩陣](https://github.com/kubernetes-sigs/metrics-server/blob/v0.9.0/README.md#compatibility-matrix) · [Kubernetes v1.37.1 HPA client](https://github.com/kubernetes/kubernetes/blob/v1.37.1/pkg/controller/podautoscaler/metrics/client.go)
 
 Node 自動擴充套件請參考 [Cluster Autoscaler](../../setup/addon-list/cluster-autoscaler.md)。
 
@@ -18,21 +18,21 @@ Node 自動擴充套件請參考 [Cluster Autoscaler](../../setup/addon-list/clu
 ## 範例
 
 ```bash
-# 创建 Deployment 并配置 CPU request
+# 建立 Deployment 並設定 CPU request
 kubectl create deployment php-apache --image=registry.k8s.io/hpa-example
 kubectl set resources deployment/php-apache --requests=cpu=200m
 kubectl expose deployment php-apache --port=80
 
-# 创建 HPA
+# 建立 HPA
 kubectl autoscale deployment php-apache --cpu-percent=50 --min=1 --max=10
 kubectl get hpa
 
-# 启动持续请求负载；观察 HPA 副本数变化
+# 啟動持續請求負載；觀察 HPA 副本數變化
 kubectl run load-generator --image=busybox:1.37.0 --restart=Never -- \
   sh -c 'while true; do wget -q -O- http://php-apache.default.svc.cluster.local >/dev/null; done'
 kubectl get hpa --watch
 
-# 停止负载
+# 停止負載
 kubectl delete pod load-generator
 ```
 
@@ -103,9 +103,9 @@ spec:
   maxReplicas: 20
   behavior:
     scaleDown:
-      tolerance: 0.05  # 5% 容忍度用于缩容
+      tolerance: 0.05  # 5% 容忍度用於縮容
     scaleUp:
-      tolerance: 0     # 0% 容忍度用于扩容（更敏感）
+      tolerance: 0     # 0% 容忍度用於擴容（更敏感）
   metrics:
   - type: Resource
     resource:
@@ -121,14 +121,14 @@ spec:
    ```yaml
    behavior:
      scaleUp:
-       tolerance: 0.02  # 2% 容忍度，快速扩容
+       tolerance: 0.02  # 2% 容忍度，快速擴容
    ```
 
 2. **保守縮容**：設定較高的縮容容忍度，避免頻繁縮容
    ```yaml
    behavior:
      scaleDown:
-       tolerance: 0.15  # 15% 容忍度，稳定缩容
+       tolerance: 0.15  # 15% 容忍度，穩定縮容
    ```
 
 3. **不同工作負載的自訂策略**：以下是兩種互相獨立的 `spec.behavior` 片段，請依工作負載擇一設定；不要將兩個片段合併為同一個 `behavior` mapping。

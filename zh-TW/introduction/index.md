@@ -48,18 +48,32 @@ Kubernetes 叢集由控制平面和工作節點組成。控制平面透過 API S
 
 ## Kubernetes 版本
 
-本手冊的當前操作說明以 Kubernetes v1.37.1 為準。升級前請核對目標發行版的版本、元件版本和 API 相容性。Kubernetes 專案維護最近三個次要版本分支；v1.19 及之後的版本通常獲得約一年的補丁支援。實際支援狀態以[發行版頁面](https://kubernetes.io/releases/)為準。
+本節說明版本，不保證每個附加元件都支援表列版本。以下內容以本手冊 **Kubernetes v1.37.1 / 2026-10-05 快照**，且 **v1.37 為最新次版本分支**為前提。Kubernetes 專案維護最新次版本分支及前兩個分支：
 
-### 歷史版本釋出記錄（2017 至 2019 年，不代表當前支援狀態）
+| 釋出分支 | 此快照中的狀態 |
+| --- | --- |
+| v1.37 | 最新維護中的次版本分支；本手冊基線為 v1.37.1。 |
+| v1.36 | 前一個維護中的次版本分支。 |
+| v1.35 | 前兩個維護中的次版本分支。 |
 
-| Kubernetes version | Release month | End-of-life-month |
-| :--- | :--- | :--- |
-| v1.6.x | March 2017 | December 2017 |
-| v1.7.x | June 2017 | March 2018 |
-| v1.8.x | September 2017 | June 2018 |
-| v1.9.x | December 2017 | September 2018 |
-| v1.10.x | March 2018 | December 2018 |
-| v1.11.x | June 2018 | March 2019 |
+這三個分支不是對未來三個版本的相容承諾。補丁版本及生命週期日期會變動，請查看[官方 Kubernetes 釋出頁面](https://kubernetes.io/releases/)確認最新補丁與支援狀態。Kubernetes 1.19 及更新版本通常有約一年的補丁支援，實際以官方政策為準。本手冊保留舊版本內容，供了解歷史設計與協助遷移；封存內容或舊範例不是目前的部署指引。
+
+### v1.37 API server 的元件版本偏差
+
+下表以**穩態時所有 kube-apiserver 都是 v1.37.x**為基準；HA 升級期間短暫混跑的情況另列於第一列。表中列出上游版本偏差允許範圍，不代表建議任意混用補丁版本。請遵循[官方版本偏差策略](https://kubernetes.io/releases/version-skew-policy/)及部署工具更嚴格的規則。
+
+| 元件 | 允許的次版本 |
+| --- | --- |
+| HA 叢集中的 kube-apiserver | 僅在升級過渡期間可混用 v1.36 與 v1.37；各執行個體間最多相差一個次版本。 |
+| kubelet | v1.34–v1.37。版本不得高於任何 API server。 |
+| kube-proxy | v1.34–v1.37，且與同一節點上的 kubelet 最多相差三個次版本。版本不得高於任何 API server。 |
+| kube-controller-manager、kube-scheduler、cloud-controller-manager | v1.36–v1.37；版本不得高於其通訊對象中的任何 API server。 |
+| kubectl | v1.36–v1.38，比 API server 最多舊或新一個次版本。此偏差範圍不代表 v1.38 已釋出。 |
+
+HA 升級期間若 API server 混用不同版本，其他元件的允許範圍會縮小：必須逐一符合每個 API server 的版本偏差限制，不能只比對最新版本。升級不得跳過次版本。v1.34 kubelet 雖在 v1.37 API server 的偏差允許範圍內，但這不表示 v1.34 分支仍受官方維護。CNI、CSI 和第三方元件的相容性須另外核對；Kubernetes 元件版本偏差策略不會替它們提供相容性認證。
+
+本手冊基線及各元件的相容性證據，請參閱 [v1.37.1 相容性指南](../setup/kubernetes-v1.37.md)、[元件版本矩陣](../setup/component-versions.md)和[升級指南](../setup/upgrade.md)。
+
 ## 參考文件
 
 * [What is Kubernetes?](https://kubernetes.io/docs/concepts/overview/what-is-kubernetes/)

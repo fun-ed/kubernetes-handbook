@@ -142,6 +142,7 @@
 
 * [KubeVirt](apps/kubevirt.md)
 * [Kubeflow](apps/kubeflow.md)
+* [kagent 與 agentgateway](apps/kagent-agentgateway.md)
 
 ## 實踐案例 <a id="practice"></a>
 

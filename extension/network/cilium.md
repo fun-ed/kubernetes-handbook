@@ -16,7 +16,7 @@
 
 ## 当前安装（2026-10-05）
 
-Cilium v1.20.2 是截至 2026-10-05 的最新稳定版本。其 Helm chart 版本与 Cilium 版本一致。官方安装文档要求配置 Kubernetes CNI 网络，并要求 Linux kernel 5.10 或更高版本。安装前确认集群没有另一个不兼容的主 CNI。
+Cilium v1.20.2 是截至 2026-10-05 的最新稳定版本，其 Helm chart 版本与 Cilium 版本一致。官方兼容矩阵只列 Kubernetes 1.33–1.36；未列出本书基线 v1.37.1，因此不能据此认定两者相容。以下命令仅适用于已确认位于官方兼容范围内的集群，不是 Kubernetes v1.37.1 部署指引。官方安装文档要求配置 Kubernetes CNI 网络，并要求 Linux kernel 5.10 或更高版本。安装前确认集群没有另一个不兼容的主 CNI。
 
 ```bash
 helm repo add cilium https://helm.cilium.io/
@@ -26,7 +26,7 @@ helm install cilium cilium/cilium \
   --namespace kube-system
 ```
 
-截至 2026-10-05，Cilium v1.20 官方兼容矩阵仅列 Kubernetes 1.33、1.34、1.35 和 1.36 为端到端测试并保证兼容的版本；未列出 Kubernetes v1.37，因此不要宣称 Cilium v1.20.2 已验证支持 Kubernetes v1.37.1。其策略示例使用 Cilium CRD 的 `cilium.io/v2` API，不要仅凭 CRD API 版本推断控制器兼容性。
+其策略示例使用 Cilium CRD 的 `cilium.io/v2` API；不能仅凭 CRD API 版本推断控制器与 Kubernetes 的兼容性。
 
 来源：[Cilium v1.20.2 release](https://github.com/cilium/cilium/releases/tag/v1.20.2)、[Cilium v1.20 Kubernetes 兼容矩阵](https://docs.cilium.io/en/v1.20/network/kubernetes/compatibility/)、[Cilium v1.20 Helm 安装指南](https://docs.cilium.io/en/v1.20/installation/k8s-install-helm/)。
 

@@ -205,6 +205,10 @@
       "localized": "apps/istio/istio-troubleshoot.md"
     },
     {
+      "source": "apps/kagent-agentgateway.md",
+      "localized": "apps/kagent-agentgateway.md"
+    },
+    {
       "source": "apps/kubeflow.md",
       "localized": "apps/kubeflow.md"
     },

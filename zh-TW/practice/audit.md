@@ -6,7 +6,7 @@ Kubernetes audit records 記錄 API 請求的時間、主體、資源和響應�
 
 ## v1.37 審計策略
 
-規則按順序匹配，第一條匹配規則決定事件級別。下面的策略跳過 `RequestReceived` 階段、排除 kube-proxy 的常見 endpoints/services watch，並記錄 Secret 與 ConfigMap 的 metadata、應用資源的變更請求和其他請求的 metadata。它不會記錄 Secret 請求體。
+規則按順序匹配，第一條匹配規則決定事件級別。以下策略略過 `RequestReceived` 階段、排除 kube-proxy 對 Services、Endpoints 和 EndpointSlices 的 watch，並記錄 Secret 與 ConfigMap 的 metadata、應用程式資源的變更請求和其他請求的 metadata。Endpoints API 自 v1.33 起已棄用，但仍提供；此處保留其規則以相容仍讀取該 API 的用戶端，見[官方遷移說明](https://kubernetes.io/blog/2025/04/24/endpoints-deprecation/)。採用排除規則前，請根據目標叢集的審計事件確認主體、verb 和資源。此策略不會記錄 Secret 請求本文。
 
 ```yaml
 apiVersion: audit.k8s.io/v1
@@ -20,6 +20,8 @@ rules:
     resources:
       - group: ""
         resources: ["endpoints", "services"]
+      - group: "discovery.k8s.io"
+        resources: ["endpointslices"]
   - level: Metadata
     resources:
       - group: ""
